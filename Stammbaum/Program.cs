@@ -1,8 +1,6 @@
 ﻿
-using PdfSharpCore;
-using PdfSharpCore.Pdf;
-
 using System.Linq;
+using Stammbaum.DataStructures;
 
 
 namespace Stammbaum
@@ -11,76 +9,6 @@ namespace Stammbaum
 
     class Program
     {
-
-
-        public class Data
-        {
-            public long person;
-            public long ancestor;
-            public string Gender;
-            public string Name;
-            public System.DateTime? dtBirthDate;
-            public string PlaceOfBirth;
-            public string Obit;
-            public string Education;
-            public int generation;
-            public string ParentsFirstName;
-            public string ParentsLastName;
-        }
-
-
-        public static string GetEmbeddedResource(string resourceName)
-        {
-            string resource = null;
-
-            System.Reflection.Assembly asm =
-                System.Reflection.IntrospectionExtensions.GetTypeInfo(typeof(Program)).Assembly;
-
-
-            string foundResourceName = null;
-
-            foreach (string thisResourceName in asm.GetManifestResourceNames())
-            {
-                if (thisResourceName.EndsWith(resourceName, System.StringComparison.OrdinalIgnoreCase))
-                {
-                    foundResourceName = thisResourceName;
-                    break;
-                }
-            }
-
-            if (foundResourceName == null)
-                throw new System.IO.InvalidDataException("The provided resourceName is not present.");
-
-            using (var strm = asm.GetManifestResourceStream(foundResourceName))
-            {
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(strm))
-                {
-                    resource = sr.ReadToEnd();
-                }
-            }
-
-            return resource;
-        }
-
-
-        public class TreeInfo
-        {
-            public System.Collections.Generic.List<Data> AllData;
-            public System.Collections.Generic.List<System.Collections.Generic.List<Data>> ls;
-
-
-            public int MaxGeneration;
-            public int MaxPresence;
-
-
-            public TreeInfo()
-            {
-                this.ls = new System.Collections.Generic.List<System.Collections.Generic.List<Data>>();
-
-            }
-
-
-        }
 
 
         public static TreeInfo GetAncestors()
@@ -124,22 +52,21 @@ namespace Stammbaum
 
             CoreDb.ReadDAL DAL = new CoreDb.ReadDAL(config);
 
-
-
-            string sql = GetEmbeddedResource("Ahnen.sql");
-            ti.AllData = DAL.GetList<Data>(sql);
-
+            using (System.Data.Common.DbCommand cmd = DAL.CreateCommandFromFile(typeof(Program), "Ahnen.sql"))
+            {
+                ti.AllData = DAL.GetList<PersonData>(cmd);
+            }
 
             System.Console.WriteLine(ti.AllData);
 
             var lsAncestorGenerations = (
                 from ancestorList in ti.AllData
-                orderby ancestorList.generation ascending, ancestorList.person ascending
+                orderby ancestorList.generation ascending, ancestorList.Id ascending
                 group ancestorList by new { ancestorList.generation } into g
                 select new
                 {
                     Generation = g.Key.generation,
-                    PresenceCount = g.Count(x => x.ancestor > -1)
+                    PresenceCount = g.Count(x => x.Id > -1)
                 }
             ).ToList();
 
@@ -154,15 +81,16 @@ namespace Stammbaum
 
             for (int i = 0; i < ti.MaxGeneration; ++i)
             {
-                ti.ls.Add(new System.Collections.Generic.List<Data>());
+                ti.ls.Add(new System.Collections.Generic.List<PersonData>());
                 ti.ls[i].AddRange(
                      (
                         from ancestorList in ti.AllData
                         where ancestorList.generation == i
                         orderby
                           ancestorList.generation ascending
-                        , ancestorList.person ascending
-                        , ancestorList.Gender ascending
+                        , ancestorList.Child ascending
+                        , ancestorList.Id ascending
+                        , ancestorList.gender descending 
 
                         select ancestorList
                     ).ToList()
@@ -175,38 +103,18 @@ namespace Stammbaum
         }
 
 
-        public class Point
-        {
-            public double X;
-            public double Y;
-        }
-
-
-        public class ParentPair
-        {
-            public int Child;
-
-            public Point Mother;
-            public Point Father;
-        }
-
-
-
-
         static void Main(string[] args)
         {
             // TfsRemover.RemoveTFS();
-
             TreeInfo ti = GetAncestors();
-
 
             int maxNumPeople = (int)System.Math.Pow(2.0, (double) ti.MaxGeneration);
             System.Console.WriteLine(maxNumPeople);
 
             System.Collections.Generic.Dictionary<int, System.Collections.Generic.Dictionary<int
-                , PdfSharpCore.Drawing.XRect>> dict
+                , DataPoint>> dict
                 = new System.Collections.Generic.Dictionary<int
-                , System.Collections.Generic.Dictionary<int, PdfSharpCore.Drawing.XRect>>();
+                , System.Collections.Generic.Dictionary<int, DataPoint>>();
 
             PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = new FontResolver();
 
@@ -246,19 +154,22 @@ namespace Stammbaum
 
                 
                 int numGenerationsToList = 5;
-                int numItems = (int)System.Math.Pow(2, numGenerationsToList - 1);
+                int maxGenerationIndex = numGenerationsToList - 1;
+                int numItems = (int)System.Math.Pow(2, maxGenerationIndex);
+
 
                 page.Orientation = PdfSharpCore.PageOrientation.Landscape;
 
-                page.Width = marginLeft*2
+                page.Width = marginLeft * 2
                     + numItems * textBoxWidth
                     + (numItems / 2) * textBoxSmallHdistance
-                    + (numItems / 2-1) * textBoxLargeHdistance
+                    + (numItems / 2 - 1) * textBoxLargeHdistance
                 ;
 
-                page.Height = marginTop*2
+                page.Height = marginTop * 2
                     + numGenerationsToList * textBoxHeight
-                    + (numGenerationsToList -1)* textBoxVdistance;
+                    + (numGenerationsToList - 1) * textBoxVdistance
+                ;
 
 
 
@@ -272,7 +183,7 @@ namespace Stammbaum
 
                 PdfSharpCore.Drawing.XFont font = new PdfSharpCore.Drawing.XFont("Arial"
                         , 12.0, PdfSharpCore.Drawing.XFontStyle.Bold
-                    );
+                );
 
 
                 using (PdfSharpCore.Drawing.XGraphics gfx = PdfSharpCore.Drawing.XGraphics.FromPdfPage(page))
@@ -285,20 +196,23 @@ namespace Stammbaum
                     PdfSharpCore.Drawing.Layout.XTextFormatterEx2 etf = new PdfSharpCore.Drawing.Layout.XTextFormatterEx2(gfx);
 
 
-                    // GO
-
-                    for (int generationNumber = 4; generationNumber > -1; --generationNumber)
+                    for (int generationNumber = maxGenerationIndex; generationNumber > -1; --generationNumber)
                     {
-                        dict[generationNumber] = new System.Collections.Generic.Dictionary<int, PdfSharpCore.Drawing.XRect>();
+                        dict[generationNumber] = new System.Collections.Generic.Dictionary<int, DataPoint>();
 
                         int num = (int)System.Math.Pow(2.0, generationNumber);
 
                         for (int i = 0; i < num; ++i)
                         {
-                            if (generationNumber != 4)
+                            if (generationNumber != maxGenerationIndex)
                             {
-                                var rect1 = dict[generationNumber + 1][i * 2];
-                                var rect2 = dict[generationNumber + 1][i * 2 + 1];
+                                
+                                var dp1 = dict[generationNumber + 1][i * 2];
+                                var dp2 = dict[generationNumber + 1][i * 2 + 1];
+
+                                var rect1 = dp1.rect;
+                                var rect2 = dp2.rect;
+
 
                                 double xNew = (rect1.TopLeft.X + rect2.TopRight.X) / 2.0;
                                 double yNew = marginTop
@@ -309,7 +223,17 @@ namespace Stammbaum
                                 gfx.DrawLine(pen, xNew, yNew + rect1.Height, rect2.X + rect2.Width/2.0, rect2.Y);
 
                                 xNew = xNew - rect1.Width / 2.0;
-                                dict[generationNumber][i] = new PdfSharpCore.Drawing.XRect(xNew, yNew, rect1.Width, rect1.Height);
+
+                                dict[generationNumber][i] = new DataPoint()
+                                {
+                                    Person = (
+                                                 from itemList in ti.ls[generationNumber]
+                                                 where itemList.Id == dp1.Person.Child
+                                                 select itemList
+                                             ).FirstOrDefault(),
+                                    rect = new Rectangle(xNew, yNew, rect1.Width, rect1.Height)
+                                };
+
                             }
                             else
                             {
@@ -328,40 +252,29 @@ namespace Stammbaum
 
                                 double rectY = marginTop
                                     + generationNumber * textBoxHeight
-                                    + generationNumber * textBoxVdistance;
+                                    + generationNumber * textBoxVdistance
+                                ;
 
-                                PdfSharpCore.Drawing.XRect rect = new PdfSharpCore.Drawing.XRect(rectX, rectY
-                                    , textBoxWidth, textBoxHeight
-                                );
 
-                                dict[generationNumber][i] = rect;
+                                dict[generationNumber][i] = new DataPoint()
+                                {
+                                    Person = ti.ls[generationNumber][i],
+                                    rect = new Rectangle(rectX, rectY, textBoxWidth, textBoxHeight)
+                                };
+
                             }
 
-                            gfx.DrawRectangle(pen, dict[generationNumber][i]);
+                            gfx.DrawRectangle(pen, dict[generationNumber][i].rect.ToXRect());
+
 
                             string text = $@"Generation {generationNumber} Person {i}";
+                            text = dict[generationNumber][i].Person.composite_name;
 
-                            if (i < ti.ls[generationNumber].Count)
-                            {
-                                text = ti.ls[generationNumber][i].ParentsFirstName
-                                    + " "
-                                    + ti.ls[generationNumber][i].ParentsLastName
-                                     + System.Environment.NewLine
-                                + "(" + ti.ls[generationNumber][i].Name 
-                                + " "
-                                + ti.ls[generationNumber][i].Gender.ToString()
-                                + ")"
-                                    + System.Environment.NewLine;
-                            }
-                            else
-                            {
-                                text = ti.ls[1][0].Name;
-                            }
 
                             tf.DrawString(text
                                         , font
                                         , PdfSharpCore.Drawing.XBrushes.Black
-                                        , dict[generationNumber][i]
+                                        , dict[generationNumber][i].rect.ToXRect()
                                         , PdfSharpCore.Drawing.XStringFormats.TopLeft
                             );
 

@@ -6,14 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="SQL\Ahnen.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="XColorHelper\_info.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="SQL\Power2.sql" />
     <EmbeddedResource Include="SQL\Ahnen.sql" />
   </ItemGroup>
 

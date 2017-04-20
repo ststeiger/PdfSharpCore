@@ -7,8 +7,6 @@ namespace Stammbaum
     {
 
 
-
-
         public static void RemoveTFS(string path)
         {
             string input = System.IO.File.ReadAllText(path, System.Text.Encoding.UTF8);
@@ -51,8 +49,6 @@ lorem ipsum";
             System.Console.WriteLine(output);
             System.IO.File.WriteAllText(path, output);
         }
-
-
 
 
         public static void RemoveTFS()
