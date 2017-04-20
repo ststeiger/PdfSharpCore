@@ -26,6 +26,6 @@
     <ProjectReference Include="..\PdfSharpCore\PdfSharpCore.csproj" />
   </ItemGroup>
 
-  <Import Project="..\..\Loggy\CoreDb\CoreDb.projitems" Label="Shared" />
+  <Import Project="..\..\CoreDAL\CoreDb\CoreDb.projitems" Label="Shared" />
 
 </Project>

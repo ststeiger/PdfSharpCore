@@ -22,11 +22,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CoreDb", "..\Loggy\CoreDb\CoreDb.shproj", "{38C40453-132F-41F0-9922-55D64402B0BD}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CoreDb", "..\CoreDAL\CoreDb\CoreDb.shproj", "{38C40453-132F-41F0-9922-55D64402B0BD}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\Loggy\CoreDb\CoreDb.projitems*{38c40453-132f-41f0-9922-55d64402b0bd}*SharedItemsImports = 13
+		..\CoreDAL\CoreDb\CoreDb.projitems*{38c40453-132f-41f0-9922-55d64402b0bd}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
