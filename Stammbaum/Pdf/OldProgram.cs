@@ -1,4 +1,5 @@
 ﻿
+using ImageSharp;
 using PdfSharpCore;
 using PdfSharpCore.Pdf;
 
@@ -21,7 +22,7 @@ namespace Stammbaum
             PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = new FontResolver();
 
             MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes
-                .ImageSource.ImageSourceImpl = new PdfSharpCore.ImageSharp.ImageSharpImageSource();
+                .ImageSource.ImageSourceImpl = new PdfSharpCore.ImageSharp.ImageSharpImageSource<Rgba32>();
 
 
             using (PdfSharpCore.Pdf.PdfDocument document = new PdfSharpCore.Pdf.PdfDocument())
