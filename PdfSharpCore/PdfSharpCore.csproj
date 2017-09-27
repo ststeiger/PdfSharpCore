@@ -2,6 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Stefan Steiger and Contributors</Authors>
+    <Description>PdfSharpCore is a partial port of PdfSharp.Xamarin for .NET Standard Additionally MigraDoc has been ported as well (from version 1.32). Images have been implemented with ImageSharp, which is still in Alpha. They State on their readme that it is still in Alpha status and shouldn't be used in productive environments. Since I didn't find any good alternatives it's still used.
+
+ImageSharp beeing Alpha isn't a big issure either since this code isn't by far done yet. So please chime in ;)
+
+PdfSharp.Xamarin is a partial port of PdfSharp for iOS and Android using Xamarin, it allows for creation and modification of PDF files.</Description>
+    <Copyright>Copyright (c) 2005-2007 empira Software GmbH, Cologne (Germany)</Copyright>
+    <PackageLicenseUrl>https://github.com/ststeiger/PdfSharpCore</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/ststeiger/PdfSharpCore</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ststeiger/PdfSharpCore</RepositoryUrl>
+    <PackageReleaseNotes>PdfSharpCore is a partial port of PdfSharp.Xamarin for .NET Standard Additionally MigraDoc has been ported as well (from version 1.32)</PackageReleaseNotes>
+    <PackageTags>NuggetV1.0.0 (8ea343d5898342a563b9d4df2d67e27aaea9ac01)</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

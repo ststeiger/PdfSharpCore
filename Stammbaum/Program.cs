@@ -1,7 +1,7 @@
 ﻿
 using System.Linq;
 using Stammbaum.DataStructures;
-
+using ImageSharp;
 
 namespace Stammbaum
 {
@@ -119,7 +119,7 @@ namespace Stammbaum
             PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = new FontResolver();
 
             MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes
-                .ImageSource.ImageSourceImpl = new PdfSharpCore.ImageSharp.ImageSharpImageSource();
+                .ImageSource.ImageSourceImpl = new PdfSharpCore.ImageSharp.ImageSharpImageSource<Rgba32>();
 
 
             using (PdfSharpCore.Pdf.PdfDocument document = new PdfSharpCore.Pdf.PdfDocument())
@@ -231,7 +231,7 @@ namespace Stammbaum
                                                  where itemList.Id == dp1.Person.Child
                                                  select itemList
                                              ).FirstOrDefault(),
-                                    rect = new Rectangle(xNew, yNew, rect1.Width, rect1.Height)
+                                    rect = new DataStructures.Rectangle(xNew, yNew, rect1.Width, rect1.Height)
                                 };
 
                             }
@@ -259,7 +259,7 @@ namespace Stammbaum
                                 dict[generationNumber][i] = new DataPoint()
                                 {
                                     Person = ti.ls[generationNumber][i],
-                                    rect = new Rectangle(rectX, rectY, textBoxWidth, textBoxHeight)
+                                    rect = new DataStructures.Rectangle(rectX, rectY, textBoxWidth, textBoxHeight)
                                 };
 
                             }
