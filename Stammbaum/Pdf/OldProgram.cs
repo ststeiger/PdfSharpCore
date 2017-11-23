@@ -1,22 +1,9 @@
-﻿
-using ImageSharp;
-using PdfSharpCore;
-using PdfSharpCore.Pdf;
-
-
-using System.Linq;
-
+﻿using SixLabors.ImageSharp;
 
 namespace Stammbaum
 {
-
-
     class OldProgram
     {
-
-
-
-
         static void OldSimpleMain(string[] args)
         {
             PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = new FontResolver();
