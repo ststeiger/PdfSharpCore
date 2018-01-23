@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using ImageSharp;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.PixelFormats;
 using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes;
-using static MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes.ImageSource;
-using ImageSharp.Formats;
-using ImageSharp.PixelFormats;
 
 namespace PdfSharpCore.ImageSharp
 {
@@ -70,8 +67,8 @@ namespace PdfSharpCore.ImageSharp
 
             public void SaveAsJpeg(MemoryStream ms)
             {
-                Image.AutoOrient();
-                Image.SaveAsJpeg(ms, new JpegEncoderOptions() { Quality = _quality });
+                //Image.AutoOrient();
+                Image.SaveAsJpeg(ms, new JpegEncoder(){Quality = this._quality});
             }
 
             public void Dispose()

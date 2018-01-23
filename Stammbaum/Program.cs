@@ -1,16 +1,12 @@
 ﻿
 using System.Linq;
 using Stammbaum.DataStructures;
-using ImageSharp;
+using SixLabors.ImageSharp;
 
 namespace Stammbaum
 {
-
-
     class Program
     {
-
-
         public static TreeInfo GetAncestors()
         {
             TreeInfo ti = new TreeInfo();
