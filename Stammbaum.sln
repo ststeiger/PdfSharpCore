@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CoreDb", "..\CoreDAL\CoreDb\CoreDb.shproj", "{38C40453-132F-41F0-9922-55D64402B0BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfSharpCore.Test", "PdfSharpCore.Test\PdfSharpCore.Test.csproj", "{A862C0CE-C095-459C-A32B-8FCDD15A93BF}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -55,6 +56,10 @@ Global
 		{4904F1BB-A236-45AC-BE30-85A0A5218630}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4904F1BB-A236-45AC-BE30-85A0A5218630}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4904F1BB-A236-45AC-BE30-85A0A5218630}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A862C0CE-C095-459C-A32B-8FCDD15A93BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A862C0CE-C095-459C-A32B-8FCDD15A93BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A862C0CE-C095-459C-A32B-8FCDD15A93BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A862C0CE-C095-459C-A32B-8FCDD15A93BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
