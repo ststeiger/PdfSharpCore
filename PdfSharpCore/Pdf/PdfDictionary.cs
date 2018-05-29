@@ -1095,7 +1095,7 @@ namespace PdfSharpCore.Pdf
                         var parameters = ctorInfo.GetParameters();
                         if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PdfDictionary))
                         {
-                            dict = ctorInfo.Invoke(new object[] { _ownerDictionary.Owner }) as PdfDictionary;
+                            dict = ctorInfo.Invoke(new object[] { oldDictionary }) as PdfDictionary;
                             break;
                         }
                     }

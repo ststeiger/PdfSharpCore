@@ -38,7 +38,7 @@ namespace PdfSharpCore.Pdf
     /// Represents a direct unsigned integer value.
     /// </summary>
     [DebuggerDisplay("({Value})")]
-    public sealed class PdfUInteger : PdfNumber, IConvertible
+    public sealed class PdfUInteger : PdfNumber, IConvertible, System.IConvertible
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PdfUInteger"/> class.
@@ -82,6 +82,95 @@ namespace PdfSharpCore.Pdf
         {
             writer.Write(this);
         }
+
+        #region System.IConvertible Members
+
+        uint System.IConvertible.ToUInt32(IFormatProvider provider)
+        {
+            return ToUInt32(provider);
+        }
+
+        ulong System.IConvertible.ToUInt64(IFormatProvider provider)
+        {
+            return ToUInt64(provider);
+        }
+
+        long System.IConvertible.ToInt64(IFormatProvider provider)
+        {
+            return ToInt64(provider);
+        }
+
+        sbyte System.IConvertible.ToSByte(IFormatProvider provider)
+        {
+            return ToSByte(provider);
+        }
+
+        float System.IConvertible.ToSingle(IFormatProvider provider)
+        {
+            return ToSingle(provider);
+        }
+
+        string System.IConvertible.ToString(IFormatProvider provider)
+        {
+            return ((IConvertible)this).ToString(provider);
+        }
+
+        object System.IConvertible.ToType(Type conversionType, IFormatProvider provider)
+        {
+            return ToType(conversionType, provider);
+        }
+
+        ushort System.IConvertible.ToUInt16(IFormatProvider provider)
+        {
+            return ToUInt16(provider);
+        }
+
+        decimal System.IConvertible.ToDecimal(IFormatProvider provider)
+        {
+            return ToDecimal(provider);
+        }
+
+        double System.IConvertible.ToDouble(IFormatProvider provider)
+        {
+            return ToDouble(provider);
+        }
+
+        short System.IConvertible.ToInt16(IFormatProvider provider)
+        {
+            return ToInt16(provider);
+        }
+
+        int System.IConvertible.ToInt32(IFormatProvider provider)
+        {
+            return ToInt32(provider);
+        }
+
+        char System.IConvertible.ToChar(IFormatProvider provider)
+        {
+            return ToChar(provider);
+        }
+
+        DateTime System.IConvertible.ToDateTime(IFormatProvider provider)
+        {
+            return ToDateTime(provider);
+        }
+
+        System.TypeCode System.IConvertible.GetTypeCode()
+        {
+            return (System.TypeCode)GetTypeCode();
+        }
+
+        bool System.IConvertible.ToBoolean(IFormatProvider provider)
+        {
+            return ToBoolean(provider);
+        }
+
+        byte System.IConvertible.ToByte(IFormatProvider provider)
+        {
+            return ToByte(provider);
+        }
+
+        #endregion
 
         #region IConvertible Members
 
