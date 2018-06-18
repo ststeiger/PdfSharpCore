@@ -206,7 +206,7 @@ namespace PdfSharpCore.Pdf.IO
         /// </summary>
         public static PdfDocument Open(string path, string password, PdfDocumentOpenMode openmode, PdfPasswordProvider provider)
         {
-#if !NETFX_CORE && !PORTABLE
+#if NETCOREAPP1_1 || (!NETFX_CORE && !PORTABLE)
             PdfDocument document;
             Stream stream = null;
             try
@@ -221,10 +221,10 @@ namespace PdfSharpCore.Pdf.IO
             finally
             {
                 if (stream != null)
-#if !UWP
-                    stream.Close();
-#else
+#if NETCOREAPP1_1 || UWP
                     stream.Dispose();
+#else
+                    stream.Close();
 #endif
             }
             return document;
