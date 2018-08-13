@@ -154,13 +154,34 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Implements scanning the PDF file version.
         /// </summary>
+        /// 
         internal static int GetPdfFileVersion(byte[] bytes)
         {
             try
             {
                 // Acrobat accepts headers like «%!PS-Adobe-N.n PDF-M.m»...
-                //string header = PdfEncoders.RawEncoding.GetString(bytes, 0, bytes.Length);  // Encoding.ASCII.GetString(bytes);
-                string header = Encoding.ASCII.GetString(bytes);
+                string header = PdfEncoders.RawEncoding.GetString(bytes, 0, bytes.Length);  // Encoding.ASCII.GetString(bytes);
+                if (header[0] == '%' || header.IndexOf("%PDF", StringComparison.Ordinal) >= 0)
+                {
+                    int ich = header.IndexOf("PDF-", StringComparison.Ordinal);
+                    if (ich > 0 && header[ich + 5] == '.')
+                    {
+                        char major = header[ich + 4];
+                        char minor = header[ich + 6];
+                        if (major >= '1' && major < '2' && minor >= '0' && minor <= '9')
+                            return (major - '0') * 10 + (minor - '0');
+                    }
+                }
+            }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch
+            { }
+
+            // If it doesn't work with the specified encoding ... 
+            try
+            {
+                // The file might be incorrectly encoded as ASCII 
+                string header = System.Text.Encoding.ASCII.GetString(bytes);
                 if (header[0] == '%' || header.IndexOf("%PDF", StringComparison.Ordinal) >= 0)
                 {
                     int ich = header.IndexOf("PDF-", StringComparison.Ordinal);
@@ -175,6 +196,7 @@ namespace PdfSharpCore.Pdf.IO
             }
             // ReSharper disable once EmptyGeneralCatchClause
             catch { }
+
             return 0;
         }
 
