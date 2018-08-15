@@ -71,7 +71,7 @@ namespace PdfSharpCore.Pdf.IO
         /// </summary>
         public static int TestPdfFile(string path)
         {
-#if !NETFX_CORE && !PORTABLE
+#if NETCOREAPP1_1 || (!NETFX_CORE && !PORTABLE) 
             FileStream stream = null;
             try
             {
@@ -93,7 +93,7 @@ namespace PdfSharpCore.Pdf.IO
                 {
                     if (stream != null)
                     {
-#if UWP
+#if NETCOREAPP1_1 || UWP
                         stream.Dispose();
 #else
                         stream.Close();

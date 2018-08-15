@@ -99,6 +99,18 @@ namespace Stammbaum
         }
 
 
+        static void TestPdfReader()
+        {
+            string fn = @"C:\Program Files\Microsoft\R Client\R_SERVER\doc\manual\fullrefman.pdf";
+
+            using (PdfSharpCore.Pdf.PdfDocument pr = PdfSharpCore.Pdf.IO.PdfReader.Open(fn))
+            {
+                System.Console.WriteLine(pr.Pages.Count);
+            }
+
+        }
+
+
         static void Main(string[] args)
         {
             // TfsRemover.RemoveTFS();
