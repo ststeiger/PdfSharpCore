@@ -103,6 +103,9 @@ namespace Stammbaum
         {
             string fn = @"C:\Program Files\Microsoft\R Client\R_SERVER\doc\manual\fullrefman.pdf";
 
+            int version = PdfSharpCore.Pdf.IO.PdfReader.TestPdfFile(fn);
+            System.Console.WriteLine(version);
+
             using (PdfSharpCore.Pdf.PdfDocument pr = PdfSharpCore.Pdf.IO.PdfReader.Open(fn))
             {
                 System.Console.WriteLine(pr.Pages.Count);
