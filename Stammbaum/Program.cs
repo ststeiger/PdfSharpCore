@@ -112,10 +112,113 @@ namespace Stammbaum
             }
 
         }
+        
+        
 
 
+
+
+
+        public static void CropPdf()
+        {
+            double baseY = 0;
+            
+            PdfSharpCore.Pdf.PdfDocument outputDocument =
+                new PdfSharpCore.Pdf.PdfDocument();
+            
+            PdfSharpCore.Pdf.PdfPage page = outputDocument.AddPage();
+            
+            //page.Height = PdfSharpCore.Drawing.XUnit.FromMillimeter(baseY + 10).Point;
+            double height = PdfSharpCore.Drawing. XUnit.FromMillimeter(baseY + 10).Point;
+            page.CropBox = new PdfSharpCore.Pdf.PdfRectangle(
+                new PdfSharpCore.Drawing.XPoint(0, page.Height - height),
+                new PdfSharpCore.Drawing.XSize(page.Width, height));
+        }
+
+
+        public static void ReadPdf()
+        {
+            // Get a fresh copy of the sample PDF file
+            string filename = "FamilyTree.pdf";
+            
+            // Create the output document
+            PdfSharpCore.Pdf.PdfDocument outputDocument =
+                new PdfSharpCore.Pdf.PdfDocument();
+            
+            // Show single pages
+            // (Note: one page contains two pages from the source document)
+            outputDocument.PageLayout = PdfSharpCore.Pdf.PdfPageLayout.SinglePage;
+
+            /*
+            PdfSharpCore.Drawing.XFont font =
+                new PdfSharpCore.Drawing.XFont("Verdana", 8, PdfSharpCore.Drawing.XFontStyle.Bold);
+            PdfSharpCore.Drawing.XStringFormat format = new PdfSharpCore.Drawing.XStringFormat();
+            format.Alignment = PdfSharpCore.Drawing.XStringAlignment.Center;
+            format.LineAlignment = PdfSharpCore.Drawing.XLineAlignment.Far;
+            */
+            PdfSharpCore.Drawing.XGraphics gfx;
+            PdfSharpCore.Drawing.XRect box;
+
+            // Open the external document as XPdfForm object
+            PdfSharpCore.Drawing.XPdfForm form = 
+                PdfSharpCore.Drawing.XPdfForm.FromFile(filename);
+
+            for (int idx = 0; idx < form.PageCount; idx += 2)
+            {
+                // Add a new page to the output document
+                PdfSharpCore.Pdf.PdfPage page = outputDocument.AddPage();
+                page.Orientation = PdfSharpCore.PageOrientation.Landscape;
+                double width = page.Width;
+                double height = page.Height;
+
+                int rotate = page.Elements.GetInteger("/Rotate");
+
+                gfx = PdfSharpCore.Drawing.XGraphics.FromPdfPage(page);
+
+                // Set page number (which is one-based)
+                form.PageNumber = idx + 1;
+
+                box = new PdfSharpCore.Drawing.XRect(0, 0, width / 2, height);
+                // Draw the page identified by the page number like an image
+                gfx.DrawImage(form, box);
+
+                // Write document file name and page number on each page
+                box.Inflate(0, -10);
+               /*
+                gfx.DrawString(string.Format("- {1} -", filename, idx + 1),
+                    font, PdfSharpCore.Drawing.XBrushes.Red, box, format);
+                */
+                if (idx + 1 < form.PageCount)
+                {
+                    // Set page number (which is one-based)
+                    form.PageNumber = idx + 2;
+
+                    box = new PdfSharpCore.Drawing.XRect(width / 2, 0, width / 2, height);
+                    // Draw the page identified by the page number like an image
+                    gfx.DrawImage(form, box);
+
+                    // Write document file name and page number on each page
+                    box.Inflate(0, -10);
+                    /*
+                    gfx.DrawString(string.Format("- {1} -", filename, idx + 2),
+                        font, PdfSharpCore.Drawing.XBrushes.Red, box, format);
+                        */
+                }
+            }
+
+            // Save the document...
+            filename = "TwoPagesOnOne_tempfile.pdf";
+            outputDocument.Save(filename);
+            // ...and start a viewer.
+            System.Diagnostics.Process.Start(filename);
+        }
+        
+
+        
         static void Main(string[] args)
         {
+            // ReadPdf();
+            
             // TfsRemover.RemoveTFS();
             TreeInfo ti = GetAncestors();
 
