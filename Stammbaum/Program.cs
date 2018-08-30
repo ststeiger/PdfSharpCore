@@ -27,8 +27,10 @@ namespace Stammbaum
                     // Environment.MachineName : NetBIOS name of local computer read from registry
 
                     // TCP-Based network-name
-                    csb.DataSource = System.Net.Dns.GetHostName() + @"\SQLEXPRESS";
-                    
+                    if("COR".Equals(System.Environment.UserDomainName, System.StringComparison.InvariantCultureIgnoreCase))
+                        csb.DataSource = System.Net.Dns.GetHostName() + @"\SQLEXPRESS";
+                    else
+                        csb.DataSource = System.Net.Dns.GetHostName();
 
                     csb.InitialCatalog = "Ahnen";
                     csb.IntegratedSecurity = true;
