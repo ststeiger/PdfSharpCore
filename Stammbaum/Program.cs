@@ -27,7 +27,7 @@ namespace Stammbaum
                     // Environment.MachineName : NetBIOS name of local computer read from registry
 
                     // TCP-Based network-name
-                    csb.DataSource = System.Net.Dns.GetHostName();
+                    csb.DataSource = System.Net.Dns.GetHostName() + @"\SQLEXPRESS";
                     
 
                     csb.InitialCatalog = "Ahnen";
@@ -243,6 +243,26 @@ namespace Stammbaum
                 document.Info.Subject = "Family Tree";
                 document.Info.Keywords = "Family Tree, Genealogical Tree, Genealogy, Bloodline, Pedigree";
 
+
+                PdfSharpCore.Pdf.Security.PdfSecuritySettings securitySettings = document.SecuritySettings;
+                
+                // Setting one of the passwords automatically sets the security level to
+                // PdfDocumentSecurityLevel.Encrypted128Bit.
+                securitySettings.UserPassword = "user";
+                securitySettings.OwnerPassword = "owner";
+
+                // Don't use 40 bit encryption unless needed for compatibility
+                //securitySettings.DocumentSecurityLevel = PdfDocumentSecurityLevel.Encrypted40Bit;
+
+                // Restrict some rights.
+                securitySettings.PermitAccessibilityExtractContent = false;
+                securitySettings.PermitAnnotations = false;
+                securitySettings.PermitAssembleDocument = false;
+                securitySettings.PermitExtractContent = false;
+                securitySettings.PermitFormsFill = true;
+                securitySettings.PermitFullQualityPrint = false;
+                securitySettings.PermitModifyDocument = true;
+                securitySettings.PermitPrint = false;
 
 
                 document.ViewerPreferences.Direction = PdfSharpCore.Pdf.PdfReadingDirection.LeftToRight;

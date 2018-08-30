@@ -373,6 +373,7 @@ namespace PdfSharpCore.Pdf.Security
             permission[1] = (byte)(permissions >> 8);
             permission[2] = (byte)(permissions >> 16);
             permission[3] = (byte)(permissions >> 24);
+            
             _md5.TransformBlock(permission, 0, 4, permission, 0);
             _md5.TransformBlock(documentID, 0, documentID.Length, documentID, 0);
             _md5.TransformFinalBlock(permission, 0, 0);

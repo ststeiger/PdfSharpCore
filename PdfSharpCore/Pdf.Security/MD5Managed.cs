@@ -49,7 +49,8 @@ using System.Security.Cryptography;
 #if SILVERLIGHT || WINDOWS_PHONE || UWP || (GDI && DEBUG) || PORTABLE
 namespace PdfSharpCore.Pdf.Security
 {
-#if UWP || PORTABLE
+
+#if false && (UWP || PORTABLE)
     class HashAlgorithm
     {
         public int HashSizeValue { get; set; }
@@ -90,7 +91,7 @@ namespace PdfSharpCore.Pdf.Security
     /// </summary>
     class MD5Managed
         //#if !UWP
-        : HashAlgorithm  // TODO: WinRT has not even a HashAlgorithm base class.
+        : System.Security.Cryptography.HashAlgorithm  // TODO: WinRT has not even a HashAlgorithm base class.
                          //#endif
     {
         // Intitial values as defined in RFC 1321.
@@ -99,9 +100,11 @@ namespace PdfSharpCore.Pdf.Security
         const uint C = 0x98badcfe;
         const uint D = 0x10325476;
 
+        public override int HashSize { get; } = 128;
+
+
         public MD5Managed()
         {
-            HashSizeValue = 128;
             Initialize();
         }
 
@@ -118,6 +121,76 @@ namespace PdfSharpCore.Pdf.Security
             _abcd.C = C;
             _abcd.D = D;
         }
+
+
+        public int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+        {
+            // Do some validation, we let BlockCopy do the destination array validation
+            if (inputBuffer == null)
+                throw new ArgumentNullException("inputBuffer");
+
+            if (inputOffset < 0)
+                throw new ArgumentOutOfRangeException("inputOffset", "Argument out of range - need non-negative number");
+
+            if (inputCount < 0 || (inputCount > inputBuffer.Length))
+                throw new ArgumentException("Invalid Value");
+
+            if ((inputBuffer.Length - inputCount) < inputOffset)
+                throw new ArgumentException("Invalid Offset Length");
+            
+            this.HashCore(inputBuffer, inputOffset, inputCount);
+
+            if ((outputBuffer != null) && ((inputBuffer != outputBuffer) || (inputOffset != outputOffset)))
+                Buffer.BlockCopy(inputBuffer, inputOffset, outputBuffer, outputOffset, inputCount);
+
+            return inputCount;
+        }
+
+
+        private byte[] m_hashValue;
+
+
+        public byte[] Hash
+        {
+            get {
+                return this.m_hashValue;
+            }
+        }
+
+
+        public byte[] TransformFinalBlock(byte[] inputBuffer, int inputOffset, int inputCount)
+        {
+            // Do some validation
+            if (inputBuffer == null)
+                throw new ArgumentNullException("inputBuffer");
+
+            if (inputOffset < 0)
+                throw new ArgumentOutOfRangeException("inputOffset", "Argument out of range - need non-negative number");
+
+            if (inputCount < 0 || (inputCount > inputBuffer.Length))
+                throw new ArgumentException("Invalid Value");
+
+            if ((inputBuffer.Length - inputCount) < inputOffset)
+                throw new ArgumentException("Invalid Offset Length");
+
+            this.HashCore(inputBuffer, inputOffset, inputCount);
+            this.m_hashValue = this.HashFinal();
+            
+
+            byte[] outputBytes;
+            if (inputCount != 0)
+            {
+                outputBytes = new byte[inputCount];
+                System.Array.Copy(inputBuffer, inputOffset, outputBytes, 0, inputCount);
+            }
+            else
+            {
+                outputBytes = System.Array.Empty<Byte>();
+            }
+            
+            return outputBytes;
+        }
+
 
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
         {
@@ -150,7 +223,7 @@ namespace PdfSharpCore.Pdf.Security
 
         protected override byte[] HashFinal()
         {
-            HashValue = MD5Core.GetHashFinalBlock(_data, 0, _dataSize, _abcd, _totalLength * 8);
+            byte[] HashValue = MD5Core.GetHashFinalBlock(_data, 0, _dataSize, _abcd, _totalLength * 8);
             return HashValue;
         }
 
