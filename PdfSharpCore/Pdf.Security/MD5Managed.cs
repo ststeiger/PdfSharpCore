@@ -223,8 +223,8 @@ namespace PdfSharpCore.Pdf.Security
 
         protected override byte[] HashFinal()
         {
-            byte[] HashValue = MD5Core.GetHashFinalBlock(_data, 0, _dataSize, _abcd, _totalLength * 8);
-            return HashValue;
+            this.m_hashValue = MD5Core.GetHashFinalBlock(_data, 0, _dataSize, _abcd, _totalLength * 8);
+            return this.m_hashValue;
         }
 
         byte[] _data;
