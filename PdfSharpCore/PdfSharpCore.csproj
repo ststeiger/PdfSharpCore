@@ -21,4 +21,8 @@ PdfSharp.Xamarin is a partial port of PdfSharp for iOS and Android using Xamarin
     <DefineConstants>TRACE;DEBUG;NETCOREAPP1_1;NETCOREAPP1_1;PORTABLE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;RELEASE;NETCOREAPP1_1;PORTABLE</DefineConstants>
+  </PropertyGroup>
+
 </Project>
