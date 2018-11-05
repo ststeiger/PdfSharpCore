@@ -1,0 +1,99 @@
+---
+#-----------------------------------------------------------------------------------------------------------------------
+# Resources
+#-----------------------------------------------------------------------------------------------------------------------
+resources:
+
+- name: source
+  type: git
+  source:
+    uri: https://github.com/ststeiger/PdfSharpCore.git
+    branch: master
+
+- name: version
+  type: semver
+  source:
+    driver: s3
+    bucket: startnow65
+    key: concourse/pdfsharpcore-semver
+    region_name: us-west-2
+    access_key_id: ((access_key_id))
+    secret_access_key: ((secret_access_key))
+#-----------------------------------------------------------------------------------------------------------------------
+# Jobs
+#-----------------------------------------------------------------------------------------------------------------------
+jobs:
+
+# Would be replace with proper Unit/Integration tests
+- name: TestBuild
+  public: false
+  serial: true
+  plan:
+    - get: source
+      trigger: true
+
+    - task: build-nugget
+      file: source/PdfSharpCore/.ci/tasks/build.yaml      
+
+- name: PublishPatch
+  public: false
+  serial: true
+  plan:
+    - get: source
+      trigger: true
+      passed:
+      - TestBuild
+
+    - get: version
+      trigger: false
+      params: {bump: patch}
+      
+    - put: version
+      params: {file: version/version}
+
+    - task: publish-nugget
+      file: source/PdfSharpCore/.ci/tasks/publish-nugget.yaml
+      params:
+        NUGGET_API_KEY: ((nugget_api_key))
+
+- name: PublishMinor
+  public: false
+  serial: false
+  plan:
+    - get: source
+      trigger: false
+      passed:
+      - TestBuild
+
+    - get: version
+      trigger: false
+      params: {bump: minor}
+      
+    - put: version
+      params: {file: version/version}
+
+    - task: publish-nugget
+      file: source/PdfSharpCore/.ci/tasks/publish-nugget.yaml
+      params:
+        NUGGET_API_KEY: ((nugget_api_key))
+
+- name: PublishMajor
+  public: false
+  serial: true
+  plan:
+    - get: source
+      trigger: false
+      passed:
+      - TestBuild
+
+    - get: version
+      trigger: false
+      params: {bump: major}
+      
+    - put: version
+      params: {file: version/version}
+
+    - task: publish-nugget
+      file: source/PdfSharpCore/.ci/tasks/publish-nugget.yaml
+      params:
+        NUGGET_API_KEY: ((nugget_api_key))

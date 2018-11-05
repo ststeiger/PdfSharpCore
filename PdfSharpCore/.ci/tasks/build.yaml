@@ -1,0 +1,16 @@
+---
+platform: linux
+image_resource: 
+  type: docker-image
+  source:
+    repository: microsoft/dotnet
+    tag: 2.2-sdk-alpine
+inputs:
+  - name: source
+run:
+  path: /bin/sh
+  args:
+  - -c
+  - |
+    cd source/PdfSharpCore
+    dotnet build /p:GeneratePackageOnBuild=False -c Release PdfSharpCore.csproj
