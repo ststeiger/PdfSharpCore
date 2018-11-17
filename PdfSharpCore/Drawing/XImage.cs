@@ -105,6 +105,7 @@ namespace PdfSharpCore.Drawing
 
         /// <summary>
         /// Creates an image from the specified file.
+        /// For non-pdf files, this requires that an instance of an implementation of <see cref="T:MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes.ImageSource"/> be set on the `ImageSource.ImageSourceImpl` property.
         /// </summary>
         /// <param name="path">The path to a BMP, PNG, GIF, JPEG, TIFF, or PDF file.</param>
         public static XImage FromFile(string path)
@@ -116,6 +117,7 @@ namespace PdfSharpCore.Drawing
 
         /// <summary>
         /// Creates an image from the specified stream.<br/>
+        /// For non-pdf files, this requires that an instance of an implementation of <see cref="T:MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes.ImageSource"/> be set on the `ImageSource.ImageSourceImpl` property.
         /// Silverlight supports PNG and JPEF only.
         /// </summary>
         /// <param name="stream">The stream containing a BMP, PNG, GIF, JPEG, TIFF, or PDF file.</param>
