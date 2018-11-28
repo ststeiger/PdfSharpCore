@@ -19,7 +19,7 @@ PdfSharp.Xamarin is a partial port of PdfSharp for iOS and Android using Xamarin
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0005" />
   </ItemGroup>
 
   <ItemGroup>
