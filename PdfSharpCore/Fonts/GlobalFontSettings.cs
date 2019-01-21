@@ -30,6 +30,7 @@
 using System;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf;
+using PdfSharpCore.Utils;
 
 namespace PdfSharpCore.Fonts
 {
@@ -45,14 +46,22 @@ namespace PdfSharpCore.Fonts
 
         /// <summary>
         /// Gets or sets the global font resolver for the current application domain.
-        /// This static function must be called only once and before any font operation was executed by PdfSharpCore.
+        /// This static property should be set only once and before any font operation was executed by PdfSharpCore.
         /// If this is not easily to obtain, e.g. because your code is running on a web server, you must provide the
         /// same instance of your font resolver in every subsequent setting of this property.
         /// In a web application set the font resolver in Global.asax.
+        /// For .NetCore Apps, if a resolver is not set before the first get operation to this property,
+        /// the default Font resolver implementation: <see cref="T:PdfSharpCore.Utils.PdfSharpCore.Utils"/> is set and returned
         /// </summary>
         public static IFontResolver FontResolver
         {
-            get { return _fontResolver; }
+            get 
+            {
+#if NETCOREAPP1_1
+                if (_fontResolver == null) FontResolver = new FontResolver();
+#endif
+                return _fontResolver; 
+            }
             set
             {
                 // Cannot remove font resolver.
