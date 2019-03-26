@@ -119,6 +119,12 @@ namespace PdfSharpCore.Utils
                                 break;
                             }
                         }
+                        else
+                        {
+                            //We found a match on this font and did not want bold or italic.
+                            //This is not guaranteed to always be correct, but the first matching key is usually the normal variant.
+                            break;
+                        }
                     }
                 }
 
