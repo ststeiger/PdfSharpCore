@@ -34,8 +34,6 @@ using PdfSharpCore.Pdf.IO;
 using PdfSharpCore.Pdf.Advanced;
 using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes;
 using static MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes.ImageSource;
-using PdfSharpCore.Utils;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace PdfSharpCore.Drawing
 {
@@ -78,9 +76,6 @@ namespace PdfSharpCore.Drawing
         // Useful stuff here: http://stackoverflow.com/questions/350027/setting-wpf-image-source-in-code
         XImage(string path)
         {
-#if NETCOREAPP1_1
-            if (ImageSource.ImageSourceImpl == null) ImageSource.ImageSourceImpl = new ImageSharpImageSource<Rgba32>();
-#endif
             _source = ImageSource.FromFile(path);
             Initialize();
         }
@@ -96,9 +91,6 @@ namespace PdfSharpCore.Drawing
         {
             // Create a dummy unique path.
             _path = "*" + Guid.NewGuid().ToString("B");
-#if NETCOREAPP1_1
-            if (ImageSource.ImageSourceImpl == null) ImageSource.ImageSourceImpl = new ImageSharpImageSource<Rgba32>();
-#endif
             _source = ImageSource.FromStream(_path, stream);
             Initialize();
         }
@@ -107,7 +99,7 @@ namespace PdfSharpCore.Drawing
         {
             // Create a dummy unique path.
             _path = "*" + Guid.NewGuid().ToString("B");
-            _source = ImageSource.FromBinary(_path, data);
+            _source = FromBinary(_path, data);
             Initialize();
         }
 

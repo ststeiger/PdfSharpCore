@@ -1,9 +1,6 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Text;
-
+using PdfSharpCore.Utils;
 
 namespace MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes
 {
@@ -15,7 +12,8 @@ namespace MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes
         /// Gets or sets the image source implemention to use for reading images.
         /// </summary>
         /// <value>The image source impl.</value>
-        public static ImageSource ImageSourceImpl { get; set; }
+        private static ImageSource _imageSourceImpl;
+        public static ImageSource ImageSourceImpl => _imageSourceImpl ?? (_imageSourceImpl = new StandardImageSource());
 
         public interface IImageSource
         {

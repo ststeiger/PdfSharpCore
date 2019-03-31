@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Stefan Steiger and Contributors</Authors>
     <Description>PdfSharpCore is a partial port of PdfSharp.Xamarin for .NET Standard Additionally MigraDoc has been ported as well (from version 1.32). Images have been implemented with ImageSharp, which is still in Alpha. They State on their readme that it is still in Alpha status and shouldn't be used in productive environments. Since I didn't find any good alternatives it's still used.
@@ -17,10 +17,6 @@ PdfSharp.Xamarin is a partial port of PdfSharp for iOS and Android using Xamarin
     <PackageTags>NuggetV1.0.0 (8ea343d5898342a563b9d4df2d67e27aaea9ac01)</PackageTags>
     <Version>1.0.1</Version>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PdfSharpCore\PdfSharpCore.csproj" />

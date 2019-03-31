@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PdfSharpCore", "PdfSharpCor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PdfSharpCore.Charting", "PdfSharpCore.Charting\PdfSharpCore.Charting.csproj", "{F29A5C30-44F9-4BED-8805-21889418DA94}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PdfSharpCore.ImageSharp", "PdfSharpCore.ImageSharp\PdfSharpCore.ImageSharp.csproj", "{1B7AD214-B4CB-433E-9905-A33DF5D4AD1F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MigraDocCore.DocumentObjectModel", "MigraDocCore.DocumentObjectModel\MigraDocCore.DocumentObjectModel.csproj", "{BB848A5B-07EB-4DC1-A677-5F0EE9FCB68B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MigraDocCore.Rendering", "MigraDocCore.Rendering\MigraDocCore.Rendering.csproj", "{4904F1BB-A236-45AC-BE30-85A0A5218630}"
@@ -21,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CoreDb", "..\CoreDAL\CoreDb\CoreDb.shproj", "{38C40453-132F-41F0-9922-55D64402B0BD}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfSharpCore.Test", "PdfSharpCore.Test\PdfSharpCore.Test.csproj", "{A862C0CE-C095-459C-A32B-8FCDD15A93BF}"
 EndProject
 Global
@@ -44,10 +43,6 @@ Global
 		{F29A5C30-44F9-4BED-8805-21889418DA94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F29A5C30-44F9-4BED-8805-21889418DA94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F29A5C30-44F9-4BED-8805-21889418DA94}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1B7AD214-B4CB-433E-9905-A33DF5D4AD1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1B7AD214-B4CB-433E-9905-A33DF5D4AD1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1B7AD214-B4CB-433E-9905-A33DF5D4AD1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1B7AD214-B4CB-433E-9905-A33DF5D4AD1F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BB848A5B-07EB-4DC1-A677-5F0EE9FCB68B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BB848A5B-07EB-4DC1-A677-5F0EE9FCB68B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB848A5B-07EB-4DC1-A677-5F0EE9FCB68B}.Release|Any CPU.ActiveCfg = Release|Any CPU
