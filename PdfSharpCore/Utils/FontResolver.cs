@@ -39,7 +39,7 @@ namespace PdfSharpCore.Utils
                 SetupFontsFiles();
                 return;
             }
-
+            
             bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
             if (isLinux)
             {
@@ -48,17 +48,17 @@ namespace PdfSharpCore.Utils
                 SetupFontsFiles();
                 return;
             }
-
+            
             bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
             if (isWindows)
             {
-                string fontDir = @"C:\Windows\Fonts";
+                string fontDir = Environment.ExpandEnvironmentVariables(@"%SystemRoot%\Fonts");
                 s_SupportedFonts = Directory.GetFiles(fontDir, "*.ttf", SearchOption.AllDirectories);
                 SetupFontsFiles();
                 return;
             }
-
-            throw new NotImplementedException("FontResolver not implemented for this platform.");
+            
+            throw new NotImplementedException("FontResolver not implemented for this platform (PdfSharpCore.Utils.FontResolver.cs).");
         }
 
         public byte[] GetFont(string faceName)

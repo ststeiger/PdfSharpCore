@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2008
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stammbaum", "Stammbaum\Stammbaum.csproj", "{95FDC26D-E3B3-4F1F-BA1D-CF3F23D6DDAF}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PdfSharpCore", "PdfSharpCore\PdfSharpCore.csproj", "{4005DEBC-75F8-48DA-BBCC-353E17872B3E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PdfSharpCore.Charting", "PdfSharpCore.Charting\PdfSharpCore.Charting.csproj", "{F29A5C30-44F9-4BED-8805-21889418DA94}"
@@ -20,7 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CoreDb", "..\CoreDAL\CoreDb\CoreDb.shproj", "{38C40453-132F-41F0-9922-55D64402B0BD}"
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfSharpCore.Test", "PdfSharpCore.Test\PdfSharpCore.Test.csproj", "{A862C0CE-C095-459C-A32B-8FCDD15A93BF}"
 EndProject
 Global
@@ -32,10 +29,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{95FDC26D-E3B3-4F1F-BA1D-CF3F23D6DDAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{95FDC26D-E3B3-4F1F-BA1D-CF3F23D6DDAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{95FDC26D-E3B3-4F1F-BA1D-CF3F23D6DDAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{95FDC26D-E3B3-4F1F-BA1D-CF3F23D6DDAF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4005DEBC-75F8-48DA-BBCC-353E17872B3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4005DEBC-75F8-48DA-BBCC-353E17872B3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4005DEBC-75F8-48DA-BBCC-353E17872B3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
