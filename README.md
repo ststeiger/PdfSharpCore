@@ -8,7 +8,19 @@ ImageSharp beeing Alpha isn't a big issure either since this code isn't by far d
 
 **PdfSharp.Xamarin** is a partial port of [PdfSharp](http://www.pdfsharp.net/) for iOS and Android using Xamarin, it allows for creation and modification of PDF files.
 
-## Example
+
+
+###### Example project 
+
+There was an example project here. <br />
+I've removed it from this project, and put it into a separate solution.
+You can find it [here](https://github.com/ststeiger/Stammbaum).
+There's a default font-resolver in [FontResolver.cs](https://github.com/ststeiger/PdfSharpCore/blob/master/PdfSharpCore/Utils/FontResolver.cs)
+It should work on Windows, Linux, OSX and Azure. 
+Some limitations apply. See open issues. 
+
+
+## Example usage 
 
 ```cs
 //See the "Example" Project for a MigraDoc example
