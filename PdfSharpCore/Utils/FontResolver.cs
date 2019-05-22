@@ -31,6 +31,15 @@ namespace PdfSharpCore.Utils
 
         static FontResolver()
         {
+            bool isOSX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
+            if (isOSX)
+            {
+                string fontDir = "/Library/Fonts/";
+                s_SupportedFonts = Directory.GetFiles(fontDir, "*.ttf", SearchOption.AllDirectories);
+                SetupFontsFiles();
+                return;
+            }
+
             bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
             if (isLinux)
             {
