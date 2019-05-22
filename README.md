@@ -13,11 +13,12 @@ ImageSharp beeing Alpha isn't a big issure either since this code isn't by far d
 ###### Example project 
 
 There was an example project here. <br />
-I've removed it from this project, and put it into a separate solution.
-You can find it [here](https://github.com/ststeiger/Stammbaum).
-There's a default font-resolver in [FontResolver.cs](https://github.com/ststeiger/PdfSharpCore/blob/master/PdfSharpCore/Utils/FontResolver.cs)
-It should work on Windows, Linux, OSX and Azure. 
-Some limitations apply. See open issues. 
+I've removed it from this project, and put it into a separate solution. 
+You can find it [here](https://github.com/ststeiger/Stammbaum).<br />
+There's a default font-resolver in [FontResolver.cs](https://github.com/ststeiger/PdfSharpCore/blob/master/PdfSharpCore/Utils/FontResolver.cs).<br />
+It should work on Windows, Linux, OSX and Azure. <br />
+Some limitations apply. <br />
+See open issues. 
 
 
 ## Example usage 
