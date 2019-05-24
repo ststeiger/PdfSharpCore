@@ -72,7 +72,8 @@ namespace PdfSharpCore.Pdf.Advanced
                 iref.ObjectID = new PdfObjectID(GetNewObjectNumber());
 
             if (ObjectTable.ContainsKey(iref.ObjectID))
-                throw new InvalidOperationException("Object already in table.");
+                return;
+            //     throw new InvalidOperationException("Object already in table.");
 
             ObjectTable.Add(iref.ObjectID, iref);
         }
@@ -91,7 +92,8 @@ namespace PdfSharpCore.Pdf.Advanced
                 value.SetObjectID(GetNewObjectNumber(), 0);
 
             if (ObjectTable.ContainsKey(value.ObjectID))
-                throw new InvalidOperationException("Object already in table.");
+                return;
+                // throw new InvalidOperationException("Object already in table.");
 
             ObjectTable.Add(value.ObjectID, value.Reference);
         }
