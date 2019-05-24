@@ -734,7 +734,16 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
         {
             if (inf.IsNeedingDictionary)
             {
-                throw new SharpZipBaseException("Need a dictionary");
+                // throw new SharpZipBaseException("Need a dictionary");
+
+                try
+                {
+                    Fill();
+                }
+                catch (SharpZipBaseException)
+                { // WB! early EOF: apparantly not a big deal for some PDF pages: break out of the loop.
+                    return 0;
+                }
             }
 
             int remainingBytes = count;
