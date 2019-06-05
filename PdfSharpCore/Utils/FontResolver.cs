@@ -114,7 +114,7 @@ namespace PdfSharpCore.Utils
                         }
                         else if (isBold)
                         {
-                            if (tf.Contains("bold") || tf.EndsWith("b", StringComparison.Ordinal) || tf.EndsWith("bi", StringComparison.Ordinal))
+                            if (tf.Contains("bold") || tf.EndsWith("b", StringComparison.Ordinal) || tf.EndsWith("bd", StringComparison.Ordinal))
                             {
                                 ttfFile = fontfile;
                                 break;
