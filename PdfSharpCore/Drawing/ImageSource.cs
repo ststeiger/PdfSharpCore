@@ -12,7 +12,7 @@ namespace MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes
     public abstract class ImageSource
     {
         /// <summary>
-        /// Gets or sets the image source implemention to use for reading images.
+        /// Gets or sets the image source implementation to use for reading images.
         /// </summary>
         /// <value>The image source impl.</value>
         public static ImageSource ImageSourceImpl { get; set; }
@@ -23,6 +23,8 @@ namespace MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes
             int Height { get; }
             string Name { get; }
             void SaveAsJpeg(MemoryStream ms);
+            bool Transparent { get; }
+            void SaveAsPdfBitmap(MemoryStream ms);
         }
 
         protected abstract IImageSource FromFileImpl(string path, int? quality = 75);

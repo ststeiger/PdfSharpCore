@@ -412,7 +412,9 @@ namespace PdfSharpCore.Pdf.Advanced
                 return;
             }
 #endif
-
+#if NETCOREAPP1_1
+            ReadTrueColorMemoryBitmap(3, 8, true);
+#endif
 #if (CORE_WITH_GDI || GDI) && !WPF
             //bool hasMask = false;
             switch (_image._gdiImage.PixelFormat)
@@ -760,6 +762,9 @@ namespace PdfSharpCore.Pdf.Advanced
             GetType();
 #endif
 #endif
+#if NETCOREAPP1_1
+            memory = _image.AsBitmap();
+#endif
             // THHO4THHO Use ImageImporterBMP here to avoid redundant code.
 
             int streamLength = (int)memory.Length;
@@ -796,20 +801,26 @@ namespace PdfSharpCore.Pdf.Advanced
                 //   BITMAPINFOHEADER
                 // to avoid ReadWord and ReadDWord ... (but w/o pointers this doesn't help much)
 
+                bool bigHeader = false;
                 if (ReadWord(imageBits, 0) != 0x4d42 || // "BM"
                     ReadDWord(imageBits, 2) != streamLength ||
-                    ReadDWord(imageBits, 14) != 40 || // sizeof BITMAPINFOHEADER
                     ReadDWord(imageBits, 18) != width ||
                     ReadDWord(imageBits, 22) != height)
                 {
                     throw new NotImplementedException("ReadTrueColorMemoryBitmap: unsupported format");
                 }
-                if (ReadWord(imageBits, 26) != 1 ||
-                  (!hasAlpha && ReadWord(imageBits, 28) != components * bits ||
-                   hasAlpha && ReadWord(imageBits, 28) != (components + 1) * bits) ||
-                  ReadDWord(imageBits, 30) != 0)
+                int infoHeaderSize = ReadDWord(imageBits, 14); // sizeof BITMAPINFOHEADER
+                if (infoHeaderSize != 40 && infoHeaderSize != 108)
                 {
                     throw new NotImplementedException("ReadTrueColorMemoryBitmap: unsupported format #2");
+                }
+                bigHeader = infoHeaderSize == 108;
+                if (ReadWord(imageBits, 26) != 1 ||
+                  (!hasAlpha && ReadWord(imageBits, bigHeader?30:28) != components * bits ||
+                   hasAlpha && ReadWord(imageBits, bigHeader?30:28) != (components + 1) * bits) ||
+                  bigHeader ? ReadWord(imageBits, 32) != 0 : ReadDWord(imageBits, 30) != 0)
+                {
+                    throw new NotImplementedException("ReadTrueColorMemoryBitmap: unsupported format #3");
                 }
 
                 int nFileOffset = ReadDWord(imageBits, 10);
