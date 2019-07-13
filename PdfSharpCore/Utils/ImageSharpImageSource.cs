@@ -1,9 +1,12 @@
-﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes;
 using System;
 using System.IO;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace PdfSharpCore.Utils
 {
@@ -11,58 +14,41 @@ namespace PdfSharpCore.Utils
     {
         protected override IImageSource FromBinaryImpl(string name, Func<byte[]> imageSource, int? quality = 75)
         {
-            return new ImageSharpImageSourceImpl<TPixel>(name, () =>
-            {
-                return Image.Load<TPixel>(imageSource.Invoke());
-            }, (int)quality);
+            var image = Image.Load<TPixel>(imageSource.Invoke(), out IImageFormat imgFormat);
+            return new ImageSharpImageSourceImpl<TPixel>(name, image, (int)quality, imgFormat is PngFormat);
         }
 
         protected override IImageSource FromFileImpl(string path, int? quality = 75)
         {
-            return new ImageSharpImageSourceImpl<TPixel>(path, () =>
-            {
-                return Image.Load<TPixel>(path);
-            }, (int)quality);
+            var image = Image.Load<TPixel>(path, out IImageFormat imgFormat);
+            return new ImageSharpImageSourceImpl<TPixel>(path, image, (int) quality, imgFormat is PngFormat);
         }
 
         protected override IImageSource FromStreamImpl(string name, Func<Stream> imageStream, int? quality = 75)
         {
-            return new ImageSharpImageSourceImpl<TPixel>(name, () =>
+            using (var stream = imageStream.Invoke())
             {
-                using (var stream = imageStream.Invoke())
-                {
-                    return Image.Load<TPixel>(stream);
-                }
-            }, (int)quality);
+                var image = Image.Load<TPixel>(stream, out IImageFormat imgFormat);
+                return new ImageSharpImageSourceImpl<TPixel>(name, image, (int)quality, imgFormat is PngFormat);
+            }
         }
 
         private class ImageSharpImageSourceImpl<TPixel2> : IImageSource where TPixel2 : struct, IPixel<TPixel2>
         {
-
-            private Image<TPixel2> _image;
-            private Image<TPixel2> Image
-            {
-                get
-                {
-                    if (_image == null)
-                    {
-                        _image = _getImage.Invoke();
-                    }
-                    return _image;
-                }
-            }
-            private Func<Image<TPixel2>> _getImage;
+            private Image<TPixel2> Image { get; }
             private readonly int _quality;
 
             public int Width => Image.Width;
             public int Height => Image.Height;
             public string Name { get; }
+            public bool Transparent { get; internal set; }
 
-            public ImageSharpImageSourceImpl(string name, Func<Image<TPixel2>> getImage, int quality)
+            public ImageSharpImageSourceImpl(string name, Image<TPixel2> image, int quality, bool isTransparent)
             {
                 Name = name;
-                _getImage = getImage;
+                Image = image;
                 _quality = quality;
+                Transparent = isTransparent;
             }
 
             public void SaveAsJpeg(MemoryStream ms)
@@ -73,6 +59,11 @@ namespace PdfSharpCore.Utils
             public void Dispose()
             {
                 Image.Dispose();
+            }
+            public void SaveAsPdfBitmap(MemoryStream ms)
+            {
+                BmpEncoder bmp = new BmpEncoder { BitsPerPixel = BmpBitsPerPixel.Pixel32 };
+                Image.Save(ms, bmp);
             }
         }
     }

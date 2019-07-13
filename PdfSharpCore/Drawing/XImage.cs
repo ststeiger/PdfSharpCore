@@ -178,7 +178,7 @@ namespace PdfSharpCore.Drawing
             if (_source != null)
             {
                 //We always get a jpeg from an image source
-                _format = XImageFormat.Jpeg;
+                _format = _source.Transparent ? XImageFormat.Png : XImageFormat.Jpeg;
             }
         }
 
@@ -200,6 +200,14 @@ namespace PdfSharpCore.Drawing
         {
             var ms = new MemoryStream();
             _source.SaveAsJpeg(ms);
+            ms.Position = 0;
+            return ms;
+        }
+
+        public MemoryStream AsBitmap()
+        {
+            var ms = new MemoryStream();
+            _source.SaveAsPdfBitmap(ms);
             ms.Position = 0;
             return ms;
         }
