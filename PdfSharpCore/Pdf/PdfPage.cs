@@ -78,8 +78,19 @@ namespace PdfSharpCore.Pdf
 
         void Initialize()
         {
-            Size = RegionInfo.CurrentRegion.IsMetric ? PageSize.A4 : PageSize.Letter;
 
+            try
+            {
+                Size = RegionInfo.CurrentRegion.IsMetric ? PageSize.A4 : PageSize.Letter;
+            }
+            catch (System.NotImplementedException)
+            {
+                // https://github.com/ststeiger/PdfSharpCore/issues/46
+                // { System.NotImplementedException: Neutral region info
+                // at System.Globalization.RegionInfo..ctor
+                Size = PageSize.A4;
+            }
+            
 #pragma warning disable 168
             // Force creation of MediaBox object by invoking property
             PdfRectangle rect = MediaBox;
