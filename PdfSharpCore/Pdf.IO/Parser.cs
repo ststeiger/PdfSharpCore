@@ -229,6 +229,9 @@ namespace PdfSharpCore.Pdf.IO
                     return pdfObject;
 
                 case Symbol.String:
+                case Symbol.UnicodeString:
+                case Symbol.HexString:
+                case Symbol.UnicodeHexString:
                     pdfObject = new PdfStringObject(_document, _lexer.Token);
                     pdfObject.SetObjectID(objectNumber, generationNumber);
                     if (!fromObjecStream)
