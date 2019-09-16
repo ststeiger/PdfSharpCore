@@ -26,7 +26,7 @@ namespace PdfSharpCore.Utils
             fontfaceTofontfileMap = new Dictionary<string, int>();
 
             for (int i = 0; i < numFonts; ++i)
-                fontfaceTofontfileMap.Add(Path.GetFileName(s_SupportedFonts[i]), i);
+                fontfaceTofontfileMap[Path.GetFileName(s_SupportedFonts[i])] = i;
         }
 
         static FontResolver()
