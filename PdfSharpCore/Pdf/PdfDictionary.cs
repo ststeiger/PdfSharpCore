@@ -407,6 +407,9 @@ namespace PdfSharpCore.Pdf
                 if (integerObject != null)
                     return integerObject.Value;
 
+                PdfUInteger uinteger = obj as PdfUInteger;
+                if (uinteger != null)
+                    return (int)uinteger.Value;
                 throw new InvalidCastException("GetInteger: Object is not an integer.");
             }
 
