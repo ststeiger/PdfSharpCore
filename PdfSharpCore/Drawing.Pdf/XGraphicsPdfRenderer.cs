@@ -392,7 +392,7 @@ namespace PdfSharpCore.Drawing.Pdf
             if (pen == null && brush == null)
                 throw new ArgumentNullException("pen");
 
-#if CORE
+#if CORE || PORTABLE
             Realize(pen, brush);
             AppendPath(path._corePath);
             AppendStrokeFill(pen, brush, path.FillMode, false);
@@ -1228,7 +1228,7 @@ namespace PdfSharpCore.Drawing.Pdf
         }
 #endif
 
-#if CORE  || __IOS__ || __ANDROID__
+#if CORE  || __IOS__ || __ANDROID__ || PORTABLE
         /// <summary>
         /// Appends the content of a GraphicsPath object.
         /// </summary>
@@ -1340,7 +1340,7 @@ namespace PdfSharpCore.Drawing.Pdf
         }
 #endif
 
-#if CORE || GDI || __IOS__ || __ANDROID__
+#if CORE || GDI || __IOS__ || __ANDROID__ || PORTABLE
         void AppendPath(XPoint[] points, Byte[] types)
         {
             const string format = Config.SignificantFigures4;
