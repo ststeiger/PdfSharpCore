@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Xml.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -89,6 +90,22 @@ namespace PdfSharpCore.Utils
                 tf, fontkey;
 
             familyName = familyName.ToLower();
+            string familyType = string.Empty;
+
+            if (familyName.Contains(' '))
+            {
+                //For example:
+                //Original familyName: 'Lato Regular'
+                //splitting the familyName to get font type otherwise the first font is taken.
+                var values = familyName.Split(' ');
+                if (values.Length > 0)
+                {
+                    familyName = values[0];
+                    if (values.Length > 1)
+                        familyType = values[1];
+                }   
+            }
+            
 
             fontkey = familyName;
             if (isBold) fontkey += "b";
@@ -96,44 +113,58 @@ namespace PdfSharpCore.Utils
 
             if (!fontfamilyTofontfaceMap.TryGetValue(fontkey, out ttfFile))
             {
-                foreach (string fontfile in fontfaceTofontfileMap.Keys)
+                var fontFiles = fontfaceTofontfileMap.Keys
+                                    .Where(x =>
+                                    {   
+                                        //Select only the fonts which contains the familyName
+                                        return Path.GetFileNameWithoutExtension(x).ToLower().TrimEnd('-', '_').Contains(familyName);
+                                    });
+                //Fallback:
+                //In case we do not found any font with specified type. We take the first machting font.
+                //This is not guaranteed to always be correct, but the first matching key is usually the normal variant.
+                ttfFile = fontFiles.FirstOrDefault();
+                
+                foreach (string fontfile in fontFiles)
                 {
                     tf = Path.GetFileNameWithoutExtension(fontfile).ToLower().TrimEnd('-', '_');
 
-                    if (tf.Contains(familyName))
+                    if (isBold && isItalic)
                     {
-                        ttfFile = fontfile;
-
-                        if (isBold && isItalic)
+                        if ((tf.Contains("bold") && tf.Contains("italic")) || (tf.EndsWith("bi", StringComparison.Ordinal) || tf.EndsWith("ib", StringComparison.Ordinal)))
                         {
-                            if ((tf.Contains("bold") && tf.Contains("italic")) || (tf.EndsWith("bi", StringComparison.Ordinal) || tf.EndsWith("ib", StringComparison.Ordinal)))
-                            {
-                                ttfFile = fontfile;
-                                break;
-                            }
-                        }
-                        else if (isBold)
-                        {
-                            if (tf.Contains("bold") || tf.EndsWith("b", StringComparison.Ordinal) || tf.EndsWith("bd", StringComparison.Ordinal))
-                            {
-                                ttfFile = fontfile;
-                                break;
-                            }
-                        }
-                        else if (isItalic)
-                        {
-                            if (tf.Contains("italic") || tf.EndsWith("i", StringComparison.Ordinal) || tf.EndsWith("ib", StringComparison.Ordinal))
-                            {
-                                ttfFile = fontfile;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            //We found a match on this font and did not want bold or italic.
-                            //This is not guaranteed to always be correct, but the first matching key is usually the normal variant.
+                            ttfFile = fontfile;
                             break;
                         }
+                    }
+                    else if (isBold)
+                    {
+                        if (tf.Contains("bold") || tf.EndsWith("b", StringComparison.Ordinal) || tf.EndsWith("bd", StringComparison.Ordinal))
+                        {
+                            ttfFile = fontfile;
+                            break;
+                        }
+                    }
+                    else if (isItalic)
+                    {
+                        if (tf.Contains("italic") || tf.EndsWith("i", StringComparison.Ordinal) || tf.EndsWith("ib", StringComparison.Ordinal))
+                        {
+                            ttfFile = fontfile;
+                            break;
+                        }
+                    }
+                    else if (!string.IsNullOrWhiteSpace(familyType) && tf.Contains(familyType))
+                    {
+                        //We found a match on this font with the user specified "extra"-type.
+                        //For example: Lato-Regular
+                        //Type: Regular
+                        ttfFile = fontfile;
+                        break;
+                    }
+                    else
+                    {
+                        //We found a match on this font but this font did not contain bold, italic or an user specified "extra"-type.
+                        //So we continue to the fontFile of this fontFamily.
+                        continue;
                     }
                 }
 
