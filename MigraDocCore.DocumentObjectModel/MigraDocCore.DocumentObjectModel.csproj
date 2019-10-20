@@ -21,4 +21,7 @@
     <ProjectReference Include="..\PdfSharpCore\PdfSharpCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Remove="MigraDoc.DocumentObjectModel.Resources\AppResources.resx" />
+  </ItemGroup>
 </Project>
