@@ -114,7 +114,7 @@ namespace PdfSharpCore.Utils
                         }
                         else if (isBold)
                         {
-                            if (tf.Contains("bold") || tf.EndsWith("b", StringComparison.Ordinal) || tf.EndsWith("bd", StringComparison.Ordinal))
+                            if ((tf.Contains("bold") && !tf.Contains("italic")) || tf.EndsWith("b", StringComparison.Ordinal) || tf.EndsWith("bd", StringComparison.Ordinal))
                             {
                                 ttfFile = fontfile;
                                 break;
@@ -122,7 +122,7 @@ namespace PdfSharpCore.Utils
                         }
                         else if (isItalic)
                         {
-                            if (tf.Contains("italic") || tf.EndsWith("i", StringComparison.Ordinal) || tf.EndsWith("ib", StringComparison.Ordinal))
+                            if ((!tf.Contains("bold") && tf.Contains("italic")) || tf.EndsWith("i", StringComparison.Ordinal) || tf.EndsWith("ib", StringComparison.Ordinal))
                             {
                                 ttfFile = fontfile;
                                 break;
