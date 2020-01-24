@@ -122,7 +122,7 @@ namespace PdfSharpCore.Drawing
                     {
                         // Remap ch for symbol fonts.
                         ch = (char)(ch | (descriptor.FontFace.os2.usFirstCharIndex & 0xFF00));  // @@@ refactor
-                                                                                                // Used | instead of + because of: http://PdfSharpCore.codeplex.com/workitem/15954
+                        // Used | instead of + because of: http://PdfSharpCore.codeplex.com/workitem/15954
                     }
                     int glyphIndex = descriptor.CharCodeToGlyphIndex(ch);
                     width += descriptor.GlyphIndexToWidth(glyphIndex);
