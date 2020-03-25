@@ -27,12 +27,12 @@
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
-using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Internal;
+using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Text;
 
 namespace PdfSharpCore.Fonts.OpenType
 {
@@ -43,7 +43,7 @@ namespace PdfSharpCore.Fonts.OpenType
     {
         GlyphTypefaceCache()
         {
-            _glyphTypefacesByKey = new Dictionary<string, XGlyphTypeface>();
+            _glyphTypefacesByKey = new ConcurrentDictionary<string, XGlyphTypeface>();
         }
 
         public static bool TryGetGlyphTypeface(string key, out XGlyphTypeface glyphTypeface)
@@ -64,7 +64,7 @@ namespace PdfSharpCore.Fonts.OpenType
                 Lock.EnterFontFactory();
                 GlyphTypefaceCache cache = Singleton;
                 Debug.Assert(!cache._glyphTypefacesByKey.ContainsKey(glyphTypeface.Key));
-                cache._glyphTypefacesByKey.Add(glyphTypeface.Key, glyphTypeface);
+                cache._glyphTypefacesByKey.TryAdd(glyphTypeface.Key, glyphTypeface);
             }
             finally { Lock.ExitFontFactory(); }
         }
@@ -97,7 +97,7 @@ namespace PdfSharpCore.Fonts.OpenType
             StringBuilder state = new StringBuilder();
             state.Append("====================\n");
             state.Append("Glyph typefaces by name\n");
-            Dictionary<string, XGlyphTypeface>.KeyCollection familyKeys = Singleton._glyphTypefacesByKey.Keys;
+            var familyKeys = Singleton._glyphTypefacesByKey.Keys;
             int count = familyKeys.Count;
             string[] keys = new string[count];
             familyKeys.CopyTo(keys, 0);
@@ -111,6 +111,6 @@ namespace PdfSharpCore.Fonts.OpenType
         /// <summary>
         /// Maps typeface key to glyph typeface.
         /// </summary>
-        readonly Dictionary<string, XGlyphTypeface> _glyphTypefacesByKey;
+        readonly ConcurrentDictionary<string, XGlyphTypeface> _glyphTypefacesByKey;
     }
 }
