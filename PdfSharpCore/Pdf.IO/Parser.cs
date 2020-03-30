@@ -295,6 +295,10 @@ namespace PdfSharpCore.Pdf.IO
                 ReadSymbol(Symbol.EndStream);
                 symbol = ScanNextToken();
 #endif
+                if (symbol == Symbol.Eof)
+                {
+                    symbol = Symbol.EndObj;
+                }
             }
             if (!fromObjecStream && symbol != Symbol.EndObj)
                 ParserDiagnostics.ThrowParserException(PSSR.UnexpectedToken(_lexer.Token));
@@ -634,14 +638,14 @@ namespace PdfSharpCore.Pdf.IO
             {
                 Skip:
                 char ch = _lexer.MoveToNonWhiteSpace();
-                if (ch != 'e')
+                if (ch != 'e' && ch != Chars.EOF)
                 {
                     _lexer.ScanNextChar(false);
                     goto Skip;
                 }
             }
             Symbol current = _lexer.ScanNextToken();
-            if (symbol != current)
+            if (symbol != current && current != Symbol.Eof)
                 ParserDiagnostics.HandleUnexpectedToken(_lexer.Token);
             return current;
         }
