@@ -4,7 +4,7 @@
 Additionally MigraDoc has been ported as well (from version 1.32).
 Images have been implemented with [ImageSharp](https://github.com/JimBobSquarePants/ImageSharp/), which is still in Alpha. They State on their readme that it is still in Alpha status and shouldn't be used in productive environments. Since I didn't find any good alternatives it's still used.
 
-ImageSharp beeing Alpha isn't a big issure either since this code isn't by far done yet. So please chime in ;)
+ImageSharp being Alpha isn't a big issue either since this code isn't by far done yet. So please chime in ;)
 
 **PdfSharp.Xamarin** is a partial port of [PdfSharp](http://www.pdfsharp.net/) for iOS and Android using Xamarin, it allows for creation and modification of PDF files.
 
