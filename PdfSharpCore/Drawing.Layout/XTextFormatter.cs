@@ -79,7 +79,7 @@ namespace PdfSharpCore.Drawing.Layout
                 _cyDescent = _lineSpace * _font.CellDescent / _font.CellSpace;
 
                 // HACK in XTextFormatter
-                _spaceWidth = _gfx.MeasureString("x x", value).Width;
+                _spaceWidth = _gfx.MeasureString("x x", value).Width;
                 _spaceWidth -= _gfx.MeasureString("xx", value).Width;
             }
         }
