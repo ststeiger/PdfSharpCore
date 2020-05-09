@@ -1,15 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Stefan Steiger and Contributors</Authors>
+    <Description>MigraDocCore.Rendering for .NET Core
+
+MigraDocCore.Rendering was ported from MigraDoc version 1.32</Description>
+    <Copyright>Copyright (c) 2005-2007 empira Software GmbH, Cologne (Germany)</Copyright>
+    <PackageLicenseUrl>https://github.com/ststeiger/PdfSharpCore</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/ststeiger/PdfSharpCore</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ststeiger/PdfSharpCore</RepositoryUrl>
+    <PackageReleaseNotes>MigraDocCore.Rendering was ported from MigraDoc version 1.32</PackageReleaseNotes>
+    <summary>MigraDocCore.Rendering for .NET Core</summary>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETCOREAPP1_1;PORTABLE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;RELEASE;NETCOREAPP1_1;PORTABLE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
     <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MigraDocCore.DocumentObjectModel\MigraDocCore.DocumentObjectModel.csproj" />
     <ProjectReference Include="..\PdfSharpCore.Charting\PdfSharpCore.Charting.csproj" />
     <ProjectReference Include="..\PdfSharpCore\PdfSharpCore.csproj" />
