@@ -1,7 +1,7 @@
 #region PDFsharp - A .NET library for processing PDF
 //
 // Authors:
-//   Stefan Lange
+//   Ben Askren
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
@@ -33,7 +33,7 @@ using PdfSharpCore.Internal;
 #if GDI
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using GdiLinearGradientBrush =System.Drawing.Drawing2D.LinearGradientBrush;
+//using GdiLinearGradientBrush = System.Drawing.Drawing2D.LinearGradientBrush;
 #endif
 #if WPF
 using System.Windows;
@@ -57,93 +57,58 @@ namespace PdfSharpCore.Drawing
     /// <summary>
     /// Defines a Brush with a linear gradient.
     /// </summary>
-    public sealed class XLinearGradientBrush : XBaseGradientBrush
+    public sealed class XRadialGradientBrush : XBaseGradientBrush
     {
-        //internal XLinearGradientBrush();
+        //internal XRadialGradientBrush();
 
 #if GDI
         /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
+        /// Initializes a new instance of the <see cref="XRadialGradientBrush"/> class.
         /// </summary>
-        public XLinearGradientBrush(System.Drawing.Point point1, System.Drawing.Point point2, XColor color1, XColor color2)
-            : this(new XPoint(point1), new XPoint(point2), color1, color2)
+        public XRadialGradientBrush(System.Drawing.Point center1, System.Drawing.Point center2, double r1, double r2, XColor color1, XColor color2)
+            : this(new XPoint(center1), new XPoint(center2), r1, r2, color1, color2)
         { }
 #endif
 
 #if WPF
         /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
+        /// Initializes a new instance of the <see cref="XRadialGradientBrush"/> class.
         /// </summary>
-        public XLinearGradientBrush(SysPoint point1, SysPoint point2, XColor color1, XColor color2)
-            : this(new XPoint(point1), new XPoint(point2), color1, color2)
+        public XRadialGradientBrush(SysPoint center1, SysPoint center2, double r1, double r2, XColor color1, XColor color2)
+            : this(new XPoint(center1), mew XPoint(center2), r1, r2, color1, color2)
         { }
 #endif
 
 #if GDI
         /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
+        /// Initializes a new instance of the <see cref="XRadialGradientBrush"/> class.
         /// </summary>
-        public XLinearGradientBrush(PointF point1, PointF point2, XColor color1, XColor color2)
-            : this(new XPoint(point1), new XPoint(point2), color1, color2)
+        public XRadialGradientBrush(PointF center1, PointF center2, double r1, double r2, XColor color1, XColor color2)
+            : this(new XPoint(center1), new XPoint(center2), r1, r2, color1, color2)
         { }
 #endif
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
+        /// Initializes a new instance of the <see cref="XRadialGradientBrush"/> class.
         /// </summary>
-        public XLinearGradientBrush(XPoint point1, XPoint point2, XColor color1, XColor color2) : base(color1, color2)
+        public XRadialGradientBrush(XPoint center1, XPoint center2, double r1, double r2, XColor color1, XColor color2) : base(color1, color2)
         {
-            _point1 = point1;
-            _point2 = point2;
+            _center1 = center1;
+            _center2 = center2;
+            _r1 = r1;
+            _r2 = r2;
         }
 
-#if GDI
         /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
+        /// Initializes a new instance of the <see cref="XRadialGradientBrush"/> class.
         /// </summary>
-        public XLinearGradientBrush(Rectangle rect, XColor color1, XColor color2, XLinearGradientMode linearGradientMode)
-            : this(new XRect(rect), color1, color2, linearGradientMode)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
-        /// </summary>
-        public XLinearGradientBrush(RectangleF rect, XColor color1, XColor color2, XLinearGradientMode linearGradientMode)
-            : this(new XRect(rect), color1, color2, linearGradientMode)
-        { }
-#endif
-
-#if WPF
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
-        /// </summary>
-        public XLinearGradientBrush(Rect rect, XColor color1, XColor color2, XLinearGradientMode linearGradientMode)
-            : this(new XRect(rect), color1, color2, linearGradientMode)
-        { }
-#endif
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
-        /// </summary>
-        public XLinearGradientBrush(XRect rect, XColor color1, XColor color2, XLinearGradientMode linearGradientMode) : base(color1, color2)
+        public XRadialGradientBrush(XPoint center, double r1, double r2, XColor color1, XColor color2) : base(color1, color2)
         {
-            if (!Enum.IsDefined(typeof(XLinearGradientMode), linearGradientMode))
-                throw new InvalidEnumArgumentException("linearGradientMode", (int)linearGradientMode, typeof(XLinearGradientMode));
-
-            if (rect.Width == 0 || rect.Height == 0)
-                throw new ArgumentException("Invalid rectangle.", "rect");
-
-            _useRect = true;
-            _rect = rect;
-            _linearGradientMode = linearGradientMode;
+            _center1 = center;
+            _center2 = center;
+            _r1 = r1;
+            _r2 = r2;
         }
-
-        // TODO: 
-        //public XLinearGradientBrush(Rectangle rect, XColor color1, XColor color2, double angle);
-        //public XLinearGradientBrush(RectangleF rect, XColor color1, XColor color2, double angle);
-        //public XLinearGradientBrush(Rectangle rect, XColor color1, XColor color2, double angle, bool isAngleScaleable);
-        //public XLinearGradientBrush(RectangleF rect, XColor color1, XColor color2, double angle, bool isAngleScaleable);
-        //public XLinearGradientBrush(RectangleF rect, XColor color1, XColor color2, double angle, bool isAngleScaleable);
 
 
 #if GDI
@@ -161,19 +126,34 @@ namespace PdfSharpCore.Drawing
             //}
 
             // TODO: use dirty to optimize code
-            GdiLinearGradientBrush brush;
+            PathGradientBrush brush;
             try
             {
                 Lock.EnterGdiPlus();
+
+                    GraphicsPath gp = new GraphicsPath();
+
+                    
+
+                    gp.AddEllipse();
+
+                    PathGradientBrush pgb = new PathGradientBrush(gp);
+
+                    pgb.CenterPoint = new PointF(label1.ClientRectangle.Width / 2, 
+                                                 label1.ClientRectangle.Height / 2);
+                    pgb.CenterColor = Color.White;
+                    pgb.SurroundingColors = new Color[] { Color.Red };
+
+
                 if (_useRect)
                 {
-                    brush = new GdiLinearGradientBrush(_rect.ToRectangleF(),
+                    brush = new PathGradientBrush(_rect.ToRectangleF(),
                         _color1.ToGdiColor(), _color2.ToGdiColor(), (LinearGradientMode)_linearGradientMode);
                 }
                 else
                 {
                     brush = new GdiLinearGradientBrush(
-                        _point1.ToPointF(), _point2.ToPointF(),
+                        _center.ToPointF(), _point2.ToPointF(),
                         _color1.ToGdiColor(), _color2.ToGdiColor());
                 }
                 if (!_matrix.IsIdentity)
@@ -228,9 +208,9 @@ namespace PdfSharpCore.Drawing
             else
             {
 #if !SILVERLIGHT
-                brush = new System.Windows.Media.LinearGradientBrush(_color1.ToWpfColor(), _color2.ToWpfColor(), _point1, _point2);
+                brush = new System.Windows.Media.LinearGradientBrush(_color1.ToWpfColor(), _color2.ToWpfColor(), _center, _point2);
                 //brush = new System.Drawing.Drawing2D.LinearGradientBrush(
-                //  point1.ToPointF(), point2.ToPointF(),
+                //  center.ToPointF(), point2.ToPointF(),
                 //  color1.ToGdiColor(), color2.ToGdiColor());
 #else
                 GradientStop gs1 = new GradientStop();
@@ -246,7 +226,7 @@ namespace PdfSharpCore.Drawing
                 gsc.Add(gs2);
 
                 brush = new LinearGradientBrush(gsc, 0);
-                brush.StartPoint = _point1;
+                brush.StartPoint = _center;
                 brush.EndPoint = _point2;
 #endif
             }
@@ -275,10 +255,7 @@ namespace PdfSharpCore.Drawing
         }
 #endif
 
-
-        internal bool _useRect;
-        internal XPoint _point1, _point2;
-        internal XRect _rect;
-        internal XLinearGradientMode _linearGradientMode;
+        internal XPoint _center1, _center2;
+        internal double _r1, _r2;
     }
 }

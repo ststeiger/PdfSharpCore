@@ -1,0 +1,9 @@
+[submodule "SixLabors/Fonts"]
+	path = SixLabors/Fonts
+	url = https://github.com/SixLabors/Fonts.git
+[submodule "SixLabors/Core"]
+	path = SixLabors/Core
+	url = https://github.com/SixLabors/Core.git
+[submodule "SixLabors/ImageSharp"]
+	path = SixLabors/ImageSharp
+	url = https://github.com/SixLabors/ImageSharp.git

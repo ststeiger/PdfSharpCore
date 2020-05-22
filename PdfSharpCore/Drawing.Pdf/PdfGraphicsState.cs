@@ -265,8 +265,7 @@ namespace PdfSharpCore.Drawing.Pdf
                 if (renderingMode != 0)
                     throw new InvalidOperationException("Rendering modes other than 0 can only be used with solid color brushes.");
 
-                XLinearGradientBrush gradientBrush = brush as XLinearGradientBrush;
-                if (gradientBrush != null)
+                if (brush is XBaseGradientBrush gradientBrush)
                 {
                     Debug.Assert(UnrealizedCtm.IsIdentity, "Must realize ctm first.");
                     XMatrix matrix = _renderer.DefaultViewMatrix;
@@ -387,7 +386,7 @@ namespace PdfSharpCore.Drawing.Pdf
         public XPoint RealizedTextPosition;
 
         /// <summary>
-        /// Indicates that the text transformation matrix currently skews 20° to the right.
+        /// Indicates that the text transformation matrix currently skews 20? to the right.
         /// </summary>
         public bool ItalicSimulationOn;
 

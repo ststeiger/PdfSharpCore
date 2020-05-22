@@ -58,6 +58,21 @@ namespace PdfSharpCore.Pdf.Advanced
         /// <summary>
         /// Setups the shading pattern from the specified brush.
         /// </summary>
+        internal void SetupFromBrush(XBaseGradientBrush brush, XMatrix matrix, XGraphicsPdfRenderer renderer)
+        {
+            if (brush == null)
+                throw new ArgumentNullException("brush");
+
+            PdfShading shading = new PdfShading(_document);
+            shading.SetupFromBrush(brush, renderer);
+            Elements[Keys.Shading] = shading;
+            //Elements[Keys.Matrix] = new PdfLiteral("[" + PdfEncoders.ToString(matrix) + "]");
+            Elements.SetMatrix(Keys.Matrix, matrix);
+        }
+
+        /// <summary>
+        /// Setups the shading pattern from the specified brush.
+        /// </summary>
         internal void SetupFromBrush(XLinearGradientBrush brush, XMatrix matrix, XGraphicsPdfRenderer renderer)
         {
             if (brush == null)
@@ -90,7 +105,7 @@ namespace PdfSharpCore.Pdf.Advanced
             public const string PatternType = "/PatternType";
 
             /// <summary>
-            /// (Required) A shading object (see below) defining the shading pattern’s gradient fill.
+            /// (Required) A shading object (see below) defining the shading pattern?s gradient fill.
             /// </summary>
             [KeyInfo(KeyType.Dictionary | KeyType.Required)]
             public const string Shading = "/Shading";
