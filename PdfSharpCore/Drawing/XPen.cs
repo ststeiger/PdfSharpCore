@@ -77,6 +77,30 @@ namespace PdfSharpCore.Drawing
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="XPen"/> class
+        /// </summary>
+        /// <param name="brush"></param>
+        public XPen(XBrush brush) : this(brush, 1, false) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XPen"/> class
+        /// </summary>
+        /// <param name="brush"></param>
+        /// <param name="width"></param>
+        public XPen(XBrush brush, double width) : this(brush, width, false) { }
+
+        internal XPen(XBrush brush, double width, bool immutable)
+        {
+            _brush = brush;
+            _width = width;
+            _lineJoin = XLineJoin.Miter;
+            _lineCap = XLineCap.Flat;
+            _dashStyle = XDashStyle.Solid;
+            _dashOffset = 0f;
+            _immutable = immutable;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="XPen"/> class.
         /// </summary>
         public XPen(XPen pen)
@@ -100,6 +124,20 @@ namespace PdfSharpCore.Drawing
             return new XPen(this);
         }
 
+        public XBrush Brush
+        {
+            get => _brush;
+            set
+            {
+                if (_immutable)
+                    throw new ArgumentException(PSSR.CannotChangeImmutableObject("XPen"));
+                _dirty = _dirty || _brush != value;
+                _brush = value;
+                _color = XColor.Empty;
+            }
+        }
+        internal XBrush _brush;
+
         /// <summary>
         /// Gets or sets the color.
         /// </summary>
@@ -112,6 +150,7 @@ namespace PdfSharpCore.Drawing
                     throw new ArgumentException(PSSR.CannotChangeImmutableObject("XPen"));
                 _dirty = _dirty || _color != value;
                 _color = value;
+                _brush = null;
             }
         }
         internal XColor _color;

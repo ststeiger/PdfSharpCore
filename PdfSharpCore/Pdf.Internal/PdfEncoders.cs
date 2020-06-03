@@ -426,7 +426,7 @@ namespace PdfSharpCore.Pdf.Internal
         }
 
         /// <summary>
-        /// Converts WinAnsi to DocEncode characters. Incomplete, just maps € and some other characters.
+        /// Converts WinAnsi to DocEncode characters. Incomplete, just maps ? and some other characters.
         /// </summary>
         static byte[] docencode_______ = new byte[256]
         {
@@ -605,8 +605,8 @@ namespace PdfSharpCore.Pdf.Internal
                       color.C, color.M, color.Y, color.K);
 
                 default:
-                    return String.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "}",
-                      color.R / 255.0, color.G / 255.0, color.B / 255.0);
+                    return String.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "}",
+                      color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A);
             }
         }
 
