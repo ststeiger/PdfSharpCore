@@ -590,7 +590,7 @@ namespace PdfSharpCore.Pdf.Internal
         /// <summary>
         /// Converts an XColor into a string with up to 3 decimal digits and a decimal point.
         /// </summary>
-        public static string ToString(XColor color, PdfColorMode colorMode)
+        public static string ToString(XColor color, PdfColorMode colorMode, bool withAlpha = false)
         {
             const string format = Config.SignificantFigures3;
 
@@ -605,8 +605,13 @@ namespace PdfSharpCore.Pdf.Internal
                       color.C, color.M, color.Y, color.K);
 
                 default:
-                    return String.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "}",
-                      color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A);
+                    {
+                        if (withAlpha)
+                            return String.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "}", color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A);
+                        else
+                            return String.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "}", color.R / 255.0, color.G / 255.0, color.B / 255.0);
+
+                    }
             }
         }
 

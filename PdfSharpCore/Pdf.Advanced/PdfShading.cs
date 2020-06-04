@@ -102,8 +102,8 @@ namespace PdfSharpCore.Pdf.Advanced
             Elements[Keys.Function] = function;
             //Elements[Keys.Extend] = new PdfRawItem("[true true]");
 
-            string clr1 = "[" + PdfEncoders.ToString(color1, colorMode) + "]";
-            string clr2 = "[" + PdfEncoders.ToString(color2, colorMode) + "]";
+            string clr1 = "[" + PdfEncoders.ToString(color1, colorMode, true) + "]";
+            string clr2 = "[" + PdfEncoders.ToString(color2, colorMode, true) + "]";
 
             function.Elements["/FunctionType"] = new PdfInteger(2);
             function.Elements["/C0"] = new PdfLiteral(clr1);
@@ -188,8 +188,8 @@ namespace PdfSharpCore.Pdf.Advanced
             Elements[Keys.Function] = function;
             //Elements[Keys.Extend] = new PdfRawItem("[true true]");
 
-            string clr1 = "[" + PdfEncoders.ToString(color1, colorMode) + "]";
-            string clr2 = "[" + PdfEncoders.ToString(color2, colorMode) + "]";
+            string clr1 = "[" + PdfEncoders.ToString(color1, colorMode, true) + "]";
+            string clr2 = "[" + PdfEncoders.ToString(color2, colorMode, true) + "]";
 
             function.Elements["/FunctionType"] = new PdfInteger(2);
             function.Elements["/C0"] = new PdfLiteral(clr1);
