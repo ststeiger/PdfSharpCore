@@ -105,7 +105,7 @@ namespace PdfSharpCore.Pdf.Advanced
             public const string PatternType = "/PatternType";
 
             /// <summary>
-            /// (Required) A shading object (see below) defining the shading pattern?s gradient fill.
+            /// (Required) A shading object (see below) defining the shading pattern's gradient fill.
             /// </summary>
             [KeyInfo(KeyType.Dictionary | KeyType.Required)]
             public const string Shading = "/Shading";
