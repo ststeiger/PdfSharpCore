@@ -826,11 +826,11 @@ namespace PdfSharpCore.Pdf
         /// it is imported to this document. In this case the returned page is not the same
         /// object as the specified one.
         /// </summary>
-        public PdfPage AddPage(PdfPage page)
+        public PdfPage AddPage(PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
         {
             if (!CanModify)
                 throw new InvalidOperationException(PSSR.CannotModify);
-            return Catalog.Pages.Add(page);
+            return Catalog.Pages.Add(page, annotationCopying);
         }
 
         /// <summary>
@@ -848,11 +848,11 @@ namespace PdfSharpCore.Pdf
         /// it is imported to this document. In this case the returned page is not the same
         /// object as the specified one.
         /// </summary>
-        public PdfPage InsertPage(int index, PdfPage page)
+        public PdfPage InsertPage(int index, PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
         {
             if (!CanModify)
                 throw new InvalidOperationException(PSSR.CannotModify);
-            return Catalog.Pages.Insert(index, page);
+            return Catalog.Pages.Insert(index, page, annotationCopying);
         }
 
         /// <summary>
