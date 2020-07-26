@@ -4437,6 +4437,11 @@ namespace PdfSharpCore.Drawing  // #??? aufräumen
             if (TargetContext == XGraphicTargetContext.WPF)
                 xContainer = new XGraphicsContainer();
 #endif
+
+#if __ANDROID__ || __IOS__ || PORTABLE
+            xContainer = new XGraphicsContainer();
+#endif
+
             InternalGraphicsState iState = new InternalGraphicsState(this, xContainer);
             iState.Transform = _transform;
 
