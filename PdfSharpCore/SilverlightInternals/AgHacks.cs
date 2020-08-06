@@ -27,21 +27,10 @@
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
-#if SILVERLIGHT || UWP || PORTABLE
+#if NETSTANDARD1_3
 using System;
 
-#if SILVERLIGHT
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-#endif
-
+// Available starting in standard 2.0
 public class BrowsableAttribute : Attribute
 {
     public BrowsableAttribute(bool browsable)
@@ -51,12 +40,14 @@ public class BrowsableAttribute : Attribute
 
 /// <summary>
 /// SerializableAttribute for compatibility with Silverlight.
+/// Available starting in standard 2.0
 /// </summary>
 public class SerializableAttribute : Attribute
 { }
 
 /// <summary>
 /// ICloneable for compatibility with Silverlight.
+/// Available starting in standard 2.0
 /// </summary>
 public interface ICloneable
 {
@@ -70,6 +61,7 @@ namespace PdfSharpCore
 {
     /// <summary>
     /// The exception that is thrown when a non-fatal application error occurs.
+    /// Available starting in standard 2.0
     /// </summary>
     public class ApplicationException : Exception
     {
@@ -95,98 +87,10 @@ namespace PdfSharpCore
             : base(message, innerException)
         { }
     }
-#if PORTABLE
-    public enum TypeCode
-    {
-
-        Empty = 0,
-        Object = 1,
-        DBNull = 2,
-        Boolean = 3,
-        Char = 4,
-        SByte = 5,
-        Byte = 6,
-        Int16 = 7,
-        UInt16 = 8,
-        Int32 = 9,
-        UInt32 = 10,
-        Int64 = 11,
-        UInt64 = 12,
-        Single = 13,
-        Double = 14,
-        Decimal = 15,
-        DateTime = 16,
-        String = 18
-    }
-
-    public interface IConvertible
-    {
-        TypeCode GetTypeCode();
-
-        bool ToBoolean(IFormatProvider provider);
-        byte ToByte(IFormatProvider provider);
-        char ToChar(IFormatProvider provider);
-        DateTime ToDateTime(IFormatProvider provider);
-        decimal ToDecimal(IFormatProvider provider);
-        double ToDouble(IFormatProvider provider);
-        short ToInt16(IFormatProvider provider);
-        int ToInt32(IFormatProvider provider);
-        long ToInt64(IFormatProvider provider);
-        sbyte ToSByte(IFormatProvider provider);
-        float ToSingle(IFormatProvider provider);
-        string ToString(IFormatProvider provider);
-        object ToType(Type conversionType, IFormatProvider provider);
-        ushort ToUInt16(IFormatProvider provider);
-        uint ToUInt32(IFormatProvider provider);
-        ulong ToUInt64(IFormatProvider provider);
-    }
-#endif
-
-#if SILVERLIGHT || PORTABLE
-    /// <summary>
-    /// The exception that is thrown when the value of an argument is outside
-    /// the allowable range of values as defined by the invoked method.
-    /// </summary>
-    public class ArgumentOutOfRangeException : ArgumentException
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ArgumentOutOfRangeException"/> class.
-        /// </summary>
-        public ArgumentOutOfRangeException()
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ArgumentOutOfRangeException"/> class.
-        /// </summary>
-        public ArgumentOutOfRangeException(string message)
-            : base(message)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ArgumentOutOfRangeException"/> class.
-        /// </summary>
-        public ArgumentOutOfRangeException(string message, string message2)
-            : base(message, message2)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ArgumentOutOfRangeException"/> class.
-        /// </summary>
-        public ArgumentOutOfRangeException(string message, object value, string message2)
-            : base(message, message2)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ArgumentOutOfRangeException"/> class.
-        /// </summary>
-        public ArgumentOutOfRangeException(string message, Exception innerException)
-            : base(message, innerException)
-        { }
-    }
-#endif
 
     /// <summary>
     /// The exception thrown when using invalid arguments that are enumerators.
+    /// Available starting in standard 2.0
     /// </summary>
     public class InvalidEnumArgumentException : ArgumentException
     {
@@ -224,23 +128,5 @@ namespace PdfSharpCore
             : base(message, innerException)
         { }
     }
-
-    //public class FileNotFoundException : Exception
-    //{
-    //  public FileNotFoundException()
-    //  { }
-
-    //  public FileNotFoundException(string message)
-    //    : base(message)
-    //  { }
-
-    //  public FileNotFoundException(string message, string path)
-    //    : base(message + "/" + path)
-    //  { }
-
-    //  public FileNotFoundException(string message, Exception innerException)
-    //    : base(message, innerException)
-    //  { }
-    //}
 }
 #endif
