@@ -33,15 +33,21 @@ namespace PdfSharpCore.Test
             Assert.True(File.Exists(path));
             var fi = new FileInfo(path);
             Assert.True(fi.Length > 1);
+
             using (var stream = File.OpenRead(path))
             {
-                var readBuffer = new byte[5];
-                // PDF must start with %PDF-
-                var pdfsignature = new byte[5] { 0x25, 0x50, 0x44, 0x46, 0x2d };
-
-                stream.Read(readBuffer, 0, readBuffer.Length);
-                Assert.Equal(pdfsignature, readBuffer);
+                ReadStreamAndVerifyPDFMagicNumber(stream);
             }
+        }
+
+        private static void ReadStreamAndVerifyPDFMagicNumber(Stream stream)
+        {
+            var readBuffer = new byte[5];
+            // PDF must start with %PDF-
+            var pdfsignature = new byte[5] { 0x25, 0x50, 0x44, 0x46, 0x2d };
+
+            stream.Read(readBuffer, 0, readBuffer.Length);
+            Assert.Equal(pdfsignature, readBuffer);
         }
 
         private void ValidateTargetAvailable(string file)
@@ -76,21 +82,21 @@ namespace PdfSharpCore.Test
         [Fact]
         public void CreateTestPDFWithImage()
         {
-            var outName = "test_image.pdf";
+            using (var stream = new MemoryStream())
+            {
+                var document = new PdfDocument();
 
-            ValidateTargetAvailable(outName);
+                PdfPage pageNewRenderer = document.AddPage();
 
-            var document = new PdfDocument();
+                var renderer = XGraphics.FromPdfPage(pageNewRenderer);
 
-            PdfPage pageNewRenderer = document.AddPage();
+                renderer.DrawImage(XImage.FromFile(Path.Combine(rootPath, "Assets", "lenna.png")), new XPoint(0, 0));
 
-            var renderer = XGraphics.FromPdfPage(pageNewRenderer);
-
-            renderer.DrawImage(XImage.FromFile(Path.Combine(rootPath, "Assets", "lenna.png")), new XPoint(0, 0));
-
-            SaveDocument(document, outName);
-
-            ValidateFileIsPDF(outName);
+                document.Save(stream);
+                stream.Position = 0;
+                Assert.True(stream.Length > 1);
+                ReadStreamAndVerifyPDFMagicNumber(stream);
+            }
         }
 
     }
