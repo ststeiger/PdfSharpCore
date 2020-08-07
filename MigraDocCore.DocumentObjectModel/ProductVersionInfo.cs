@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2001-2009 empira Software GmbH, Cologne (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://www.migradoc.com
 // http://sourceforge.net/projects/pdfsharp
 //
