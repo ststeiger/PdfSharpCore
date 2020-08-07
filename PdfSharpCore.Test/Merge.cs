@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.IO;
 using Xunit;
@@ -10,7 +11,7 @@ namespace PdfSharpCore.Test
         [Fact]
         public void ShouldBePossible()
         {
-            var root = Path.GetDirectoryName(GetType().Assembly.Location);
+            var root = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
 
             var pdf1Path = Path.Combine(root, "Assets", "FamilyTree.pdf");
             var pdf2Path = Path.Combine(root, "Assets", "test.pdf");
