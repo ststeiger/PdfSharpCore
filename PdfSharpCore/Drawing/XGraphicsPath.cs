@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -881,7 +881,7 @@ namespace PdfSharpCore.Drawing
                 Lock.EnterGdiPlus();
                 // If rect is empty GDI+ removes the rect from the path.
                 // This is not intended if the path is used for clipping.
-                // See http://forum.PdfSharpCore.net/viewtopic.php?p=9433#p9433
+                // See http://forum.PdfSharp.net/viewtopic.php?p=9433#p9433
                 // _gdipPath.AddRectangle(rect.ToRectangleF());
 
                 // Draw the rectangle manually.

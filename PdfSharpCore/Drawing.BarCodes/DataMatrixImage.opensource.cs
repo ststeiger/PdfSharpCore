@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -55,7 +55,7 @@ namespace PdfSharpCore.Drawing.BarCodes
     /// Important note for OpenSource version of PDFsharp:
     ///   The generated image object only contains random data.
     ///   If you need the correct implementation as defined in the ISO/IEC 16022:2000 specification,
-    ///   please contact empira Software GmbH via www.PdfSharpCore.com.
+    ///   please contact empira Software GmbH via www.PdfSharp.com.
     /// </summary>
     internal class DataMatrixImage
     {
