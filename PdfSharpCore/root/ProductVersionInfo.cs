@@ -70,7 +70,7 @@ namespace PdfSharpCore
         /// <summary>
         /// The home page of this product.
         /// </summary>
-        public const string Url = "www.PdfSharpCore.com";
+        public const string Url = "https://github.com/ststeiger/PdfSharpCore";
 
         /// <summary>
         /// Unused.
@@ -200,13 +200,13 @@ namespace PdfSharpCore
         /// http://www.PdfSharpCore.net/NuGetPackage_PDFsharp-GDI.ashx
         /// http://www.PdfSharpCore.net/NuGetPackage_PDFsharp-WPF.ashx
         /// </remarks>
-        public const string NuGetProjectUrl = "www.PdfSharpCore.net";
+        public const string NuGetProjectUrl = "https://www.nuget.org/packages/PdfSharpCore/";
 
         /// <summary>
         /// Nuspec Doc: A URL for the image to use as the icon for the package in the Manage NuGet Packages
         /// dialog box. This should be a 32x32-pixel .png file that has a transparent background.
         /// </summary>
-        public const string NuGetIconUrl = "http://www.PdfSharpCore.net/resources/PDFsharp-Logo-32x32.png";
+        public const string NuGetIconUrl = "http://www.PdfSharp.net/resources/PDFsharp-Logo-32x32.png";
 
         /// <summary>
         /// Nuspec Doc: A link to the license that the package is under.

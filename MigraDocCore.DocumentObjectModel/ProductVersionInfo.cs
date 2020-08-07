@@ -62,7 +62,7 @@ namespace MigraDoc
     /// <summary>
     /// The home page of this product.
     /// </summary>
-    public const string Url = "www.migradoc.com";
+    public const string Url = "https://github.com/ststeiger/PdfSharpCore";
 
     /// <summary>
     /// </summary>
@@ -160,21 +160,21 @@ namespace MigraDoc
     /// Nuspec Doc: A URL for the home page of the package.
     /// </summary>
     /// <remarks>
-    /// http://www.PdfSharpCore.net/NuGetPackage_PDFsharp-MigraDoc-GDI.ashx
-    /// http://www.PdfSharpCore.net/NuGetPackage_PDFsharp-MigraDoc-WPF.ashx
+    /// http://www.PdfSharp.net/NuGetPackage_PDFsharp-MigraDoc-GDI.ashx
+    /// http://www.PdfSharp.net/NuGetPackage_PDFsharp-MigraDoc-WPF.ashx
     /// </remarks>
-    public const string NuGetProjectUrl = "http://www.PdfSharpCore.net/";
+    public const string NuGetProjectUrl = "https://www.nuget.org/packages/MigraDocCore.DocumentObjectModel/";
 
     /// <summary>
     /// Nuspec Doc: A URL for the image to use as the icon for the package in the Manage NuGet Packages
     /// dialog box. This should be a 32x32-pixel .png file that has a transparent background.
     /// </summary>
-    public const string NuGetIconUrl = "http://www.PdfSharpCore.net/resources/MigraDoc-Logo-32x32.png";
+    public const string NuGetIconUrl = "http://www.PdfSharp.net/resources/MigraDoc-Logo-32x32.png";
 
     /// <summary>
     /// Nuspec Doc: A link to the license that the package is under.
     /// </summary>                  
-    public const string NuGetLicenseUrl = "http://www.PdfSharpCore.net/MigraDoc_License.ashx";
+    public const string NuGetLicenseUrl = "https://github.com/ststeiger/PdfSharpCore";
 
     /// <summary>
     /// Nuspec Doc: A Boolean value that specifies whether the client needs to ensure that the package license (described by licenseUrl) is accepted before the package is installed.
