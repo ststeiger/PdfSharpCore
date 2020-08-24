@@ -1,14 +1,51 @@
 ---
+job: &job
+  public: false
+  serial: true
+
+get_source: &get_source
+  get: source
+  trigger: true
+
+get_source_publish: &get_source_publish
+  <<: *get_source
+  trigger: false
+  passed:
+  - TestBuild
+
+get_version: &get_version
+  get: version
+  trigger: false
+
+put_version: &put_version
+  put: version
+  attempts: 3
+  params:
+    file: version/version
+
+project: &project
+  PROJECT: PdfSharpCore
+
+task_publish_nugget: &task_publish_nugget
+  task: publish-nugget
+  file: source/.ci/tasks/publish-nugget.yaml
+  attempts: 3
+  params:
+    <<: *project
+    NUGGET_API_KEY: ((nugget_api_key))
+    NUGGET_TAGS: "PdfSharp .NETCore"
+
 #-----------------------------------------------------------------------------------------------------------------------
 # Resources
 #-----------------------------------------------------------------------------------------------------------------------
 resources:
-
 - name: source
   type: git
   source:
     uri: https://github.com/ststeiger/PdfSharpCore.git
     branch: master
+    paths:
+    - PdfSharpCore
 
 - name: version
   type: semver
@@ -19,6 +56,7 @@ resources:
     region_name: us-west-2
     access_key_id: ((access_key_id))
     secret_access_key: ((secret_access_key))
+
 #-----------------------------------------------------------------------------------------------------------------------
 # Jobs
 #-----------------------------------------------------------------------------------------------------------------------
@@ -26,74 +64,48 @@ jobs:
 
 # Would be replace with proper Unit/Integration tests
 - name: TestBuild
-  public: false
-  serial: true
+  <<: *job
   plan:
-    - get: source
-      trigger: true
-
-    - task: build-nugget
-      file: source/PdfSharpCore/.ci/tasks/build.yaml      
+  - <<: *get_source
+  - task: build-project
+    file: source/.ci/tasks/build.yaml
+    attempts: 3
+    params:
+      <<: *project
 
 - name: PublishPatch
-  public: false
-  serial: true
+  <<: *job
   plan:
-    - get: source
+  - in_parallel:
+    - <<: *get_source_publish
       trigger: true
-      passed:
-      - TestBuild
-
-    - get: version
-      trigger: false
-      params: {bump: patch}
-      
-    - put: version
-      params: {file: version/version}
-
-    - task: publish-nugget
-      file: source/PdfSharpCore/.ci/tasks/publish-nugget.yaml
+    - <<: *get_version
       params:
-        NUGGET_API_KEY: ((nugget_api_key))
+        bump: patch
+
+  - <<: *put_version
+  - <<: *task_publish_nugget
 
 - name: PublishMinor
-  public: false
-  serial: false
+  <<: *job
   plan:
-    - get: source
-      trigger: false
-      passed:
-      - TestBuild
-
-    - get: version
-      trigger: false
-      params: {bump: minor}
-      
-    - put: version
-      params: {file: version/version}
-
-    - task: publish-nugget
-      file: source/PdfSharpCore/.ci/tasks/publish-nugget.yaml
+  - in_parallel:
+    - <<: *get_source_publish
+    - <<: *get_version
       params:
-        NUGGET_API_KEY: ((nugget_api_key))
+        bump: minor
+
+  - <<: *put_version
+  - <<: *task_publish_nugget
 
 - name: PublishMajor
-  public: false
-  serial: true
+  <<: *job
   plan:
-    - get: source
-      trigger: false
-      passed:
-      - TestBuild
-
-    - get: version
-      trigger: false
-      params: {bump: major}
-      
-    - put: version
-      params: {file: version/version}
-
-    - task: publish-nugget
-      file: source/PdfSharpCore/.ci/tasks/publish-nugget.yaml
+  - in_parallel:
+    - <<: *get_source_publish
+    - <<: *get_version
       params:
-        NUGGET_API_KEY: ((nugget_api_key))
+        bump: major
+
+  - <<: *put_version
+  - <<: *task_publish_nugget

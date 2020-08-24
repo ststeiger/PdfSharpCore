@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using PdfSharpCore.Drawing;
@@ -65,7 +66,7 @@ namespace PdfSharpCore.Utils
                 try
                 {
                     FontDescription fontDescription = FontDescription.LoadDescription(fontPathFile);
-                    string fontFamilyName = fontDescription.FontFamily;
+                    string fontFamilyName = fontDescription.FontFamily(CultureInfo.InvariantCulture);
                     Console.WriteLine(fontPathFile);
 
                     if (tmpFontFamiliesTtfFilesDict.TryGetValue(fontFamilyName, out List<string> familyTtfFiles))
@@ -182,37 +183,41 @@ namespace PdfSharpCore.Utils
             }
         }
 
-        public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
+        public bool NullIfFontNotFound { get; set; } = false;
+
+        public virtual FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
         {
             if (InstalledFonts.Count == 0)
                 throw new FileNotFoundException("No Fonts installed on this device!");
-
-            string ttfFile = InstalledFonts.First().Value.FontFiles.First().Value;
 
             if (InstalledFonts.TryGetValue(familyName.ToLower(), out var family))
             {
                 if (isBold && isItalic)
                 {
-                    if (family.FontFiles.TryGetValue(XFontStyle.BoldItalic, out ttfFile))
-                        return new FontResolverInfo(Path.GetFileName(ttfFile));
+                    if (family.FontFiles.TryGetValue(XFontStyle.BoldItalic, out string boldItalicFile))
+                        return new FontResolverInfo(Path.GetFileName(boldItalicFile));
                 }
                 else if (isBold)
                 {
-                    if (family.FontFiles.TryGetValue(XFontStyle.Bold, out ttfFile))
-                        return new FontResolverInfo(Path.GetFileName(ttfFile));
+                    if (family.FontFiles.TryGetValue(XFontStyle.Bold, out string boldFile))
+                        return new FontResolverInfo(Path.GetFileName(boldFile));
                 }
                 else if (isItalic)
                 {
-                    if (family.FontFiles.TryGetValue(XFontStyle.Italic, out ttfFile))
-                        return new FontResolverInfo(Path.GetFileName(ttfFile));
+                    if (family.FontFiles.TryGetValue(XFontStyle.Italic, out string italicFile))
+                        return new FontResolverInfo(Path.GetFileName(italicFile));
                 }
 
-                if (family.FontFiles.TryGetValue(XFontStyle.Regular, out ttfFile))
-                    return new FontResolverInfo(Path.GetFileName(ttfFile));
+                if (family.FontFiles.TryGetValue(XFontStyle.Regular, out string regularFile))
+                    return new FontResolverInfo(Path.GetFileName(regularFile));
 
                 return new FontResolverInfo(Path.GetFileName(family.FontFiles.First().Value));
             }
 
+            if (NullIfFontNotFound)
+                return null;
+
+            string ttfFile = InstalledFonts.First().Value.FontFiles.First().Value;
             return new FontResolverInfo(Path.GetFileName(ttfFile));
         }
     }

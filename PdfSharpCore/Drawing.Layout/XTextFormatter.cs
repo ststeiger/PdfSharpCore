@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -79,7 +79,7 @@ namespace PdfSharpCore.Drawing.Layout
                 _cyDescent = _lineSpace * _font.CellDescent / _font.CellSpace;
 
                 // HACK in XTextFormatter
-                _spaceWidth = _gfx.MeasureString("x x", value).Width;
+                _spaceWidth = _gfx.MeasureString("x x", value).Width;
                 _spaceWidth -= _gfx.MeasureString("xx", value).Width;
             }
         }

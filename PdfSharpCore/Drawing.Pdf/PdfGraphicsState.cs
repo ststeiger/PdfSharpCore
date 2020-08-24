@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -197,7 +197,11 @@ namespace PdfSharpCore.Drawing.Pdf
                 _realizedDashStyle = dashStyle;
             }
 
-            if (colorMode != PdfColorMode.Cmyk)
+            if (pen.Brush != null)
+            {
+                RealizeBrush(pen.Brush, colorMode, 0, 0, true);
+            }
+            else if (colorMode != PdfColorMode.Cmyk)
             {
                 if (_realizedStrokeColor.Rgb != color.Rgb)
                 {
@@ -235,7 +239,7 @@ namespace PdfSharpCore.Drawing.Pdf
         XColor _realizedFillColor = XColor.Empty;
         bool _realizedNonStrokeOverPrint;
 
-        public void RealizeBrush(XBrush brush, PdfColorMode colorMode, int renderingMode, double fontEmSize)
+        public void RealizeBrush(XBrush brush, PdfColorMode colorMode, int renderingMode, double fontEmSize, bool isForPen = false)
         {
             // Rendering mode 2 is used for bold simulation.
             // Reference: TABLE 5.3  Text rendering modes / Page 402
@@ -265,8 +269,7 @@ namespace PdfSharpCore.Drawing.Pdf
                 if (renderingMode != 0)
                     throw new InvalidOperationException("Rendering modes other than 0 can only be used with solid color brushes.");
 
-                XLinearGradientBrush gradientBrush = brush as XLinearGradientBrush;
-                if (gradientBrush != null)
+                if (brush is XBaseGradientBrush gradientBrush)
                 {
                     Debug.Assert(UnrealizedCtm.IsIdentity, "Must realize ctm first.");
                     XMatrix matrix = _renderer.DefaultViewMatrix;
@@ -274,9 +277,16 @@ namespace PdfSharpCore.Drawing.Pdf
                     PdfShadingPattern pattern = new PdfShadingPattern(_renderer.Owner);
                     pattern.SetupFromBrush(gradientBrush, matrix, _renderer);
                     string name = _renderer.Resources.AddPattern(pattern);
-                    _renderer.AppendFormatString("/Pattern cs\n", name);
-                    _renderer.AppendFormatString("{0} scn\n", name);
-
+                    if (isForPen)
+                    {
+                        _renderer.AppendFormatString("/Pattern CS\n", name);
+                        _renderer.AppendFormatString("{0} SCN\n", name);
+                    }
+                    else
+                    {
+                        _renderer.AppendFormatString("/Pattern cs\n", name);
+                        _renderer.AppendFormatString("{0} scn\n", name);
+                    }
                     // Invalidate fill color.
                     _realizedFillColor = XColor.Empty;
                 }
@@ -387,7 +397,7 @@ namespace PdfSharpCore.Drawing.Pdf
         public XPoint RealizedTextPosition;
 
         /// <summary>
-        /// Indicates that the text transformation matrix currently skews 20° to the right.
+        /// Indicates that the text transformation matrix currently skews 20Â° to the right.
         /// </summary>
         public bool ItalicSimulationOn;
 

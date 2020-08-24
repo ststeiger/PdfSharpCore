@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4437,6 +4437,11 @@ namespace PdfSharpCore.Drawing  // #??? aufräumen
             if (TargetContext == XGraphicTargetContext.WPF)
                 xContainer = new XGraphicsContainer();
 #endif
+
+#if __ANDROID__ || __IOS__ || PORTABLE
+            xContainer = new XGraphicsContainer();
+#endif
+
             InternalGraphicsState iState = new InternalGraphicsState(this, xContainer);
             iState.Transform = _transform;
 

@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -115,9 +115,9 @@ namespace PdfSharpCore.Pdf
         /// Adds the specified PdfPage to the end of this document and maybe returns a new PdfPage object.
         /// The value returned is a new object if the added page comes from a foreign document.
         /// </summary>
-        public PdfPage Add(PdfPage page)
+        public PdfPage Add(PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
         {
-            return Insert(Count, page);
+            return Insert(Count, page, annotationCopying);
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace PdfSharpCore.Pdf
         /// Inserts the specified PdfPage at the specified position to this document and maybe returns a new PdfPage object.
         /// The value returned is a new object if the inserted page comes from a foreign document.
         /// </summary>
-        public PdfPage Insert(int index, PdfPage page)
+        public PdfPage Insert(int index, PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
         {
             if (page == null)
                 throw new ArgumentNullException("page");
@@ -181,7 +181,7 @@ namespace PdfSharpCore.Pdf
             {
                 // Case: Page is from an external document -> import it.
                 PdfPage importPage = page;
-                page = ImportExternalPage(importPage);
+                page = ImportExternalPage(importPage, annotationCopying);
                 Owner._irefTable.Add(page);
 
                 // Add page substitute to importedObjectTable.
@@ -204,7 +204,8 @@ namespace PdfSharpCore.Pdf
         /// <param name="document">The document to be inserted.</param>
         /// <param name="startIndex">The index of the first page to be inserted.</param>
         /// <param name="pageCount">The number of pages to be inserted.</param>
-        public void InsertRange(int index, PdfDocument document, int startIndex, int pageCount)
+        /// <param name="annotationCopying">Annotation copying action, by default annotations are not copied.</param>
+        public void InsertRange(int index, PdfDocument document, int startIndex, int pageCount, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
         {
             if (document == null)
                 throw new ArgumentNullException("document");
@@ -229,7 +230,7 @@ namespace PdfSharpCore.Pdf
                 idx++, insertIndex++, importIndex++)
             {
                 PdfPage importPage = document.Pages[importIndex];
-                PdfPage page = ImportExternalPage(importPage);
+                PdfPage page = ImportExternalPage(importPage, annotationCopying);
                 insertPages[idx] = page;
                 importPages[idx] = importPage;
 
@@ -357,12 +358,13 @@ namespace PdfSharpCore.Pdf
         /// </summary>
         /// <param name="index">The index in this document where to insert the page .</param>
         /// <param name="document">The document to be inserted.</param>
-        public void InsertRange(int index, PdfDocument document)
+        /// <param name="annotationCopying">Annotation copying action, by default annotations are not copied.</param>
+        public void InsertRange(int index, PdfDocument document, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
         {
             if (document == null)
                 throw new ArgumentNullException("document");
 
-            InsertRange(index, document, 0, document.PageCount);
+            InsertRange(index, document, 0, document.PageCount, annotationCopying);
         }
 
         /// <summary>
@@ -371,12 +373,13 @@ namespace PdfSharpCore.Pdf
         /// <param name="index">The index in this document where to insert the page .</param>
         /// <param name="document">The document to be inserted.</param>
         /// <param name="startIndex">The index of the first page to be inserted.</param>
-        public void InsertRange(int index, PdfDocument document, int startIndex)
+        /// <param name="annotationCopying">Annotation copying action, by default annotations are not copied.</param>
+        public void InsertRange(int index, PdfDocument document, int startIndex, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
         {
             if (document == null)
                 throw new ArgumentNullException("document");
 
-            InsertRange(index, document, startIndex, document.PageCount - startIndex);
+            InsertRange(index, document, startIndex, document.PageCount - startIndex, annotationCopying);
         }
 
         /// <summary>
@@ -423,7 +426,7 @@ namespace PdfSharpCore.Pdf
         /// of their transitive closure. Any reuse of already imported objects is not intended because
         /// any modification of an imported page must not change another page.
         /// </summary>
-        PdfPage ImportExternalPage(PdfPage importPage)
+        PdfPage ImportExternalPage(PdfPage importPage, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
         {
             if (importPage.Owner._openMode != PdfDocumentOpenMode.Import)
                 throw new InvalidOperationException("A PDF document must be opened with PdfDocumentOpenMode.Import to import pages from it.");
@@ -439,13 +442,12 @@ namespace PdfSharpCore.Pdf
             CloneElement(page, importPage, PdfPage.Keys.BleedBox, true);
             CloneElement(page, importPage, PdfPage.Keys.TrimBox, true);
             CloneElement(page, importPage, PdfPage.Keys.ArtBox, true);
-#if true
-            // Do not deep copy annotations.
-            //CloneElement(page, importPage, PdfPage.Keys.Annots, false);
-#else
-            // Deep copy annotations.
-            CloneElement(page, importPage, PdfPage.Keys.Annots, true);
-#endif
+
+            if (annotationCopying == AnnotationCopyingType.ShallowCopy)
+                CloneElement(page, importPage, PdfPage.Keys.Annots, false);
+            else if (annotationCopying == AnnotationCopyingType.DeepCopy)
+                CloneElement(page, importPage, PdfPage.Keys.Annots, true);
+
             // ReSharper restore AccessToStaticMemberViaDerivedType
             // TODO more elements?
             return page;

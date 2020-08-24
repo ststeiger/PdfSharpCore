@@ -53,6 +53,65 @@ namespace PdfSharpCore.Pdf.Advanced
             : base(document)
         { }
 
+        internal void SetupFromBrush(XBaseGradientBrush brush, XGraphicsPdfRenderer renderer)
+        {
+            if (brush is XRadialGradientBrush radialBrush)
+                SetupFromBrush(radialBrush, renderer);
+            else if (brush is XLinearGradientBrush linearBrush)
+                SetupFromBrush(linearBrush, renderer);
+            else
+                throw new ArgumentException("Unsupoorted XGradientBrush: " + brush);
+        }
+
+        internal void SetupFromBrush(XRadialGradientBrush brush, XGraphicsPdfRenderer renderer)
+        {
+            if (brush == null)
+                throw new ArgumentNullException("brush");
+
+            PdfColorMode colorMode = _document.Options.ColorMode;
+            XColor color1 = ColorSpaceHelper.EnsureColorMode(colorMode, brush._color1);
+            XColor color2 = ColorSpaceHelper.EnsureColorMode(colorMode, brush._color2);
+
+            PdfDictionary function = new PdfDictionary();
+
+            Elements[Keys.ShadingType] = new PdfInteger(3);
+            if (colorMode != PdfColorMode.Cmyk)
+                Elements[Keys.ColorSpace] = new PdfName("/DeviceRGB");
+            else
+                Elements[Keys.ColorSpace] = new PdfName("/DeviceCMYK");
+
+            XPoint p1 = renderer.WorldToView(brush._center1);
+            XPoint p2 = renderer.WorldToView(brush._center2);
+
+            var rv1 = renderer.WorldToView(new XPoint(brush._r1 + brush._center1.X, brush._center1.Y));
+            var rv2 = renderer.WorldToView(new XPoint(brush._r2 + brush._center2.X, brush._center2.Y));
+
+            var dx1 = rv1.X - p1.X;
+            var dy1 = rv1.Y - p1.Y;
+            var dx2 = rv2.X - p2.X;
+            var dy2 = rv2.Y - p2.Y;
+
+            var r1 = Math.Sqrt(dx1 * dx1 + dy1 * dy1);
+            var r2 = Math.Sqrt(dx2 * dx2 + dy2 * dy2);
+
+            const string format = Config.SignificantFigures3;
+            Elements[Keys.Coords] = new PdfLiteral("[{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "} {4:" + format + "} {5:" + format + "}]", p1.X, p1.Y, r1, p2.X, p2.Y, r2);
+
+            //Elements[Keys.Background] = new PdfRawItem("[0 1 1]");
+            //Elements[Keys.Domain] = 
+            Elements[Keys.Function] = function;
+            //Elements[Keys.Extend] = new PdfRawItem("[true true]");
+
+            string clr1 = "[" + PdfEncoders.ToString(color1, colorMode, true) + "]";
+            string clr2 = "[" + PdfEncoders.ToString(color2, colorMode, true) + "]";
+
+            function.Elements["/FunctionType"] = new PdfInteger(2);
+            function.Elements["/C0"] = new PdfLiteral(clr1);
+            function.Elements["/C1"] = new PdfLiteral(clr2);
+            function.Elements["/Domain"] = new PdfLiteral("[0 1]");
+            function.Elements["/N"] = new PdfInteger(1);
+        }
+
         /// <summary>
         /// Setups the shading from the specified brush.
         /// </summary>
@@ -129,8 +188,8 @@ namespace PdfSharpCore.Pdf.Advanced
             Elements[Keys.Function] = function;
             //Elements[Keys.Extend] = new PdfRawItem("[true true]");
 
-            string clr1 = "[" + PdfEncoders.ToString(color1, colorMode) + "]";
-            string clr2 = "[" + PdfEncoders.ToString(color2, colorMode) + "]";
+            string clr1 = "[" + PdfEncoders.ToString(color1, colorMode, true) + "]";
+            string clr2 = "[" + PdfEncoders.ToString(color2, colorMode, true) + "]";
 
             function.Elements["/FunctionType"] = new PdfInteger(2);
             function.Elements["/C0"] = new PdfLiteral(clr1);
@@ -177,8 +236,8 @@ namespace PdfSharpCore.Pdf.Advanced
 
             /// <summary>
             /// (Optional) An array of four numbers giving the left, bottom, right, and top coordinates, 
-            /// respectively, of the shading’s bounding box. The coordinates are interpreted in the 
-            /// shading’s target coordinate space. If present, this bounding box is applied as a temporary 
+            /// respectively, of the shading's bounding box. The coordinates are interpreted in the 
+            /// shading's target coordinate space. If present, this bounding box is applied as a temporary 
             /// clipping boundary when the shading is painted, in addition to the current clipping path
             /// and any other clipping boundaries in effect at that time.
             /// </summary>
@@ -188,7 +247,7 @@ namespace PdfSharpCore.Pdf.Advanced
             /// <summary>
             /// (Optional) A flag indicating whether to filter the shading function to prevent aliasing 
             /// artifacts. The shading operators sample shading functions at a rate determined by the 
-            /// resolution of the output device. Aliasing can occur if the function is not smooth—that
+            /// resolution of the output device. Aliasing can occur if the function is not smooth - that
             /// is, if it has a high spatial frequency relative to the sampling rate. Anti-aliasing can
             /// be computationally expensive and is usually unnecessary, since most shading functions
             /// are smooth enough or are sampled at a high enough frequency to avoid aliasing effects.
@@ -203,7 +262,7 @@ namespace PdfSharpCore.Pdf.Advanced
 
             /// <summary>
             /// (Required) An array of four numbers [x0 y0 x1 y1] specifying the starting and
-            /// ending coordinates of the axis, expressed in the shading’s target coordinate space.
+            /// ending coordinates of the axis, expressed in the shading's target coordinate space.
             /// </summary>
             [KeyInfo(KeyType.Array | KeyType.Required)]
             public const string Coords = "/Coords";
@@ -220,9 +279,9 @@ namespace PdfSharpCore.Pdf.Advanced
 
             /// <summary>
             /// (Required) A 1-in, n-out function or an array of n 1-in, 1-out functions (where n
-            /// is the number of color components in the shading dictionary’s color space). The
+            /// is the number of color components in the shading dictionary's color space). The
             /// function(s) are called with values of the parametric variable t in the domain defined
-            /// by the Domain entry. Each function’s domain must be a superset of that of the shading
+            /// by the Domain entry. Each function's domain must be a superset of that of the shading
             /// dictionary. If the value returned by the function for a given color component is out
             /// of range, it is adjusted to the nearest valid value.
             /// </summary>

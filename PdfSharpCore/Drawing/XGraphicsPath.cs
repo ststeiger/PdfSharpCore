@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -220,6 +220,9 @@ namespace PdfSharpCore.Drawing
             AddLine(pt1.X, pt1.Y, pt2.X, pt2.Y);
         }
 
+        public void AddMove(double x1, double y1)
+            => _corePath.MoveTo(x1, y1);
+
         /// <summary>
         /// Adds  a line segment to current figure.
         /// </summary>
@@ -357,7 +360,7 @@ namespace PdfSharpCore.Drawing
 
 #if GDI
         /// <summary>
-        /// Adds a cubic Bézier curve to the current figure.
+        /// Adds a cubic BÃ©zier curve to the current figure.
         /// </summary>
         public void AddBezier(System.Drawing.Point pt1, System.Drawing.Point pt2, System.Drawing.Point pt3, System.Drawing.Point pt4)
         {
@@ -367,7 +370,7 @@ namespace PdfSharpCore.Drawing
 
 #if WPF
         /// <summary>
-        /// Adds a cubic Bézier curve to the current figure.
+        /// Adds a cubic BÃ©zier curve to the current figure.
         /// </summary>
         public void AddBezier(SysPoint pt1, SysPoint pt2, SysPoint pt3, SysPoint pt4)
         {
@@ -377,7 +380,7 @@ namespace PdfSharpCore.Drawing
 
 #if GDI
         /// <summary>
-        /// Adds a cubic Bézier curve to the current figure.
+        /// Adds a cubic BÃ©zier curve to the current figure.
         /// </summary>
         public void AddBezier(PointF pt1, PointF pt2, PointF pt3, PointF pt4)
         {
@@ -386,7 +389,7 @@ namespace PdfSharpCore.Drawing
 #endif
 
         /// <summary>
-        /// Adds a cubic Bézier curve to the current figure.
+        /// Adds a cubic BÃ©zier curve to the current figure.
         /// </summary>
         public void AddBezier(XPoint pt1, XPoint pt2, XPoint pt3, XPoint pt4)
         {
@@ -394,7 +397,7 @@ namespace PdfSharpCore.Drawing
         }
 
         /// <summary>
-        /// Adds a cubic Bézier curve to the current figure.
+        /// Adds a cubic BÃ©zier curve to the current figure.
         /// </summary>
         public void AddBezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
         {
@@ -448,7 +451,7 @@ namespace PdfSharpCore.Drawing
 
 #if GDI
         /// <summary>
-        /// Adds a sequence of connected cubic Bézier curves to the current figure.
+        /// Adds a sequence of connected cubic BÃ©zier curves to the current figure.
         /// </summary>
         public void AddBeziers(System.Drawing.Point[] points)
         {
@@ -458,7 +461,7 @@ namespace PdfSharpCore.Drawing
 
 #if WPF
         /// <summary>
-        /// Adds a sequence of connected cubic Bézier curves to the current figure.
+        /// Adds a sequence of connected cubic BÃ©zier curves to the current figure.
         /// </summary>
         public void AddBeziers(SysPoint[] points)
         {
@@ -468,7 +471,7 @@ namespace PdfSharpCore.Drawing
 
 #if GDI
         /// <summary>
-        /// Adds a sequence of connected cubic Bézier curves to the current figure.
+        /// Adds a sequence of connected cubic BÃ©zier curves to the current figure.
         /// </summary>
         public void AddBeziers(PointF[] points)
         {
@@ -477,7 +480,7 @@ namespace PdfSharpCore.Drawing
 #endif
 
         /// <summary>
-        /// Adds a sequence of connected cubic Bézier curves to the current figure.
+        /// Adds a sequence of connected cubic BÃ©zier curves to the current figure.
         /// </summary>
         public void AddBeziers(XPoint[] points)
         {
@@ -878,7 +881,7 @@ namespace PdfSharpCore.Drawing
                 Lock.EnterGdiPlus();
                 // If rect is empty GDI+ removes the rect from the path.
                 // This is not intended if the path is used for clipping.
-                // See http://forum.PdfSharpCore.net/viewtopic.php?p=9433#p9433
+                // See http://forum.PdfSharp.net/viewtopic.php?p=9433#p9433
                 // _gdipPath.AddRectangle(rect.ToRectangleF());
 
                 // Draw the rectangle manually.

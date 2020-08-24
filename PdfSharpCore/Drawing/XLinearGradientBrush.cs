@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -57,7 +57,7 @@ namespace PdfSharpCore.Drawing
     /// <summary>
     /// Defines a Brush with a linear gradient.
     /// </summary>
-    public sealed class XLinearGradientBrush : XBrush
+    public sealed class XLinearGradientBrush : XBaseGradientBrush
     {
         //internal XLinearGradientBrush();
 
@@ -91,12 +91,10 @@ namespace PdfSharpCore.Drawing
         /// <summary>
         /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
         /// </summary>
-        public XLinearGradientBrush(XPoint point1, XPoint point2, XColor color1, XColor color2)
+        public XLinearGradientBrush(XPoint point1, XPoint point2, XColor color1, XColor color2) : base(color1, color2)
         {
             _point1 = point1;
             _point2 = point2;
-            _color1 = color1;
-            _color2 = color2;
         }
 
 #if GDI
@@ -127,7 +125,7 @@ namespace PdfSharpCore.Drawing
         /// <summary>
         /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
         /// </summary>
-        public XLinearGradientBrush(XRect rect, XColor color1, XColor color2, XLinearGradientMode linearGradientMode)
+        public XLinearGradientBrush(XRect rect, XColor color1, XColor color2, XLinearGradientMode linearGradientMode) : base(color1, color2)
         {
             if (!Enum.IsDefined(typeof(XLinearGradientMode), linearGradientMode))
                 throw new InvalidEnumArgumentException("linearGradientMode", (int)linearGradientMode, typeof(XLinearGradientMode));
@@ -136,8 +134,6 @@ namespace PdfSharpCore.Drawing
                 throw new ArgumentException("Invalid rectangle.", "rect");
 
             _useRect = true;
-            _color1 = color1;
-            _color2 = color2;
             _rect = rect;
             _linearGradientMode = linearGradientMode;
         }
@@ -149,105 +145,6 @@ namespace PdfSharpCore.Drawing
         //public XLinearGradientBrush(RectangleF rect, XColor color1, XColor color2, double angle, bool isAngleScaleable);
         //public XLinearGradientBrush(RectangleF rect, XColor color1, XColor color2, double angle, bool isAngleScaleable);
 
-        //private Blend _GetBlend();
-        //private ColorBlend _GetInterpolationColors();
-        //private XColor[] _GetLinearColors();
-        //private RectangleF _GetRectangle();
-        //private Matrix _GetTransform();
-        //private WrapMode _GetWrapMode();
-        //private void _SetBlend(Blend blend);
-        //private void _SetInterpolationColors(ColorBlend blend);
-        //private void _SetLinearColors(XColor color1, XColor color2);
-        //private void _SetTransform(Matrix matrix);
-        //private void _SetWrapMode(WrapMode wrapMode);
-
-        //public override object Clone();
-
-        /// <summary>
-        /// Gets or sets an XMatrix that defines a local geometric transform for this LinearGradientBrush.
-        /// </summary>
-        public XMatrix Transform
-        {
-            get { return _matrix; }
-            set { _matrix = value; }
-        }
-
-        /// <summary>
-        /// Translates the brush with the specified offset.
-        /// </summary>
-        public void TranslateTransform(double dx, double dy)
-        {
-            _matrix.TranslatePrepend(dx, dy);
-        }
-
-        /// <summary>
-        /// Translates the brush with the specified offset.
-        /// </summary>
-        public void TranslateTransform(double dx, double dy, XMatrixOrder order)
-        {
-            _matrix.Translate(dx, dy, order);
-        }
-
-        /// <summary>
-        /// Scales the brush with the specified scalars.
-        /// </summary>
-        public void ScaleTransform(double sx, double sy)
-        {
-            _matrix.ScalePrepend(sx, sy);
-        }
-
-        /// <summary>
-        /// Scales the brush with the specified scalars.
-        /// </summary>
-        public void ScaleTransform(double sx, double sy, XMatrixOrder order)
-        {
-            _matrix.Scale(sx, sy, order);
-        }
-
-        /// <summary>
-        /// Rotates the brush with the specified angle.
-        /// </summary>
-        public void RotateTransform(double angle)
-        {
-            _matrix.RotatePrepend(angle);
-        }
-
-        /// <summary>
-        /// Rotates the brush with the specified angle.
-        /// </summary>
-        public void RotateTransform(double angle, XMatrixOrder order)
-        {
-            _matrix.Rotate(angle, order);
-        }
-
-        /// <summary>
-        /// Multiply the brush transformation matrix with the specified matrix.
-        /// </summary>
-        public void MultiplyTransform(XMatrix matrix)
-        {
-            _matrix.Prepend(matrix);
-        }
-
-        /// <summary>
-        /// Multiply the brush transformation matrix with the specified matrix.
-        /// </summary>
-        public void MultiplyTransform(XMatrix matrix, XMatrixOrder order)
-        {
-            _matrix.Multiply(matrix, order);
-        }
-
-        /// <summary>
-        /// Resets the brush transformation matrix with identity matrix.
-        /// </summary>
-        public void ResetTransform()
-        {
-            _matrix = new XMatrix();
-        }
-
-        //public void SetBlendTriangularShape(double focus);
-        //public void SetBlendTriangularShape(double focus, double scale);
-        //public void SetSigmaBellShape(double focus);
-        //public void SetSigmaBellShape(double focus, double scale);
 
 #if GDI
         internal override System.Drawing.Brush RealizeGdiBrush()
@@ -378,20 +275,10 @@ namespace PdfSharpCore.Drawing
         }
 #endif
 
-        //public Blend Blend { get; set; }
-        //public bool GammaCorrection { get; set; }
-        //public ColorBlend InterpolationColors { get; set; }
-        //public XColor[] LinearColors { get; set; }
-        //public RectangleF Rectangle { get; }
-        //public WrapMode WrapMode { get; set; }
-        //private bool interpolationColorsWasSet;
 
         internal bool _useRect;
         internal XPoint _point1, _point2;
-        internal XColor _color1, _color2;
         internal XRect _rect;
         internal XLinearGradientMode _linearGradientMode;
-
-        internal XMatrix _matrix;
     }
 }
