@@ -31,9 +31,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using PdfSharpCore.Exceptions;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Security;
 using PdfSharpCore.Pdf.Internal;
+using PdfSharpCore.Pdf.IO.enums;
 
 namespace PdfSharpCore.Pdf.IO
 {
@@ -203,31 +205,31 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(string path, PdfDocumentOpenMode openmode)
+        public static PdfDocument Open(string path, PdfDocumentOpenMode openmode, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
-            return Open(path, null, openmode, null);
+            return Open(path, null, openmode, null, accuracy);
         }
 
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(string path, PdfDocumentOpenMode openmode, PdfPasswordProvider provider)
+        public static PdfDocument Open(string path, PdfDocumentOpenMode openmode, PdfPasswordProvider provider, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
-            return Open(path, null, openmode, provider);
+            return Open(path, null, openmode, provider, accuracy);
         }
 
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(string path, string password, PdfDocumentOpenMode openmode)
+        public static PdfDocument Open(string path, string password, PdfDocumentOpenMode openmode, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
-            return Open(path, password, openmode, null);
+            return Open(path, password, openmode, null, accuracy);
         }
 
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(string path, string password, PdfDocumentOpenMode openmode, PdfPasswordProvider provider)
+        public static PdfDocument Open(string path, string password, PdfDocumentOpenMode openmode, PdfPasswordProvider provider, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
 #if NETCOREAPP1_1 || (!NETFX_CORE && !PORTABLE)
             PdfDocument document;
@@ -235,7 +237,7 @@ namespace PdfSharpCore.Pdf.IO
             try
             {
                 stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                document = Open(stream, password, openmode, provider);
+                document = Open(stream, password, openmode, provider, accuracy);
                 if (document != null)
                 {
                     document._fullPath = Path.GetFullPath(path);
@@ -259,46 +261,46 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(string path)
+        public static PdfDocument Open(string path, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
-            return Open(path, null, PdfDocumentOpenMode.Modify, null);
+            return Open(path, null, PdfDocumentOpenMode.Modify, null, accuracy);
         }
 
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(string path, string password)
+        public static PdfDocument Open(string path, string password, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
-            return Open(path, password, PdfDocumentOpenMode.Modify, null);
+            return Open(path, password, PdfDocumentOpenMode.Modify, null, accuracy);
         }
 
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(Stream stream, PdfDocumentOpenMode openmode)
+        public static PdfDocument Open(Stream stream, PdfDocumentOpenMode openmode, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
-            return Open(stream, null, openmode);
+            return Open(stream, null, openmode, accuracy);
         }
 
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(Stream stream, PdfDocumentOpenMode openmode, PdfPasswordProvider passwordProvider)
+        public static PdfDocument Open(Stream stream, PdfDocumentOpenMode openmode, PdfPasswordProvider passwordProvider, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
-            return Open(stream, null, openmode);
+            return Open(stream, null, openmode, passwordProvider, accuracy);
         }
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(Stream stream, string password, PdfDocumentOpenMode openmode)
+        public static PdfDocument Open(Stream stream, string password, PdfDocumentOpenMode openmode, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
-            return Open(stream, password, openmode, null);
+            return Open(stream, password, openmode, null, accuracy);
         }
 
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(Stream stream, string password, PdfDocumentOpenMode openmode, PdfPasswordProvider passwordProvider)
+        public static PdfDocument Open(Stream stream, string password, PdfDocumentOpenMode openmode, PdfPasswordProvider passwordProvider, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
             PdfDocument document;
             try
@@ -335,7 +337,7 @@ namespace PdfSharpCore.Pdf.IO
                     encrypt.Reference = xrefEncrypt;
                     xrefEncrypt.Value = encrypt;
                     PdfStandardSecurityHandler securityHandler = document.SecurityHandler;
-                    TryAgain:
+                TryAgain:
                     PasswordValidity validity = securityHandler.ValidatePassword(password);
                     if (validity == PasswordValidity.Invalid)
                     {
@@ -455,6 +457,13 @@ namespace PdfSharpCore.Pdf.IO
                             pdfObject.Reference = iref;
                             Debug.Assert(pdfObject.Reference.Value != null, "Something went wrong.");
                         }
+                        catch (PositionNotFoundException ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+
+                            if (accuracy == PdfReadAccuracy.Strict)
+                                throw;
+                        }
                         catch (Exception ex)
                         {
                             Debug.WriteLine(ex.Message);
@@ -531,9 +540,9 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Opens an existing PDF document.
         /// </summary>
-        public static PdfDocument Open(Stream stream)
+        public static PdfDocument Open(Stream stream, PdfReadAccuracy accuracy = PdfReadAccuracy.Strict)
         {
-            return Open(stream, PdfDocumentOpenMode.Modify);
+            return Open(stream, PdfDocumentOpenMode.Modify, accuracy);
         }
     }
 }

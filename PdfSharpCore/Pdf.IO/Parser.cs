@@ -31,6 +31,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using PdfSharpCore.Exceptions;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Internal;
@@ -77,6 +78,10 @@ namespace PdfSharpCore.Pdf.IO
         public int MoveToObject(PdfObjectID objectID)
         {
             int position = _document._irefTable[objectID].Position;
+
+            if (position < 0)
+                throw new PositionNotFoundException(objectID);
+
             return _lexer.Position = position;
         }
 
@@ -962,7 +967,7 @@ namespace PdfSharpCore.Pdf.IO
         }
 
         /// <summary>
-        /// Reads the object stream header as pairs of integers from the beginning of the 
+        /// Reads the object stream header as pairs of integers from the beginning of the
         /// stream of an object stream. Parameter first is the value of the First entry of
         /// the the object stream object.
         /// </summary>
