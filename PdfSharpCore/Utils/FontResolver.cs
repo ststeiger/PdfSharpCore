@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -67,7 +68,7 @@ namespace PdfSharpCore.Utils
                 {
                     FontDescription fontDescription = FontDescription.LoadDescription(fontPathFile);
                     string fontFamilyName = fontDescription.FontFamily(CultureInfo.InvariantCulture);
-                    Console.WriteLine(fontPathFile);
+                    Debug.WriteLine(fontPathFile);
 
                     if (tmpFontFamiliesTtfFilesDict.TryGetValue(fontFamilyName, out List<string> familyTtfFiles))
                         familyTtfFiles.Add(fontPathFile);
