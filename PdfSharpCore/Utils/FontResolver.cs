@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -67,7 +68,7 @@ namespace PdfSharpCore.Utils
                 {
                     FontDescription fontDescription = FontDescription.LoadDescription(fontPathFile);
                     string fontFamilyName = fontDescription.FontFamily(CultureInfo.InvariantCulture);
-                    Console.WriteLine(fontPathFile);
+                    Debug.WriteLine(fontPathFile);
 
                     if (tmpFontFamiliesTtfFilesDict.TryGetValue(fontFamilyName, out List<string> familyTtfFiles))
                         familyTtfFiles.Add(fontPathFile);
@@ -107,7 +108,9 @@ namespace PdfSharpCore.Utils
             }
 
             // if element filenames have diff. lengths -> shortest name is regular
-            if (fontList.Any(e => e.Length != fontList[0].Length))
+            // skip this check if Regular font has 'regular' sufix, because 'fontName-bold' shorter that 'fontName-regular' 
+            if (fontList.Any(e => e.Length != fontList[0].Length)
+                && fontList.All(fontFileName => !Path.GetFileNameWithoutExtension(fontFileName)?.ToLower().Contains("regular") ?? true))
             {
                 var orderedList = fontList.OrderBy(o => o.Length);
                 font.FontFiles.Add(XFontStyle.Regular, orderedList.First());
@@ -134,7 +137,6 @@ namespace PdfSharpCore.Utils
 
         private static KeyValuePair<XFontStyle, string> DeserializeFontName(string fontFileName)
         {
-
             var tf = Path.GetFileNameWithoutExtension(fontFileName)?.ToLower().TrimEnd('-', '_');
             if (tf == null)
                 return new KeyValuePair<XFontStyle, string>(XFontStyle.Regular, null);
