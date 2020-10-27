@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Text.RegularExpressions;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -40,8 +41,7 @@ namespace PdfSharpCore.Utils
             bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
             if (isLinux)
             {
-                fontDir = "/usr/share/fonts/truetype/";
-                SSupportedFonts = Directory.GetFiles(fontDir, "*.ttf", SearchOption.AllDirectories);
+                SSupportedFonts = resolveLinuxFontFiles();
                 SetupFontsFiles(SSupportedFonts);
                 return;
             }
@@ -56,6 +56,25 @@ namespace PdfSharpCore.Utils
             }
 
             throw new NotImplementedException("FontResolver not implemented for this platform (PdfSharpCore.Utils.FontResolver.cs).");
+        }
+
+        static string[] resolveLinuxFontFiles() {
+            List<string> fonts=new List<string>();
+            Regex confRegex=new Regex("<dir>(?<dir>.*)</dir>",RegexOptions.Compiled);
+            Regex ttfRegex=new Regex(@"\.ttf", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            using (StreamReader reader=new StreamReader(File.OpenRead("/etc/fonts/fonts.conf"))) {
+                string line=null;
+                while((line=reader.ReadLine())!=null) {
+                    Match m=confRegex.Match(line);
+                    if (!m.Success) continue;
+                    string val=m.Groups["dir"].Value.Replace("~",System.Environment.GetEnvironmentVariable("HOME"));
+                    if (!Directory.Exists(val)) continue;
+                    foreach(string dir in Directory.EnumerateDirectories(val)) 
+                        foreach(string s in Directory.EnumerateFiles(dir).Where(x=>ttfRegex.IsMatch(x))) 
+                            fonts.Add(s);
+                }
+            }
+            return fonts.ToArray();
         }
 
         public static void SetupFontsFiles(string[] sSupportedFonts)
