@@ -34,6 +34,7 @@ using System.IO;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Security;
 using PdfSharpCore.Pdf.Internal;
+using PdfSharpCore.Internal;
 
 namespace PdfSharpCore.Pdf.IO
 {
@@ -319,8 +320,12 @@ namespace PdfSharpCore.Pdf.IO
 
                 document._irefTable.IsUnderConstruction = true;
                 Parser parser = new Parser(document);
+
                 // Read all trailers or cross-reference streams, but no objects.
                 document._trailer = parser.ReadTrailer();
+
+                if (document._trailer == null)
+                    ParserDiagnostics.ThrowParserException("Invalid PDF file: no trailer found.");
 
                 Debug.Assert(document._irefTable.IsUnderConstruction);
                 document._irefTable.IsUnderConstruction = false;

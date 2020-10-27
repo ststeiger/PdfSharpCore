@@ -1031,12 +1031,14 @@ namespace PdfSharpCore.Pdf.IO
             while (true)
             {
                 PdfTrailer trailer = ReadXRefTableAndTrailer(_document._irefTable);
+
                 // 1st trailer seems to be the best.
                 if (_document._trailer == null)
                     _document._trailer = trailer;
-                int prev = trailer.Elements.GetInteger(PdfTrailer.Keys.Prev);
+                int prev = trailer != null ? trailer.Elements.GetInteger(PdfTrailer.Keys.Prev) : 0;
                 if (prev == 0)
                     break;
+
                 //if (prev > lexer.PdfLength)
                 //  break;
                 _lexer.Position = prev;
@@ -1070,15 +1072,33 @@ namespace PdfSharpCore.Pdf.IO
                             int generation = ReadInteger();
                             ReadSymbol(Symbol.Keyword);
                             string token = _lexer.Token;
+
                             // Skip start entry
                             if (id == 0)
                                 continue;
+
                             // Skip unused entries.
                             if (token != "n")
                                 continue;
+
+                            //!!!new 2018-03-14 begin
+                            // Check if the object at the address has the correct ID and generation.
+                            int idToUse = id;
+                            int idChecked, generationChecked;
+                            if (!CheckXRefTableEntry(position, id, generation, out idChecked, out generationChecked))
+                            {
+                                // Found the keyword "obj", but ID or generation did not match.
+                                // There is a tool where ID is off by one. In this case we use the ID from the object, not the ID from the XRef table.
+                                if (generation == generationChecked && id == idChecked + 1)
+                                    idToUse = idChecked;
+                                else
+                                    ParserDiagnostics.ThrowParserException("Invalid entry in XRef table, ID=" + id + ", Generation=" + generation + ", Position=" + position + ", ID of referenced object=" + idChecked + ", Generation of referenced object=" + generationChecked);
+                            }
+
                             // Even it is restricted, an object can exists in more than one subsection.
                             // (PDF Reference Implementation Notes 15).
-                            PdfObjectID objectID = new PdfObjectID(id, generation);
+                            PdfObjectID objectID = new PdfObjectID(idToUse, generation);
+
                             // Ignore the latter one.
                             if (xrefTable.Contains(objectID))
                                 continue;
@@ -1106,6 +1126,52 @@ namespace PdfSharpCore.Pdf.IO
                 return ReadXRefStream(xrefTable);
             }
             return null;
+        }
+
+        /// <summary>
+        /// Checks the x reference table entry. Returns true if everything is correct.
+        /// Return false if the keyword "obj" was found, but ID or Generation are incorrect.
+        /// Throws an exception otherwise.
+        /// </summary>
+        /// <param name="position">The position where the object is supposed to be.</param>
+        /// <param name="id">The ID from the XRef table.</param>
+        /// <param name="generation">The generation from the XRef table.</param>
+        /// <param name="idChecked">The identifier found in the PDF file.</param>
+        /// <param name="generationChecked">The generation found in the PDF file.</param>
+        /// <returns></returns>
+        private bool CheckXRefTableEntry(int position, int id, int generation, out int idChecked, out int generationChecked)
+        {
+            int origin = _lexer.Position;
+            idChecked = -1;
+            generationChecked = -1;
+            try
+            {
+                _lexer.Position = position;
+                idChecked = ReadInteger();
+                generationChecked = ReadInteger();
+                //// TODO Should we use ScanKeyword here?
+                //ReadKSymbol(Symbol.Keyword);
+                //string token = _lexer.Token;
+                Symbol symbol = _lexer.ScanNextToken();
+                if (symbol != Symbol.Obj)
+                    ParserDiagnostics.ThrowParserException("Invalid entry in XRef table, ID=" + id + ", Generation=" + generation + ", Position=" + position);
+
+                if (id != idChecked || generation != generationChecked)
+                    return false;
+            }
+            catch (PdfReaderException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                ParserDiagnostics.ThrowParserException("Invalid entry in XRef table, ID=" + id + ", Generation=" + generation + ", Position=" + position, ex);
+            }
+            finally
+            {
+                _lexer.Position = origin;
+            }
+            return true;
         }
 
         /// <summary>
@@ -1684,7 +1750,7 @@ namespace PdfSharpCore.Pdf.IO
             public Symbol Symbol;
         }
 
-        byte[] DecodeCrossReferenceStream(byte[] bytes, int columns, int predictor)
+        private byte[] DecodeCrossReferenceStream(byte[] bytes, int columns, int predictor)
         {
             int size = bytes.Length;
             if (predictor < 10 || predictor > 15)
@@ -1728,7 +1794,7 @@ namespace PdfSharpCore.Pdf.IO
         private readonly ShiftStack _stack;
     }
 
-    static class StreamHelper
+    internal static class StreamHelper
     {
         public static int WSize(int[] w)
         {
