@@ -1,5 +1,7 @@
-﻿using System;
+﻿using System.Text.RegularExpressions;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -39,8 +41,7 @@ namespace PdfSharpCore.Utils
             bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
             if (isLinux)
             {
-                fontDir = "/usr/share/fonts/truetype/";
-                SSupportedFonts = Directory.GetFiles(fontDir, "*.ttf", SearchOption.AllDirectories);
+                SSupportedFonts = resolveLinuxFontFiles();
                 SetupFontsFiles(SSupportedFonts);
                 return;
             }
@@ -57,6 +58,25 @@ namespace PdfSharpCore.Utils
             throw new NotImplementedException("FontResolver not implemented for this platform (PdfSharpCore.Utils.FontResolver.cs).");
         }
 
+        static string[] resolveLinuxFontFiles() {
+            List<string> fonts=new List<string>();
+            Regex confRegex=new Regex("<dir>(?<dir>.*)</dir>",RegexOptions.Compiled);
+            Regex ttfRegex=new Regex(@"\.ttf", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            using (StreamReader reader=new StreamReader(File.OpenRead("/etc/fonts/fonts.conf"))) {
+                string line=null;
+                while((line=reader.ReadLine())!=null) {
+                    Match m=confRegex.Match(line);
+                    if (!m.Success) continue;
+                    string val=m.Groups["dir"].Value.Replace("~",System.Environment.GetEnvironmentVariable("HOME"));
+                    if (!Directory.Exists(val)) continue;
+                    foreach(string dir in Directory.EnumerateDirectories(val)) 
+                        foreach(string s in Directory.EnumerateFiles(dir).Where(x=>ttfRegex.IsMatch(x))) 
+                            fonts.Add(s);
+                }
+            }
+            return fonts.ToArray();
+        }
+
         public static void SetupFontsFiles(string[] sSupportedFonts)
         {
             // First group all fonts to font families
@@ -67,7 +87,7 @@ namespace PdfSharpCore.Utils
                 {
                     FontDescription fontDescription = FontDescription.LoadDescription(fontPathFile);
                     string fontFamilyName = fontDescription.FontFamily(CultureInfo.InvariantCulture);
-                    Console.WriteLine(fontPathFile);
+                    Debug.WriteLine(fontPathFile);
 
                     if (tmpFontFamiliesTtfFilesDict.TryGetValue(fontFamilyName, out List<string> familyTtfFiles))
                         familyTtfFiles.Add(fontPathFile);
@@ -107,7 +127,9 @@ namespace PdfSharpCore.Utils
             }
 
             // if element filenames have diff. lengths -> shortest name is regular
-            if (fontList.Any(e => e.Length != fontList[0].Length))
+            // skip this check if Regular font has 'regular' sufix, because 'fontName-bold' shorter that 'fontName-regular' 
+            if (fontList.Any(e => e.Length != fontList[0].Length)
+                && fontList.All(fontFileName => !Path.GetFileNameWithoutExtension(fontFileName)?.ToLower().Contains("regular") ?? true))
             {
                 var orderedList = fontList.OrderBy(o => o.Length);
                 font.FontFiles.Add(XFontStyle.Regular, orderedList.First());
@@ -134,7 +156,6 @@ namespace PdfSharpCore.Utils
 
         private static KeyValuePair<XFontStyle, string> DeserializeFontName(string fontFileName)
         {
-
             var tf = Path.GetFileNameWithoutExtension(fontFileName)?.ToLower().TrimEnd('-', '_');
             if (tf == null)
                 return new KeyValuePair<XFontStyle, string>(XFontStyle.Regular, null);
