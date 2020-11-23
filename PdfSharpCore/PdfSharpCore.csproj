@@ -13,8 +13,7 @@ PdfSharpCore is a partial port of PdfSharp.Xamarin for .NET Core Additionally Mi
     <RepositoryUrl>https://github.com/ststeiger/PdfSharpCore</RepositoryUrl>
     <PackageReleaseNotes>PdfSharpCore is a partial port of PdfSharp.Xamarin for .NET Core Additionally MigraDoc has been ported as well (from version 1.32)</PackageReleaseNotes>
     <PackageTags>NuggetV1.0.0 (8ea343d5898342a563b9d4df2d67e27aaea9ac01)</PackageTags>
-    <summary>PdfSharp for .NET Core</summary>
-    <Version>1.2.6-beta-db1</Version>
+    <summary>PdfSharp for .NET Core</summary>    
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
