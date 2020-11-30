@@ -19,7 +19,7 @@ namespace PdfSharpCore.Utils
 
         private static readonly Dictionary<string, FontFamilyModel> InstalledFonts = new Dictionary<string, FontFamilyModel>();
 
-        private static readonly string[] SSupportedFonts;
+        private static readonly List<string> SSupportedFonts;
 
         public FontResolver()
         {
@@ -28,21 +28,19 @@ namespace PdfSharpCore.Utils
         static FontResolver()
         {
             string fontDir;
-
+            SSupportedFonts = new List<string>();
             bool isOSX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
             if (isOSX)
             {
                 fontDir = "/Library/Fonts/";
-                SSupportedFonts = Directory.GetFiles(fontDir, "*.ttf", SearchOption.AllDirectories);
-                SetupFontsFiles(SSupportedFonts);
+                SetupFontsFiles(Directory.GetFiles(fontDir, "*.ttf", SearchOption.AllDirectories));
                 return;
             }
 
             bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
             if (isLinux)
             {
-                SSupportedFonts = resolveLinuxFontFiles();
-                SetupFontsFiles(SSupportedFonts);
+                SetupFontsFiles(resolveLinuxFontFiles());
                 return;
             }
 
@@ -50,8 +48,7 @@ namespace PdfSharpCore.Utils
             if (isWindows)
             {
                 fontDir = Environment.ExpandEnvironmentVariables(@"%SystemRoot%\Fonts");
-                SSupportedFonts = Directory.GetFiles(fontDir, "*.ttf", SearchOption.AllDirectories);
-                SetupFontsFiles(SSupportedFonts);
+                SetupFontsFiles(Directory.GetFiles(fontDir, "*.ttf", SearchOption.AllDirectories));
                 return;
             }
 
@@ -88,6 +85,8 @@ namespace PdfSharpCore.Utils
                     FontDescription fontDescription = FontDescription.LoadDescription(fontPathFile);
                     string fontFamilyName = fontDescription.FontFamily(CultureInfo.InvariantCulture);
                     Debug.WriteLine(fontPathFile);
+
+                    SSupportedFonts.Add(fontPathFile);
 
                     if (tmpFontFamiliesTtfFilesDict.TryGetValue(fontFamilyName, out List<string> familyTtfFiles))
                         familyTtfFiles.Add(fontPathFile);
@@ -188,7 +187,7 @@ namespace PdfSharpCore.Utils
                 string ttfPathFile = "";
                 try
                 {
-                    ttfPathFile = SSupportedFonts.ToList().First(x => x.ToLower().Contains(Path.GetFileName(faceFileName).ToLower()));
+                    ttfPathFile = SSupportedFonts.First(x => x.ToLower().Contains(Path.GetFileName(faceFileName).ToLower()));
                     using (var ttf = File.OpenRead(ttfPathFile))
                     {
                         ttf.CopyTo(ms);
