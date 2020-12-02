@@ -23,7 +23,7 @@
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
 // THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
@@ -31,6 +31,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using PdfSharpCore.Exceptions;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf.Advanced;
@@ -40,16 +41,16 @@ namespace PdfSharpCore.Pdf.IO
 {
     /*
        Direct and indireckt objects
-     
+
        * If a simple object (boolean, integer, number, date, string, rectangle etc.) is referenced indirect,
          the parser reads this objects immediatly and consumes the indirection.
-       
+
        * If a composite object (dictionary, array etc.) is referenced indirect, a PdfReference objects
          is returned.
-       
+
        * If a composite object is a direct object, no PdfReference is created and the object is
          parsed immediatly.
-       
+
        * A refernece to a non existing object is specified as legal, therefore null is returned.
     */
 
@@ -137,16 +138,16 @@ namespace PdfSharpCore.Pdf.IO
                 // The iref table of this file contains the following entries:
                 //    iref
                 //    0 148
-                //    0000000000 65535 f 
-                //    0000000015 00000 n 
-                //    0000000346 00000 n 
+                //    0000000000 65535 f
+                //    0000000015 00000 n
+                //    0000000346 00000 n
                 //    ....
-                //    0000083236 00000 n 
-                //    0000083045 00000 n 
-                //    0000083045 00000 n 
-                //    0000083045 00000 n 
-                //    0000083045 00000 n 
-                //    0000080334 00000 n 
+                //    0000083236 00000 n
+                //    0000083045 00000 n
+                //    0000083045 00000 n
+                //    0000083045 00000 n
+                //    0000083045 00000 n
+                //    0000080334 00000 n
                 //    ....
                 // Object 84, 85, 86, and 87 maps to the same dictionary, but all PDF readers I tested
                 // ignores this mismatch! The following assertion failed about 50 times with this file.
@@ -196,7 +197,7 @@ namespace PdfSharpCore.Pdf.IO
                 // Acrobat 6 Professional proudly presents: The Null object!
                 // Even with a one-digit object number an indirect reference «x 0 R» to this object is
                 // one character larger than the direct use of «null». Probable this is the reason why
-                // it is true that Acrobat Web Capture 6.0 creates this object, but obviously never 
+                // it is true that Acrobat Web Capture 6.0 creates this object, but obviously never
                 // creates a reference to it!
                 case Symbol.Null:
                     pdfObject = new PdfNullObject(_document);
@@ -331,24 +332,31 @@ namespace PdfSharpCore.Pdf.IO
         // HACK: Solve problem more general.
         private int GetStreamLength(PdfDictionary dict)
         {
+            if (!dict.Elements.Any())
+                return 0;
+
             if (dict.Elements["/F"] != null)
-                throw new NotImplementedException("File streams are not yet implemented.");
-
-            PdfItem value = dict.Elements["/Length"];
-            if (value is PdfInteger)
-                return Convert.ToInt32(value);
-
-            PdfReference reference = value as PdfReference;
-            if (reference != null)
             {
-                ParserState state = SaveState();
-                object length = ReadObject(null, reference.ObjectID, false, false);
-                RestoreState(state);
-                int len = ((PdfIntegerObject)length).Value;
-                dict.Elements["/Length"] = new PdfInteger(len);
-                return len;
+                throw new NotImplementedException("File streams are not yet implemented.");
             }
-            throw new InvalidOperationException("Cannot retrieve stream length.");
+
+            var value = dict.Elements["/Length"];
+            if (value is PdfInteger)
+            {
+                return Convert.ToInt32(value);
+            }
+
+            if (!(value is PdfReference reference))
+            {
+                throw new InvalidOperationException("Cannot retrieve stream length.");
+            }
+
+            var state = SaveState();
+            object length = ReadObject(null, reference.ObjectID, false, false);
+            RestoreState(state);
+            var len = ((PdfIntegerObject)length).Value;
+            dict.Elements["/Length"] = new PdfInteger(len);
+            return len;
         }
 
         public PdfArray ReadArray(PdfArray array, bool includeReferences)
