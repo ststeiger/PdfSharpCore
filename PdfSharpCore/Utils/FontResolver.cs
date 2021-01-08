@@ -41,7 +41,7 @@ namespace PdfSharpCore.Utils
             bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
             if (isLinux)
             {
-                SSupportedFonts = resolveLinuxFontFiles();
+                SSupportedFonts = ResolveLinuxFontFiles();
                 SetupFontsFiles(SSupportedFonts);
                 return;
             }
@@ -58,23 +58,37 @@ namespace PdfSharpCore.Utils
             throw new NotImplementedException("FontResolver not implemented for this platform (PdfSharpCore.Utils.FontResolver.cs).");
         }
 
-        static string[] resolveLinuxFontFiles() {
-            List<string> fonts=new List<string>();
-            Regex confRegex=new Regex("<dir>(?<dir>.*)</dir>",RegexOptions.Compiled);
-            Regex ttfRegex=new Regex(@"\.ttf", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            using (StreamReader reader=new StreamReader(File.OpenRead("/etc/fonts/fonts.conf"))) {
-                string line=null;
-                while((line=reader.ReadLine())!=null) {
-                    Match m=confRegex.Match(line);
-                    if (!m.Success) continue;
-                    string val=m.Groups["dir"].Value.Replace("~",System.Environment.GetEnvironmentVariable("HOME"));
-                    if (!Directory.Exists(val)) continue;
-                    foreach(string dir in Directory.EnumerateDirectories(val)) 
-                        foreach(string s in Directory.EnumerateFiles(dir).Where(x=>ttfRegex.IsMatch(x))) 
-                            fonts.Add(s);
+        static string[] ResolveLinuxFontFiles()
+        {
+            var fontList = new List<string>();
+            var confRegex = new Regex("<dir>(?<dir>.*)</dir>", RegexOptions.Compiled);
+            var ttfRegex = new Regex(@"\.ttf", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+            using (var reader = new StreamReader(File.OpenRead("/etc/fonts/fonts.conf")))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    var match = confRegex.Match(line);
+                    if (!match.Success) continue;
+
+                    var path = match.Groups["dir"].Value.Replace("~", Environment.GetEnvironmentVariable("HOME"));
+                    if (!Directory.Exists(path)) continue;
+
+                    foreach (var enumerateDirectory in Directory.EnumerateDirectories(path))
+                    {
+                        var pathFont = Path.Combine(path, enumerateDirectory);
+
+                        foreach (var strDir in Directory.EnumerateDirectories(pathFont))
+                        {
+                            fontList.AddRange(Directory.EnumerateFiles(strDir)
+                                .Where(x => ttfRegex.IsMatch(x)));
+                        }
+                    }
                 }
             }
-            return fonts.ToArray();
+
+            return fontList.ToArray();
         }
 
         public static void SetupFontsFiles(string[] sSupportedFonts)
