@@ -23,7 +23,7 @@
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
 // THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
@@ -35,21 +35,22 @@ using PdfSharpCore.Exceptions;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Internal;
+using PdfSharpCore.Pdf.IO.enums;
 
 namespace PdfSharpCore.Pdf.IO
 {
     /*
        Direct and indireckt objects
-     
+
        * If a simple object (boolean, integer, number, date, string, rectangle etc.) is referenced indirect,
          the parser reads this objects immediatly and consumes the indirection.
-       
+
        * If a composite object (dictionary, array etc.) is referenced indirect, a PdfReference objects
          is returned.
-       
+
        * If a composite object is a direct object, no PdfReference is created and the object is
          parsed immediatly.
-       
+
        * A refernece to a non existing object is specified as legal, therefore null is returned.
     */
 
@@ -137,16 +138,16 @@ namespace PdfSharpCore.Pdf.IO
                 // The iref table of this file contains the following entries:
                 //    iref
                 //    0 148
-                //    0000000000 65535 f 
-                //    0000000015 00000 n 
-                //    0000000346 00000 n 
+                //    0000000000 65535 f
+                //    0000000015 00000 n
+                //    0000000346 00000 n
                 //    ....
-                //    0000083236 00000 n 
-                //    0000083045 00000 n 
-                //    0000083045 00000 n 
-                //    0000083045 00000 n 
-                //    0000083045 00000 n 
-                //    0000080334 00000 n 
+                //    0000083236 00000 n
+                //    0000083045 00000 n
+                //    0000083045 00000 n
+                //    0000083045 00000 n
+                //    0000083045 00000 n
+                //    0000080334 00000 n
                 //    ....
                 // Object 84, 85, 86, and 87 maps to the same dictionary, but all PDF readers I tested
                 // ignores this mismatch! The following assertion failed about 50 times with this file.
@@ -196,7 +197,7 @@ namespace PdfSharpCore.Pdf.IO
                 // Acrobat 6 Professional proudly presents: The Null object!
                 // Even with a one-digit object number an indirect reference «x 0 R» to this object is
                 // one character larger than the direct use of «null». Probable this is the reason why
-                // it is true that Acrobat Web Capture 6.0 creates this object, but obviously never 
+                // it is true that Acrobat Web Capture 6.0 creates this object, but obviously never
                 // creates a reference to it!
                 case Symbol.Null:
                     pdfObject = new PdfNullObject(_document);
@@ -996,7 +997,7 @@ namespace PdfSharpCore.Pdf.IO
         /// Reads the cross-reference table(s) and their trailer dictionary or
         /// cross-reference streams.
         /// </summary>
-        internal PdfTrailer ReadTrailer()
+        internal PdfTrailer ReadTrailer(PdfReadAccuracy accuracy)
         {
             int length = _lexer.PdfLength;
 
@@ -1035,7 +1036,7 @@ namespace PdfSharpCore.Pdf.IO
             // Read all trailers.
             while (true)
             {
-                PdfTrailer trailer = ReadXRefTableAndTrailer(_document._irefTable);
+                PdfTrailer trailer = ReadXRefTableAndTrailer(_document._irefTable, accuracy);
 
                 // 1st trailer seems to be the best.
                 if (_document._trailer == null)
@@ -1055,7 +1056,7 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Reads cross reference table(s) and trailer(s).
         /// </summary>
-        private PdfTrailer ReadXRefTableAndTrailer(PdfCrossReferenceTable xrefTable)
+        private PdfTrailer ReadXRefTableAndTrailer(PdfCrossReferenceTable xrefTable, PdfReadAccuracy accuracy)
         {
             Debug.Assert(xrefTable != null);
 
@@ -1097,7 +1098,8 @@ namespace PdfSharpCore.Pdf.IO
                                 if (generation == generationChecked && id == idChecked + 1)
                                     idToUse = idChecked;
                                 else
-                                    ParserDiagnostics.ThrowParserException("Invalid entry in XRef table, ID=" + id + ", Generation=" + generation + ", Position=" + position + ", ID of referenced object=" + idChecked + ", Generation of referenced object=" + generationChecked);
+                                    if (accuracy == PdfReadAccuracy.Strict)
+                                        ParserDiagnostics.ThrowParserException("Invalid entry in XRef table, ID=" + id + ", Generation=" + generation + ", Position=" + position + ", ID of referenced object=" + idChecked + ", Generation of referenced object=" + generationChecked);
                             }
 
                             // Even it is restricted, an object can exists in more than one subsection.
