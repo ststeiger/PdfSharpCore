@@ -31,6 +31,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using PdfSharpCore.Exceptions;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf.Advanced;
@@ -332,24 +333,31 @@ namespace PdfSharpCore.Pdf.IO
         // HACK: Solve problem more general.
         private int GetStreamLength(PdfDictionary dict)
         {
+            if (!dict.Elements.Any())
+                return 0;
+
             if (dict.Elements["/F"] != null)
-                throw new NotImplementedException("File streams are not yet implemented.");
-
-            PdfItem value = dict.Elements["/Length"];
-            if (value is PdfInteger)
-                return Convert.ToInt32(value);
-
-            PdfReference reference = value as PdfReference;
-            if (reference != null)
             {
-                ParserState state = SaveState();
-                object length = ReadObject(null, reference.ObjectID, false, false);
-                RestoreState(state);
-                int len = ((PdfIntegerObject)length).Value;
-                dict.Elements["/Length"] = new PdfInteger(len);
-                return len;
+                throw new NotImplementedException("File streams are not yet implemented.");
             }
-            throw new InvalidOperationException("Cannot retrieve stream length.");
+
+            var value = dict.Elements["/Length"];
+            if (value is PdfInteger)
+            {
+                return Convert.ToInt32(value);
+            }
+
+            if (!(value is PdfReference reference))
+            {
+                throw new InvalidOperationException("Cannot retrieve stream length.");
+            }
+
+            var state = SaveState();
+            object length = ReadObject(null, reference.ObjectID, false, false);
+            RestoreState(state);
+            var len = ((PdfIntegerObject)length).Value;
+            dict.Elements["/Length"] = new PdfInteger(len);
+            return len;
         }
 
         public PdfArray ReadArray(PdfArray array, bool includeReferences)
