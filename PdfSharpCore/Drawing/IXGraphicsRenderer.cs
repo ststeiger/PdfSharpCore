@@ -40,7 +40,7 @@ namespace PdfSharpCore.Drawing
     /// <summary>
     /// Represents an abstract drawing surface for PdfPages.
     /// </summary>
-    internal interface IXGraphicsRenderer
+    public interface IXGraphicsRenderer
     {
         void Close();
 
