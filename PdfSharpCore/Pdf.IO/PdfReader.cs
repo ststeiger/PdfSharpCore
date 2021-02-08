@@ -405,7 +405,7 @@ namespace PdfSharpCore.Pdf.IO
                 Parser parser = new Parser(document);
 
                 // Read all trailers or cross-reference streams, but no objects.
-                document._trailer = parser.ReadTrailer();
+                document._trailer = parser.ReadTrailer(accuracy);
 
                 if (document._trailer == null)
                     ParserDiagnostics.ThrowParserException("Invalid PDF file: no trailer found.");

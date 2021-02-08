@@ -36,6 +36,7 @@ using PdfSharpCore.Exceptions;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Internal;
+using PdfSharpCore.Pdf.IO.enums;
 
 namespace PdfSharpCore.Pdf.IO
 {
@@ -1004,7 +1005,7 @@ namespace PdfSharpCore.Pdf.IO
         /// Reads the cross-reference table(s) and their trailer dictionary or
         /// cross-reference streams.
         /// </summary>
-        internal PdfTrailer ReadTrailer()
+        internal PdfTrailer ReadTrailer(PdfReadAccuracy accuracy)
         {
             int length = _lexer.PdfLength;
 
@@ -1043,7 +1044,7 @@ namespace PdfSharpCore.Pdf.IO
             // Read all trailers.
             while (true)
             {
-                PdfTrailer trailer = ReadXRefTableAndTrailer(_document._irefTable);
+                PdfTrailer trailer = ReadXRefTableAndTrailer(_document._irefTable, accuracy);
 
                 // 1st trailer seems to be the best.
                 if (_document._trailer == null)
@@ -1063,7 +1064,7 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Reads cross reference table(s) and trailer(s).
         /// </summary>
-        private PdfTrailer ReadXRefTableAndTrailer(PdfCrossReferenceTable xrefTable)
+        private PdfTrailer ReadXRefTableAndTrailer(PdfCrossReferenceTable xrefTable, PdfReadAccuracy accuracy)
         {
             Debug.Assert(xrefTable != null);
 
@@ -1105,7 +1106,8 @@ namespace PdfSharpCore.Pdf.IO
                                 if (generation == generationChecked && id == idChecked + 1)
                                     idToUse = idChecked;
                                 else
-                                    ParserDiagnostics.ThrowParserException("Invalid entry in XRef table, ID=" + id + ", Generation=" + generation + ", Position=" + position + ", ID of referenced object=" + idChecked + ", Generation of referenced object=" + generationChecked);
+                                    if (accuracy == PdfReadAccuracy.Strict)
+                                        ParserDiagnostics.ThrowParserException("Invalid entry in XRef table, ID=" + id + ", Generation=" + generation + ", Position=" + position + ", ID of referenced object=" + idChecked + ", Generation of referenced object=" + generationChecked);
                             }
 
                             // Even it is restricted, an object can exists in more than one subsection.
