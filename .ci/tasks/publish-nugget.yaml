@@ -3,8 +3,8 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: mcr.microsoft.com/dotnet/core/sdk
-    tag: 3.1
+    repository: mcr.microsoft.com/dotnet/sdk
+    tag: 5.0.103-alpine3.12-amd64
 inputs:
 - name: source
 - name: version
