@@ -11,7 +11,7 @@ get_source_publish: &get_source_publish
   <<: *get_source
   trigger: false
   passed:
-  - TestBuild
+  - test-build
 
 get_version: &get_version
   get: version
@@ -63,7 +63,7 @@ resources:
 jobs:
 
 # Would be replace with proper Unit/Integration tests
-- name: TestBuild
+- name: test-build
   <<: *job
   plan:
   - <<: *get_source
@@ -73,7 +73,7 @@ jobs:
     params:
       <<: *project
 
-- name: PublishPatch
+- name: publish-patch
   <<: *job
   plan:
   - in_parallel:
@@ -86,7 +86,7 @@ jobs:
   - <<: *put_version
   - <<: *task_publish_nugget
 
-- name: PublishMinor
+- name: publish-minor
   <<: *job
   plan:
   - in_parallel:
@@ -98,7 +98,7 @@ jobs:
   - <<: *put_version
   - <<: *task_publish_nugget
 
-- name: PublishMajor
+- name: publish-major
   <<: *job
   plan:
   - in_parallel:
