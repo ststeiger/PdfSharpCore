@@ -3,8 +3,8 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: mcr.microsoft.com/dotnet/core/sdk
-    tag: 3.1
+    repository: mcr.microsoft.com/dotnet/sdk
+    tag: 5.0.103-alpine3.12-amd64
 inputs:
 - name: source
 - name: version
@@ -22,6 +22,17 @@ run:
   - |
     VERSION=$(cat version/version)
     cd "source/${PROJECT}"
+
+    # For some reason, dotnet build fails with
+    # /usr/share/dotnet/sdk/5.0.103/Roslyn/Microsoft.CSharp.Core.targets(71,5): error MSB6004: The specified task executable location "/rootfs/usr/share/dotnet/dotnet" is invalid. [/tmp/build/6da1d659/source/PdfSharpCore/PdfSharpCore.csproj]
+    # ...
+    # Microsoft.Build.BackEnd.NodeFailedToLaunchException: No such file or directory
+    #
+    # I can't find why "/rootfs" is prepended on concourse but works fine in the same docker image running in other environments
+    # Hack is to create this directory structure for now and symlink dotnet binary there
+    mkdir -p /rootfs/usr/share/dotnet/
+    ln -s /usr/share/dotnet/dotnet /rootfs/usr/share/dotnet/dotnet
+
     dotnet build /p:GeneratePackageOnBuild=False /p:AssemblyVersion=${VERSION} /p:FileVersion=${VERSION} -c Release "${PROJECT}.csproj"
     dotnet pack /p:PackageVersion=${VERSION} /p:PackageTags="${NUGGET_TAGS} $(cat ../.git/ref)" /p:PackageReleaseNotes="$(sed -e 's/;/ /g' -e 's/,/ /g' ../.git/commit_message)" --no-restore -c Release -o out "${PROJECT}.csproj"
     dotnet nuget push out/${PROJECT}.${VERSION}.nupkg -k ${NUGGET_API_KEY} -s https://api.nuget.org/v3/index.json
