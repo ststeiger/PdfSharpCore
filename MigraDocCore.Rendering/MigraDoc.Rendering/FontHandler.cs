@@ -151,7 +151,7 @@ namespace MigraDocCore.Rendering
 
     internal static XUnit GetDescent(XFont font)
     {
-      XUnit descent = -font.Metrics.Descent;
+      XUnit descent = font.Metrics.Descent;
       descent *= font.Size;
       descent /= font.FontFamily.GetEmHeight(font.Style);
       return descent;
