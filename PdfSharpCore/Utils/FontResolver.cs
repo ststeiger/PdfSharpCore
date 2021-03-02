@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using PdfSharpCore.Drawing;
@@ -91,109 +90,95 @@ namespace PdfSharpCore.Utils
             return fontList.ToArray();
         }
 
+
+        private readonly struct FontFileInfo
+        {
+            private FontFileInfo(string path, FontDescription fontDescription)
+            {
+                this.Path = path;
+                this.FontDescription = fontDescription;
+            }
+
+            public string Path { get; }
+
+            public FontDescription FontDescription { get; }
+
+            public string FamilyName => this.FontDescription.FontFamilyInvariantCulture;
+
+            public XFontStyle GuessFontStyle()
+            {
+                switch (this.FontDescription.Style)
+                {
+                    case FontStyle.Bold:
+                        return XFontStyle.Bold;
+                    case FontStyle.Italic:
+                        return XFontStyle.Italic;
+                    case FontStyle.BoldItalic:
+                        return XFontStyle.BoldItalic;
+                    default:
+                        return XFontStyle.Regular;
+                }
+            }
+
+            public static FontFileInfo Load(string path)
+            {
+                var fontDescription = FontDescription.LoadDescription(path);
+                return new FontFileInfo(path, fontDescription);
+            }
+        }
+
+
         public static void SetupFontsFiles(string[] sSupportedFonts)
         {
-            // First group all fonts to font families
-            Dictionary<string, List<string>> tmpFontFamiliesTtfFilesDict = new Dictionary<string, List<string>>();
+            var tempFontInfoList = new List<FontFileInfo>();
             foreach (var fontPathFile in sSupportedFonts)
             {
                 try
                 {
-                    FontDescription fontDescription = FontDescription.LoadDescription(fontPathFile);
-                    string fontFamilyName = fontDescription.FontFamily(CultureInfo.InvariantCulture);
+                    var fontInfo = FontFileInfo.Load(fontPathFile);
                     Debug.WriteLine(fontPathFile);
-
-                    if (tmpFontFamiliesTtfFilesDict.TryGetValue(fontFamilyName, out List<string> familyTtfFiles))
-                        familyTtfFiles.Add(fontPathFile);
-                    else
-                        tmpFontFamiliesTtfFilesDict.Add(fontFamilyName, new List<string> { fontPathFile });
+                    tempFontInfoList.Add(fontInfo);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Console.Error.WriteLine(e);
                 }
             }
 
             // Deserialize all font families
-            foreach (var fontFamily in tmpFontFamiliesTtfFilesDict)
+            foreach (var familyGroup in tempFontInfoList.GroupBy(info => info.FamilyName))
                 try
                 {
-                    InstalledFonts.Add(fontFamily.Key.ToLower(), DeserializeFontFamily(fontFamily));
+                    var familyName = familyGroup.Key;
+                    var family = DeserializeFontFamily(familyName, familyGroup);
+                    InstalledFonts.Add(familyName.ToLower(), family);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Console.Error.WriteLine(e);
                 }
         }
 
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-        private static FontFamilyModel DeserializeFontFamily(KeyValuePair<string, List<string>> fontFamily)
+        private static FontFamilyModel DeserializeFontFamily(string fontFamilyName, IEnumerable<FontFileInfo> fontList)
         {
-            var font = new FontFamilyModel { Name = fontFamily.Key };
-
-            var fontList = fontFamily.Value;
+            var font = new FontFamilyModel { Name = fontFamilyName };
 
             // there is only one font
-            if (fontFamily.Value.Count == 1)
+            if (fontList.Count() == 1)
+                font.FontFiles.Add(XFontStyle.Regular, fontList.First().Path);
+            else
             {
-                font.FontFiles.Add(XFontStyle.Regular, fontFamily.Value[0]);
-                return font;
-            }
-
-            // if element filenames have diff. lengths -> shortest name is regular
-            // skip this check if Regular font has 'regular' sufix, because 'fontName-bold' shorter that 'fontName-regular' 
-            if (fontList.Any(e => e.Length != fontList[0].Length)
-                && fontList.All(fontFileName => !Path.GetFileNameWithoutExtension(fontFileName)?.ToLower().Contains("regular") ?? true))
-            {
-                var orderedList = fontList.OrderBy(o => o.Length);
-                font.FontFiles.Add(XFontStyle.Regular, orderedList.First());
-
-                foreach (var elem in orderedList.Skip(1))
+                foreach (var info in fontList)
                 {
-                    var pair = DeserializeFontName(elem);
-                    if (!font.FontFiles.ContainsKey(pair.Key))
-                        font.FontFiles.Add(pair.Key, pair.Value);
+                    var style = info.GuessFontStyle();
+                    if (!font.FontFiles.ContainsKey(style))
+                        font.FontFiles.Add(style, info.Path);
                 }
-
-                return font;
             }
 
-            // else
-            foreach (var elem in fontList)
-            {
-                var pair = DeserializeFontName(elem);
-                if (!font.FontFiles.ContainsKey(pair.Key))
-                    font.FontFiles.Add(pair.Key, pair.Value);
-            }
             return font;
         }
-
-        private static KeyValuePair<XFontStyle, string> DeserializeFontName(string fontFileName)
-        {
-            var tf = Path.GetFileNameWithoutExtension(fontFileName)?.ToLower().TrimEnd('-', '_');
-            if (tf == null)
-                return new KeyValuePair<XFontStyle, string>(XFontStyle.Regular, null);
-
-            // bold italic
-            if (tf.Contains("bold") && tf.Contains("italic") ||
-                tf.EndsWith("bi", StringComparison.Ordinal) ||
-                tf.EndsWith("ib", StringComparison.Ordinal) ||
-                tf.EndsWith("z", StringComparison.Ordinal))
-                return new KeyValuePair<XFontStyle, string>(XFontStyle.BoldItalic, fontFileName);
-            // bold
-            if (tf.Contains("bold") || tf.EndsWith("b", StringComparison.Ordinal) ||
-                tf.EndsWith("bd", StringComparison.Ordinal))
-                return new KeyValuePair<XFontStyle, string>(XFontStyle.Bold, fontFileName);
-            // italic
-            if (tf.Contains("italic") || tf.EndsWith("i", StringComparison.Ordinal) ||
-                tf.EndsWith("ib", StringComparison.Ordinal))
-                return new KeyValuePair<XFontStyle, string>(XFontStyle.Italic, fontFileName);
-
-            //We found a match on this font and did not want bold or italic.
-            //This is not guaranteed to always be correct, but the first matching key is usually the normal variant.
-            return new KeyValuePair<XFontStyle, string>(XFontStyle.Regular, fontFileName);
-        }
-
 
         public byte[] GetFont(string faceFileName)
         {
