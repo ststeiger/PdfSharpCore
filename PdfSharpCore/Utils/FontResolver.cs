@@ -63,59 +63,89 @@ namespace PdfSharpCore.Utils
         }
 
 
-        static string[] ResolveLinuxFontFiles()
+        private static string[] ResolveLinuxFontFiles()
         {
             List<string> fontList = new List<string>();
             Regex confRegex = new Regex("<dir>(?<dir>.*)</dir>", RegexOptions.Compiled);
+            HashSet<string> hs = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
 
-            using (System.IO.TextReader reader = new System.IO.StreamReader(
-                System.IO.File.OpenRead("/etc/fonts/fonts.conf")))
+            try
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                using (System.IO.TextReader reader = new System.IO.StreamReader(
+                    System.IO.File.OpenRead("/etc/fonts/fonts.conf")))
                 {
-                    Match match = confRegex.Match(line);
-                    if (!match.Success) 
-                        continue;
-
-
-                    string path = match.Groups["dir"].Value.Trim();
-                    if (path.StartsWith("~"))
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        path = System.Environment.GetEnvironmentVariable("HOME") + path.Substring(1);
-                    }
-                    
-                    if (!System.IO.Directory.Exists(path)) 
-                        continue;
+                        Match match = confRegex.Match(line);
+                        if (!match.Success)
+                            continue;
 
-                    foreach (string enumerateDirectory in System.IO.Directory.EnumerateDirectories(
-                        path,
-                        "*.*", 
-                        System.IO.SearchOption.AllDirectories))
-                    {
-                        string pathFont = System.IO.Path.Combine(path, enumerateDirectory);
-
-                        foreach (string strDir in System.IO.Directory.EnumerateDirectories(
-                            pathFont,
-                            "*.*",
-                            System.IO.SearchOption.AllDirectories
-                            ))
+                        string path = match.Groups["dir"].Value.Trim();
+                        if (path.StartsWith("~"))
                         {
-                            fontList.AddRange(System.IO.Directory
-                                .EnumerateFiles(strDir, "*.*", System.IO.SearchOption.AllDirectories)
-                                .Where(x => x.EndsWith(".ttf", System.StringComparison.OrdinalIgnoreCase)
-                                )
-                            );
-                        } // Next strDir 
+                            path = System.Environment.GetEnvironmentVariable("HOME") + path.Substring(1);
+                        }
 
-                    } // Next enumerateDirectory 
+                        if (!hs.Contains(path))
+                            hs.Add(path);
 
-                } // Whend 
+                        AddFontsToFontList(path, fontList);
+                    } // Whend 
 
-            } // End Using reader 
+                } // End Using reader 
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+                System.Console.WriteLine(ex.StackTrace);
+            }
+
+            string shareFonts = "/usr/share/fonts";
+            if (!hs.Contains(shareFonts))
+                AddFontsToFontList(shareFonts, fontList);
+
+            string localshareFonts = "/usr/local/share/fonts";
+            if (!hs.Contains(localshareFonts))
+                AddFontsToFontList(localshareFonts, fontList);
+
+            string homeFonts = System.Environment.GetEnvironmentVariable("HOME") + "/.fonts";
+            if (!hs.Contains(homeFonts))
+                AddFontsToFontList(homeFonts, fontList);
 
             return fontList.ToArray();
         } // End Function ResolveLinuxFontFiles 
+
+
+        private static void AddFontsToFontList(string path, List<string> fontList)
+        {
+            if (!System.IO.Directory.Exists(path))
+                return;
+
+            foreach (string enumerateDirectory in System.IO.Directory.EnumerateDirectories(
+                path,
+                "*.*",
+                System.IO.SearchOption.AllDirectories))
+            {
+                string pathFont = System.IO.Path.Combine(path, enumerateDirectory);
+
+                foreach (string strDir in System.IO.Directory.EnumerateDirectories(
+                    pathFont,
+                    "*.*",
+                    System.IO.SearchOption.AllDirectories
+                    ))
+                {
+                    fontList.AddRange(System.IO.Directory
+                        .EnumerateFiles(strDir, "*.*", System.IO.SearchOption.AllDirectories)
+                        .Where(x => x.EndsWith(".ttf", System.StringComparison.OrdinalIgnoreCase)
+                        )
+                    );
+                } // Next strDir 
+
+            } // Next enumerateDirectory 
+
+        }
+
 
 
         private readonly struct FontFileInfo
