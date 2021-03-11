@@ -3,7 +3,6 @@ using System.Linq;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 using PdfSharpCore.Internal;
 using PdfSharpCore.Drawing;
@@ -45,7 +44,7 @@ namespace PdfSharpCore.Utils
             bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
             if (isLinux)
             {
-                SSupportedFonts = ResolveLinuxFontFiles();
+                SSupportedFonts = LinuxSystemFontResolver.Resolve();
                 SetupFontsFiles(SSupportedFonts);
                 return;
             }
@@ -61,91 +60,6 @@ namespace PdfSharpCore.Utils
 
             throw new System.NotImplementedException("FontResolver not implemented for this platform (PdfSharpCore.Utils.FontResolver.cs).");
         }
-
-
-        private static string[] ResolveLinuxFontFiles()
-        {
-            List<string> fontList = new List<string>();
-            Regex confRegex = new Regex("<dir>(?<dir>.*)</dir>", RegexOptions.Compiled);
-            HashSet<string> hs = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-
-            try
-            {
-                using (System.IO.TextReader reader = new System.IO.StreamReader(
-                    System.IO.File.OpenRead("/etc/fonts/fonts.conf")))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        Match match = confRegex.Match(line);
-                        if (!match.Success)
-                            continue;
-
-                        string path = match.Groups["dir"].Value.Trim();
-                        if (path.StartsWith("~"))
-                        {
-                            path = System.Environment.GetEnvironmentVariable("HOME") + path.Substring(1);
-                        }
-
-                        if (!hs.Contains(path))
-                            hs.Add(path);
-
-                        AddFontsToFontList(path, fontList);
-                    } // Whend 
-
-                } // End Using reader 
-            }
-            catch (System.Exception ex)
-            {
-                System.Console.WriteLine(ex.Message);
-                System.Console.WriteLine(ex.StackTrace);
-            }
-
-            string shareFonts = "/usr/share/fonts";
-            if (!hs.Contains(shareFonts))
-                AddFontsToFontList(shareFonts, fontList);
-
-            string localshareFonts = "/usr/local/share/fonts";
-            if (!hs.Contains(localshareFonts))
-                AddFontsToFontList(localshareFonts, fontList);
-
-            string homeFonts = System.Environment.GetEnvironmentVariable("HOME") + "/.fonts";
-            if (!hs.Contains(homeFonts))
-                AddFontsToFontList(homeFonts, fontList);
-
-            return fontList.ToArray();
-        } // End Function ResolveLinuxFontFiles 
-
-
-        private static void AddFontsToFontList(string path, List<string> fontList)
-        {
-            if (!System.IO.Directory.Exists(path))
-                return;
-
-            foreach (string enumerateDirectory in System.IO.Directory.EnumerateDirectories(
-                path,
-                "*.*",
-                System.IO.SearchOption.AllDirectories))
-            {
-                string pathFont = System.IO.Path.Combine(path, enumerateDirectory);
-
-                foreach (string strDir in System.IO.Directory.EnumerateDirectories(
-                    pathFont,
-                    "*.*",
-                    System.IO.SearchOption.AllDirectories
-                    ))
-                {
-                    fontList.AddRange(System.IO.Directory
-                        .EnumerateFiles(strDir, "*.*", System.IO.SearchOption.AllDirectories)
-                        .Where(x => x.EndsWith(".ttf", System.StringComparison.OrdinalIgnoreCase)
-                        )
-                    );
-                } // Next strDir 
-
-            } // Next enumerateDirectory 
-
-        }
-
 
 
         private readonly struct FontFileInfo
