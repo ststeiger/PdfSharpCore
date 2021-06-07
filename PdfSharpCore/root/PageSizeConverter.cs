@@ -72,6 +72,8 @@ namespace PdfSharpCore
                 case PageSize.A5:
                     return new XSize(420, 595);
 
+                case PageSize.A6:
+                    return new XSize(298, 420);
 
                 case PageSize.RA0:
                     return new XSize(2438, 3458);

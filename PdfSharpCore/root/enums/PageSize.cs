@@ -132,6 +132,11 @@ namespace PdfSharpCore
         /// </summary>
         B5 = 18,
 
+        /// <summary>
+        /// Identifies a paper sheet size of 105 mm times 148 mm or 4.1 inch times 5.8 inch.
+        /// </summary>
+        A6 = 19,
+
 #if true_
         /// <summary>
         /// Identifies a paper sheet size of 917 mm times 1297 mm or 36.00 inch times 51.20 inch.
