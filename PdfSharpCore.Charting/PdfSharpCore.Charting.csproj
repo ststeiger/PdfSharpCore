@@ -24,7 +24,7 @@ PdfSharpCore.Charting was ported from PdfSharp</Description>
 
   <ItemGroup>
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
-    <ProjectReference Include="..\PdfSharpCore\PdfSharpCore.csproj" />
+    <PackageReference Include="PdfSharpCore" Version="1.2.17" />
   </ItemGroup>
 
 </Project>
