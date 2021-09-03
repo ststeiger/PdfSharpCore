@@ -81,6 +81,88 @@ namespace PdfSharpCore.Drawing.Layout
 		/// <param name="format">The format. Must be <c>XStringFormat.TopLeft</c></param>
 		public void DrawString(IEnumerable<TextSegment> textSegments, XRect layoutRectangle, XStringFormat format)
 		{
+			ProcessTextSegments(
+				textSegments,
+				layoutRectangle,
+				format,
+				(block, dx, dy) => _gfx.DrawString(block.Text, block.Environment.Font, block.Environment.Brush, dx + block.Location.X, dy + block.Location.Y)
+			);
+		}
+
+		/// <summary>
+		/// Calculates the size of the given text
+		/// </summary>
+		/// <param name="text">The text to be drawn.</param>
+		/// <param name="font">The font.</param>
+		/// <param name="brush">The text brush.</param>
+		/// <param name="width">Max text width</param>
+		/// <returns></returns>
+		public XSize CalculateTextSize(string text, XFont font, XBrush brush, double width)
+		{
+			return CalculateTextSize(text, font, brush, width, XStringFormats.TopLeft);
+		}
+
+		/// <summary>
+		/// Calculates the size of the given text
+		/// </summary>
+		/// <param name="text">The text to be drawn.</param>
+		/// <param name="font">The font.</param>
+		/// <param name="brush">The text brush.</param>
+		/// <param name="width">Max text width</param>
+		/// <param name="format">The format. Must be <c>XStringFormat.TopLeft</param>
+		/// <returns></returns>
+		public XSize CalculateTextSize(string text, XFont font, XBrush brush, double width, XStringFormat format)
+		{
+			var textSegments = new List<TextSegment>
+			{
+				new TextSegment { Font = font, Brush = brush, Text = text }
+			};
+
+			return CalculateTextSize(textSegments, width, format);
+		}
+
+		/// <summary>
+		/// Calculates the size of the given text
+		/// </summary>
+		/// <param name="textSegments">The texts to be drawn with font and color information.</param>
+		/// <param name="width">Max text width</param>
+		/// <returns></returns>
+		public XSize CalculateTextSize(IEnumerable<TextSegment> textSegments, double width)
+		{
+			return CalculateTextSize(textSegments, width, XStringFormats.TopLeft);
+		}
+
+		/// <summary>
+		/// Calculates the size of the given text
+		/// </summary>
+		/// <param name="textSegments">The texts to be drawn with font and color information.</param>
+		/// <param name="width">Max text width</param>
+		/// <param name="format">The format. Must be <c>XStringFormat.TopLeft</param>
+		/// <returns></returns>
+		public XSize CalculateTextSize(IEnumerable<TextSegment> textSegments, double width, XStringFormat format)
+		{
+			var layoutRectangle = new XRect(0, 0, width, 100000000);
+			var blocks = new List<Block>();
+
+			ProcessTextSegments(textSegments, layoutRectangle, format, (block, dx, dy) => blocks.Add(block));
+
+			var height = blocks.Max(b => b.Location.Y);
+			var maxLineHeight = 0.0;
+			for (int i = blocks.Count - 1; i >= 0; i--)
+			{
+				if (blocks[i].Type == BlockType.LineBreak)
+				{
+					break;
+				}
+
+				maxLineHeight = Math.Max(maxLineHeight, blocks[i].Environment.LineSpace);
+			}
+
+			return new XSize(width, height + maxLineHeight);
+		}
+
+		private void ProcessTextSegments(IEnumerable<TextSegment> textSegments, XRect layoutRectangle, XStringFormat format, Action<Block, double, double> applyBlock)
+		{
 			if (textSegments.All(ts => string.IsNullOrEmpty(ts.Text)))
 			{
 				return;
@@ -154,7 +236,7 @@ namespace PdfSharpCore.Drawing.Layout
 						continue;
 					}
 
-					_gfx.DrawString(block.Text, block.Environment.Font, block.Environment.Brush, dx + block.Location.X, dy + block.Location.Y);
+					applyBlock(block, dx, dy);
 				}
 			}
 		}
