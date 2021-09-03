@@ -280,6 +280,7 @@ namespace PdfSharpCore.Drawing.Layout
 							var block = new Block(token, BlockType.Text, _gfx.MeasureString(token, textSegment.Font).Width);
 							SetFormatterEnvironment(block, textSegment);
 							block.LineIndent = textSegment.LineIndent;
+							block.SkipParagraphAlignment = textSegment.SkipParagraphAlignment;
 							blocks.Add(block);
 						}
 
@@ -294,10 +295,11 @@ namespace PdfSharpCore.Drawing.Layout
 					{
 						if (inNonWhiteSpace)
 						{
-							var token = textSegment.Text.Substring(startIndex, blockLength);
+							var token = textSegment.Text.Substring(startIndex, blockLength).Trim();
 							var block = new Block(token, BlockType.Text, _gfx.MeasureString(token, textSegment.Font).Width);
 							SetFormatterEnvironment(block, textSegment);
 							block.LineIndent = textSegment.LineIndent;
+							block.SkipParagraphAlignment = textSegment.SkipParagraphAlignment;
 							blocks.Add(block);
 							startIndex = idx + 1;
 							blockLength = 0;
@@ -319,6 +321,7 @@ namespace PdfSharpCore.Drawing.Layout
 					var token = textSegment.Text.Substring(startIndex, blockLength);
 					var block = new Block(token, BlockType.Text, _gfx.MeasureString(token, textSegment.Font).Width);
 					block.LineIndent = textSegment.LineIndent;
+					block.SkipParagraphAlignment = textSegment.SkipParagraphAlignment;
 					SetFormatterEnvironment(block, textSegment);
 					blocks.Add(block);
 				}
@@ -463,6 +466,23 @@ namespace PdfSharpCore.Drawing.Layout
 			}
 
 			var totalWidth = firstBlock.LineIndent;
+			if (Alignment == XParagraphAlignment.Justify)
+			{
+				for (int idx = firstIndex; idx <= lastIndex; idx++)
+				{
+					if (!blockUnit[idx].SkipParagraphAlignment)
+					{
+						firstIndex = idx;
+
+						break;
+					}
+					else
+					{
+						count--;
+						layoutWidth -= blockUnit[idx].Width + blockUnit[idx].Environment.SpaceWidth;
+					}
+				}
+			}
 
 			for (int idx = firstIndex; idx <= lastIndex; idx++)
 			{

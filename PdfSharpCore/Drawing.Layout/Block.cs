@@ -68,5 +68,11 @@ namespace PdfSharpCore.Drawing.Layout
 		/// Indent of the text when a new line is started
 		/// </summary>
 		public double LineIndent { get; set; }
+
+		/// <summary>
+		/// Skips block for alignment justify calculation, when its the first block in line
+		/// </summary>
+		public bool SkipParagraphAlignment { get; set; }
+
 	}
 }
