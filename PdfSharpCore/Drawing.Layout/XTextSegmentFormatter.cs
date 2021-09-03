@@ -127,11 +127,20 @@ namespace PdfSharpCore.Drawing.Layout
 
 			CreateLayout(blockUnits, layoutRectangle);
 
-			foreach (var blockUnit in blockUnits)
+			for (int index = 0; index < blockUnits.Count; index++)
 			{
+				var blockUnit = blockUnits[index];
 				var maxCyAscend = blockUnit.Max(b => b.Environment.CyAscent);
 				var dx = layoutRectangle.Location.X;
 				var dy = layoutRectangle.Location.Y + maxCyAscend;
+
+				if (!blockUnit.All(b => b.Environment.CyAscent == maxCyAscend))
+				{
+					for (var indexSiblings = index + 1; indexSiblings < blockUnits.Count; indexSiblings++)
+					{
+						blockUnits[indexSiblings].ForEach(b => b.Location += new XSize(0, maxCyAscend - blockUnit.First().Environment.CyAscent));
+					}
+				}
 
 				foreach (var block in blockUnit)
 				{
@@ -156,12 +165,11 @@ namespace PdfSharpCore.Drawing.Layout
 
 			foreach (var textSegment in textSegments)
 			{
-				if (string.IsNullOrEmpty(textSegment.Text))
+				if (string.IsNullOrEmpty(textSegment.Text) && !(textSegment.Text ?? "").Contains(Chars.LF))
 				{
 					continue;
 				}
 
-				textSegment.Text = textSegment.Text.Trim();
 				var length = textSegment.Text.Length;
 				var inNonWhiteSpace = false;
 				var startIndex = 0;
@@ -189,6 +197,7 @@ namespace PdfSharpCore.Drawing.Layout
 							var token = textSegment.Text.Substring(startIndex, blockLength);
 							var block = new Block(token, BlockType.Text, _gfx.MeasureString(token, textSegment.Font).Width);
 							SetFormatterEnvironment(block, textSegment);
+							block.LineIndent = textSegment.LineIndent;
 							blocks.Add(block);
 						}
 
@@ -206,6 +215,7 @@ namespace PdfSharpCore.Drawing.Layout
 							var token = textSegment.Text.Substring(startIndex, blockLength);
 							var block = new Block(token, BlockType.Text, _gfx.MeasureString(token, textSegment.Font).Width);
 							SetFormatterEnvironment(block, textSegment);
+							block.LineIndent = textSegment.LineIndent;
 							blocks.Add(block);
 							startIndex = idx + 1;
 							blockLength = 0;
@@ -226,6 +236,7 @@ namespace PdfSharpCore.Drawing.Layout
 				{
 					var token = textSegment.Text.Substring(startIndex, blockLength);
 					var block = new Block(token, BlockType.Text, _gfx.MeasureString(token, textSegment.Font).Width);
+					block.LineIndent = textSegment.LineIndent;
 					SetFormatterEnvironment(block, textSegment);
 					blocks.Add(block);
 				}
@@ -288,7 +299,13 @@ namespace PdfSharpCore.Drawing.Layout
 					else
 					{
 						double width = block.Width;
-						if ((x + width <= rectWidth || x == 0) && block.Type != BlockType.LineBreak)
+
+						if (x == 0.0)
+						{
+							x += block.LineIndent;
+						}
+
+						if (x + width <= rectWidth || x == 0.0)
 						{
 							block.Location = new XPoint(x, y);
 							x += width + block.Environment.SpaceWidth;
@@ -308,12 +325,8 @@ namespace PdfSharpCore.Drawing.Layout
 								currentLineBlocks.ForEach(b => b.Location = new XPoint(b.Location.X, y));
 							}
 
-							startLineSpace = (idx + 1) < count
-								? blockUnit[idx + 1].Environment.LineSpace
-								: block.Environment.LineSpace;
-							startCyDescent = (idx + 1) < count
-								? blockUnit[idx + 1].Environment.CyDescent
-								: block.Environment.CyDescent;
+							startLineSpace = block.Environment.LineSpace;
+							startCyDescent = block.Environment.CyDescent;
 
 							if (startLineSpace < currentMaxLineSpace)
 							{
@@ -334,8 +347,8 @@ namespace PdfSharpCore.Drawing.Layout
 								break;
 							}
 
-							block.Location = new XPoint(0, y);
-							x = width + block.Environment.SpaceWidth;
+							block.Location = new XPoint(block.LineIndent, y);
+							x = block.LineIndent + width + block.Environment.SpaceWidth;
 							currentLineBlocks.Add(block);
 						}
 					}
@@ -367,7 +380,7 @@ namespace PdfSharpCore.Drawing.Layout
 				return;
 			}
 
-			var totalWidth = 0.0;
+			var totalWidth = firstBlock.LineIndent;
 
 			for (int idx = firstIndex; idx <= lastIndex; idx++)
 			{

@@ -63,5 +63,10 @@ namespace PdfSharpCore.Drawing.Layout
 		/// Contains information about spacing of the font
 		/// </summary>
 		public FormatterEnvironment Environment { get; set; }
+
+		/// <summary>
+		/// Indent of the text when a new line is started
+		/// </summary>
+		public double LineIndent { get; set; }
 	}
 }
