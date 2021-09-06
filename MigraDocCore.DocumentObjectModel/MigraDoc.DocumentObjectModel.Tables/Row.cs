@@ -121,16 +121,16 @@ namespace MigraDocCore.DocumentObjectModel.Tables
     {
       get
       {
-        if (IsNull("index"))
+        if (!index.HasValue)
         {
           Rows rws = this.parent as Rows;
           SetValue("Index", rws.IndexOf(this));
         }
-        return index;
+        return index.Value;
       }
     }
     [DV]
-    internal NInt index = NInt.NullValue;
+    internal int? index;
 
     /// <summary>
     /// Gets a cell by its column index. The first cell has index 0.
