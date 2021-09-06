@@ -115,16 +115,16 @@ namespace MigraDocCore.DocumentObjectModel.Tables
     {
       get
       {
-        if (IsNull("Index"))
+        if (!index.HasValue)
         {
           Columns clms = this.Parent as Columns;
-          SetValue("Index", clms.IndexOf(this));
+          SetValue("Index", index = clms.IndexOf(this));
         }
-        return index;
+        return index ?? 0;
       }
     }
     [DV]
-    internal NInt index = NInt.NullValue;
+    internal int? index;
 
     /// <summary>
     /// Gets a cell by its row index. The first cell has index 0.
@@ -134,7 +134,7 @@ namespace MigraDocCore.DocumentObjectModel.Tables
       get
       {
         //Check.ArgumentOutOfRange(index >= 0 && index < table.Rows.Count, "index");
-        return Table.Rows[index][this.index];
+        return Table.Rows[index][this.index ?? 0];
       }
     }
 
@@ -230,11 +230,11 @@ namespace MigraDocCore.DocumentObjectModel.Tables
     /// </summary>
     public int KeepWith
     {
-      get { return this.keepWith.Value; }
-      set { this.keepWith.Value = value; }
+      get { return this.keepWith ?? 0; }
+      set { this.keepWith = value; }
     }
     [DV]
-    internal NInt keepWith = NInt.NullValue;
+    internal int? keepWith;
 
     /// <summary>
     /// Gets or sets a value which define whether the column is a header.
@@ -309,7 +309,7 @@ namespace MigraDocCore.DocumentObjectModel.Tables
       if (!this.width.IsNull)
         serializer.WriteSimpleAttribute("Width", this.Width);
 
-      if (!this.keepWith.IsNull)
+      if (this.keepWith.HasValue)
         serializer.WriteSimpleAttribute("KeepWith", this.KeepWith);
 
       if (!this.IsNull("Borders"))

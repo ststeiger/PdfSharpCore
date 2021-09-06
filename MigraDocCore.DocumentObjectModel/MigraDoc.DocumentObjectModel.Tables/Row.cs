@@ -124,9 +124,9 @@ namespace MigraDocCore.DocumentObjectModel.Tables
         if (!index.HasValue)
         {
           Rows rws = this.parent as Rows;
-          SetValue("Index", rws.IndexOf(this));
+          SetValue("Index", index = rws.IndexOf(this));
         }
-        return index.Value;
+        return index ?? 0;
       }
     }
     [DV]
@@ -286,11 +286,11 @@ namespace MigraDocCore.DocumentObjectModel.Tables
     /// </summary>
     public int KeepWith
     {
-      get { return this.keepWith.Value; }
-      set { this.keepWith.Value = value; }
+      get { return this.keepWith ?? 0; }
+      set { this.keepWith = value; }
     }
     [DV]
-    internal NInt keepWith = NInt.NullValue;
+    internal int? keepWith;
 
     /// <summary>
     /// Gets the Cells collection of the table.
@@ -360,7 +360,7 @@ namespace MigraDocCore.DocumentObjectModel.Tables
       if (!this.verticalAlignment.IsNull)
         serializer.WriteSimpleAttribute("VerticalAlignment", this.VerticalAlignment);
 
-      if (!this.keepWith.IsNull)
+      if (this.keepWith.HasValue)
         serializer.WriteSimpleAttribute("KeepWith", this.KeepWith);
 
       //Borders & Shading

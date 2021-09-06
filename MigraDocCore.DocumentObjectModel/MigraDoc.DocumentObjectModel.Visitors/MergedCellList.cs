@@ -189,7 +189,7 @@ namespace MigraDocCore.DocumentObjectModel.Visitors
 
       if (cell.mergeRight > 0)
       {
-        Cell rightBorderCell = cell.Table[cell.Row.Index, cell.Column.Index + cell.mergeRight];
+        Cell rightBorderCell = cell.Table[cell.Row.Index, cell.Column.Index + (cell.mergeRight ?? 0)];
         if (rightBorderCell.borders != null && rightBorderCell.borders.right != null)
           borders.Right = rightBorderCell.borders.right.Clone();
         else
@@ -198,7 +198,7 @@ namespace MigraDocCore.DocumentObjectModel.Visitors
 
       if (cell.mergeDown > 0)
       {
-        Cell bottomBorderCell = cell.Table[cell.Row.Index + cell.mergeDown, cell.Column.Index];
+        Cell bottomBorderCell = cell.Table[cell.Row.Index + (cell.mergeDown ?? 0), cell.Column.Index];
         if (bottomBorderCell.borders != null && bottomBorderCell.borders.bottom != null)
           borders.Bottom = bottomBorderCell.borders.bottom.Clone();
         else
