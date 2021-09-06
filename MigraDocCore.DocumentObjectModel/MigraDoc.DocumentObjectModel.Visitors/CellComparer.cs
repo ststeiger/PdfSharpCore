@@ -31,7 +31,7 @@
 #endregion
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using MigraDocCore.DocumentObjectModel.Tables;
 using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Resources;
 
@@ -41,23 +41,21 @@ namespace MigraDocCore.DocumentObjectModel.Visitors
   /// Comparer for the cell positions within a table.
   /// It compares the cell positions from top to bottom and left to right.
   /// </summary>
-  public class CellComparer : IComparer
+  public class CellComparer : IComparer<Cell>
   {
-    public int Compare(object lhs, object rhs)
+    public int Compare(Cell lhs, Cell rhs)
     {
-      if (!(lhs is Cell))
-        throw new ArgumentException(AppResources.CompareJustCells, "lhs");
+      if (ReferenceEquals(lhs, null))
+        throw new ArgumentNullException(nameof(lhs));
 
-      if (!(rhs is Cell))
-        throw new ArgumentException(AppResources.CompareJustCells, "rhs");
+      if (ReferenceEquals(rhs, null))
+        throw new ArgumentNullException(nameof(rhs));
 
-      Cell cellLhs = lhs as Cell;
-      Cell cellRhs = rhs as Cell;
-      int rowCmpr = cellLhs.Row.Index - cellRhs.Row.Index;
+      int rowCmpr = lhs.Row.Index - rhs.Row.Index;
       if (rowCmpr != 0)
         return rowCmpr;
 
-      return cellLhs.Column.Index - cellRhs.Column.Index;
+      return lhs.Column.Index - rhs.Column.Index;
     }
   }
 }
