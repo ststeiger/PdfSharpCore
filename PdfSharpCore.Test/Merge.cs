@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using System.Reflection;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.IO;
+using PdfSharpCore.Test.Helpers;
 using Xunit;
 
 namespace PdfSharpCore.Test
@@ -9,37 +9,33 @@ namespace PdfSharpCore.Test
     public class Merge
     {
         [Fact]
-        public void ShouldBePossible()
+        public void CanMerge2Documents()
         {
-            var root = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
+            var pdf1Path =  PathHelper.GetInstance().GetAssetPath("FamilyTree.pdf");
+            var pdf2Path = PathHelper.GetInstance().GetAssetPath("test.pdf");
 
-            var pdf1Path = Path.Combine(root, "Assets", "FamilyTree.pdf");
-            var pdf2Path = Path.Combine(root, "Assets", "test.pdf");
+            var outputDocument = new PdfDocument();
 
-            PdfDocument outputDocument = new PdfDocument();
-
-            foreach (var pdfPath in new[] {pdf1Path, pdf2Path})
+            foreach (var pdfPath in new[] { pdf1Path, pdf2Path })
             {
-                using (var fs = File.OpenRead(pdfPath))
+                using var fs = File.OpenRead(pdfPath);
+                var inputDocument = Pdf.IO.PdfReader.Open(fs, PdfDocumentOpenMode.Import);
+                var count = inputDocument.PageCount;
+                for (var idx = 0; idx < count; idx++)
                 {
-                    PdfDocument inputDocument = Pdf.IO.PdfReader.Open(fs, PdfDocumentOpenMode.Import);
-                    int count = inputDocument.PageCount;
-                    for (int idx = 0; idx < count; idx++)
-                    {
-                        PdfPage page = inputDocument.Pages[idx];
-                        outputDocument.AddPage(page);
-                    }
+                    var page = inputDocument.Pages[idx];
+                    outputDocument.AddPage(page);
                 }
             }
 
-            var outFilePAth = Path.Combine(root, "Out", "merge.pdf");
-            var dir = Path.GetDirectoryName(outFilePAth);
+            var outFilePath = Path.Combine(PathHelper.GetInstance().RootDir, "Out", "merge.pdf");
+            var dir = Path.GetDirectoryName(outFilePath);
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
             }
 
-            outputDocument.Save(outFilePAth);
+            outputDocument.Save(outFilePath);
         }
     }
 }

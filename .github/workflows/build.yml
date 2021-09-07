@@ -1,0 +1,20 @@
+name: dotnet package
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        options:
+          - framework: net5.0
+          - framework: netcoreapp3.1
+    steps:
+      - uses: actions/checkout@v2
+      - name: DotNetBuild
+        shell: pwsh
+        run: ./ci-build.ps1 "${{matrix.options.framework}}"
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal
