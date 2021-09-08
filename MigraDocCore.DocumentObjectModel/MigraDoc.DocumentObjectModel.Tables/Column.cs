@@ -117,8 +117,12 @@ namespace MigraDocCore.DocumentObjectModel.Tables
       {
         if (!index.HasValue)
         {
-          Columns clms = this.Parent as Columns;
-          SetValue("Index", index = clms.IndexOf(this));
+          Columns clms = (Columns)Parent;
+          // One for all and all for one.
+          for (int i = 0; i < clms.Count; ++i)
+          {
+            clms[i].index = i;
+          }
         }
         return index ?? 0;
       }

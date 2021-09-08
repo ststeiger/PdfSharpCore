@@ -123,8 +123,12 @@ namespace MigraDocCore.DocumentObjectModel.Tables
       {
         if (!index.HasValue)
         {
-          Rows rws = this.parent as Rows;
-          SetValue("Index", index = rws.IndexOf(this));
+          Rows rws = (Rows)parent;
+          // One for all and all for one.
+          for (int i = 0; i < rws.Count; ++i)
+          {
+            rws[i].index = i;
+          }
         }
         return index ?? 0;
       }
