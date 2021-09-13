@@ -32,7 +32,7 @@ namespace PdfSharpCore.Drawing.Layout
 		/// <summary>
 		/// The text represented by this block.
 		/// </summary>
-		public string Text { get; }
+		public string Text { get; set; }
 
 		/// <summary>
 		/// The type of the block.
@@ -42,7 +42,7 @@ namespace PdfSharpCore.Drawing.Layout
 		/// <summary>
 		/// The width of the text.
 		/// </summary>
-		public double Width { get; }
+		public double Width { get; set; }
 
 		/// <summary>
 		/// The location relative to the upper left corner of the layout rectangle.
@@ -74,5 +74,9 @@ namespace PdfSharpCore.Drawing.Layout
 		/// </summary>
 		public bool SkipParagraphAlignment { get; set; }
 
+		/// <summary>
+		///  Links this block with the next block
+		/// </summary>
+		public bool NextBlockBelongsToMe { get; set; }
 	}
 }

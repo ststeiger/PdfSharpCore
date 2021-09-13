@@ -216,6 +216,8 @@ namespace PdfSharpCore.Drawing.Layout
 				var dx = layoutRectangle.Location.X;
 				var dy = layoutRectangle.Location.Y + maxCyAscend;
 
+				// Check all blocks of the current line in order to move all blocks of the next lines down,
+				// when the first block of the current line has not the max cy ascent of the whole line
 				if (!blockUnit.All(b => b.Environment.CyAscent == maxCyAscend))
 				{
 					for (var indexSiblings = index + 1; indexSiblings < blockUnits.Count; indexSiblings++)
@@ -250,6 +252,12 @@ namespace PdfSharpCore.Drawing.Layout
 				if (string.IsNullOrEmpty(textSegment.Text) && !(textSegment.Text ?? "").Contains(Chars.LF))
 				{
 					continue;
+				}
+
+				// Check whether the current block belongs to the last block
+				if (blocks.Any() && !textSegment.Text.StartsWith(" "))
+				{
+					blocks.Last().NextBlockBelongsToMe = true;
 				}
 
 				var length = textSegment.Text.Length;
@@ -392,8 +400,16 @@ namespace PdfSharpCore.Drawing.Layout
 
 						if (x + width <= rectWidth || x == 0.0)
 						{
+							// if the font style is set to "underline", we don't want a underlined space character 
+							width = RemovedLeadingSpace(block, width);
 							block.Location = new XPoint(x, y);
-							x += width + block.Environment.SpaceWidth;
+							x += width;
+							if (!block.NextBlockBelongsToMe)
+							{
+								// The current and the next block are treated as one unit, so there is no space between them
+								x += block.Environment.SpaceWidth;
+							}
+
 							currentLineBlocks.Add(block);
 
 							currentMaxLineSpace = Math.Max(block.Environment.LineSpace, currentMaxLineSpace);
@@ -401,6 +417,15 @@ namespace PdfSharpCore.Drawing.Layout
 						}
 						else
 						{
+							// if the previous blocks are linked to the current block, all linked blocks have to be moved to the next line
+							while (idx > 0 && blockUnit[idx - 1].NextBlockBelongsToMe)
+							{
+								idx--;
+								currentLineBlocks.RemoveAt(currentLineBlocks.Count - 1);
+								block = blockUnit[idx];
+								width = block.Width;
+							}
+							
 							AlignLine(blockUnit, firstIndex, idx - 1, rectWidth);
 							firstIndex = idx;
 
@@ -432,8 +457,15 @@ namespace PdfSharpCore.Drawing.Layout
 								break;
 							}
 
+							// A new line must not start with a space character
+							width = RemovedLeadingSpace(block, width);
 							block.Location = new XPoint(block.LineIndent, y);
-							x = block.LineIndent + width + block.Environment.SpaceWidth;
+							x = block.LineIndent + width;
+							if (!block.NextBlockBelongsToMe)
+							{
+								// The current and the next block are treated as one unit, so there is no space between them
+								x += block.Environment.SpaceWidth;
+							}
 							currentLineBlocks.Add(block);
 						}
 					}
@@ -444,6 +476,18 @@ namespace PdfSharpCore.Drawing.Layout
 					AlignLine(blockUnit, firstIndex, count - 1, rectWidth);
 				}
 			}
+		}
+
+		private double RemovedLeadingSpace(Block block, double width)
+		{
+			while (block.Text.StartsWith(" "))
+			{
+				block.Text = block.Text.Substring(1);
+				block.Width -= block.Environment.SpaceWidth;
+				width -= block.Environment.SpaceWidth;
+			}
+
+			return width;
 		}
 
 		/// <summary>
@@ -468,9 +512,10 @@ namespace PdfSharpCore.Drawing.Layout
 			var totalWidth = firstBlock.LineIndent;
 			if (Alignment == XParagraphAlignment.Justify)
 			{
+				// Skip not movable leading blocks
 				for (int idx = firstIndex; idx <= lastIndex; idx++)
 				{
-					if (!blockUnit[idx].SkipParagraphAlignment)
+					if (!blockUnit[idx].SkipParagraphAlignment && !blockUnit[idx].NextBlockBelongsToMe)
 					{
 						firstIndex = idx;
 
@@ -479,17 +524,22 @@ namespace PdfSharpCore.Drawing.Layout
 					else
 					{
 						count--;
-						layoutWidth -= blockUnit[idx].Width + blockUnit[idx].Environment.SpaceWidth;
+						layoutWidth -= blockUnit[idx].Width + (blockUnit[idx].NextBlockBelongsToMe ? 0 : blockUnit[idx].Environment.SpaceWidth);
 					}
 				}
 			}
 
+			// Remove not movable blocks from space calculation
 			for (int idx = firstIndex; idx <= lastIndex; idx++)
 			{
-				totalWidth += blockUnit[idx].Width + blockUnit[idx].Environment.SpaceWidth;
+				totalWidth += blockUnit[idx].Width + (blockUnit[idx].NextBlockBelongsToMe ? 0 : blockUnit[idx].Environment.SpaceWidth);
 				if (idx == lastIndex)
 				{
-					totalWidth -= blockUnit[idx].Environment.SpaceWidth;
+					totalWidth -= (blockUnit[idx].NextBlockBelongsToMe ? 0 : blockUnit[idx].Environment.SpaceWidth);
+				}
+				if (blockUnit[idx].NextBlockBelongsToMe)
+				{
+					count--;
 				}
 			}
 
@@ -497,6 +547,8 @@ namespace PdfSharpCore.Drawing.Layout
 
 			if (Alignment != XParagraphAlignment.Justify)
 			{
+				// right or center
+
 				if (Alignment == XParagraphAlignment.Center)
 				{
 					dx /= 2;
@@ -511,16 +563,23 @@ namespace PdfSharpCore.Drawing.Layout
 			else if (count > 1) // case: justify
 			{
 				dx /= count - 1;
-				for (int idx = firstIndex + 1, i = 1; idx <= lastIndex; idx++, i++)
+				var spaceCounter = 1;
+
+				for (int idx = firstIndex + 1; idx <= lastIndex; idx++)
 				{
 					var block = blockUnit[idx];
-					block.Location += new XSize(dx * i, 0);
+					block.Location += new XSize(dx * spaceCounter, 0);
+					if (!block.NextBlockBelongsToMe)
+					{
+						spaceCounter++;
+					}
 				}
 			}
 		}
 
 		private void SetFormatterEnvironment(Block block, TextSegment textSegment)
 		{
+			block.Alignment = Alignment;
 			block.Environment = new FormatterEnvironment
 			{
 				Font = textSegment.Font,
