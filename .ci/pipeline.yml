@@ -11,7 +11,7 @@ get_source_publish: &get_source_publish
   <<: *get_source
   trigger: false
   passed:
-  - TestBuild
+  - test-build
 
 get_version: &get_version
   get: version
@@ -23,17 +23,35 @@ put_version: &put_version
   params:
     file: version/version
 
-project: &project
-  PROJECT: PdfSharpCore.Charting
-
 task_publish_nugget: &task_publish_nugget
-  task: publish-nugget
-  file: source/.ci/tasks/publish-nugget.yaml
-  attempts: 3
-  params:
-    <<: *project
-    NUGGET_API_KEY: ((nugget_api_key))
-    NUGGET_TAGS: "PdfSharp Charting .NETCore"
+  in_parallel:
+  - task: pdfsharpcore
+    file: source/.ci/tasks/publish-nugget.yaml
+    attempts: 3
+    params:
+      PROJECT: PdfSharpCore
+      NUGGET_TAGS: "PdfSharp .NETCore"
+
+  - task: migradoccore.documentobjectmodel
+    file: source/.ci/tasks/publish-nugget.yaml
+    attempts: 3
+    params:
+      PROJECT: MigraDocCore.DocumentObjectModel
+      NUGGET_TAGS: "MigraDoc ObjectModel .NETCore"
+
+  - task: migradoccore.rendering
+    file: source/.ci/tasks/publish-nugget.yaml
+    attempts: 3
+    params:
+      PROJECT: MigraDocCore.Rendering
+      NUGGET_TAGS: "MigraDoc Rendering .NETCore"
+
+  - task: pdfsharpcore.charting
+    file: source/.ci/tasks/publish-nugget.yaml
+    attempts: 3
+    params:
+      PROJECT: PdfSharpCore.Charting
+      NUGGET_TAGS: "PdfSharp Charting .NETCore"
 
 #-----------------------------------------------------------------------------------------------------------------------
 # Resources
@@ -44,15 +62,13 @@ resources:
   source:
     uri: https://github.com/ststeiger/PdfSharpCore.git
     branch: master
-    paths:
-    - PdfSharpCore.Charting
 
 - name: version
   type: semver
   source:
     driver: s3
     bucket: startnow65
-    key: concourse/pdfsharpcore-charting-semver
+    key: concourse/pdfsharpcore-semver
     region_name: us-west-2
     access_key_id: ((access_key_id))
     secret_access_key: ((secret_access_key))
@@ -63,17 +79,36 @@ resources:
 jobs:
 
 # Would be replace with proper Unit/Integration tests
-- name: TestBuild
+- name: test-build
   <<: *job
   plan:
   - <<: *get_source
-  - task: build-project
-    file: source/.ci/tasks/build.yaml
-    attempts: 3
-    params:
-      <<: *project
+  - in_parallel:
+    - task: pdfsharpcore
+      file: source/.ci/tasks/build.yaml
+      attempts: 3
+      params:
+        PROJECT: PdfSharpCore
 
-- name: PublishPatch
+    - task: migradoccore.documentobjectmodel
+      file: source/.ci/tasks/build.yaml
+      attempts: 3
+      params:
+        PROJECT: MigraDocCore.DocumentObjectModel
+
+    - task: migradoccore.rendering
+      file: source/.ci/tasks/build.yaml
+      attempts: 3
+      params:
+        PROJECT: MigraDocCore.Rendering
+
+    - task: pdfsharpcore.charting
+      file: source/.ci/tasks/build.yaml
+      attempts: 3
+      params:
+        PROJECT: PdfSharpCore.Charting
+
+- name: publish-patch
   <<: *job
   plan:
   - in_parallel:
@@ -86,7 +121,7 @@ jobs:
   - <<: *put_version
   - <<: *task_publish_nugget
 
-- name: PublishMinor
+- name: publish-minor
   <<: *job
   plan:
   - in_parallel:
@@ -98,7 +133,7 @@ jobs:
   - <<: *put_version
   - <<: *task_publish_nugget
 
-- name: PublishMajor
+- name: publish-major
   <<: *job
   plan:
   - in_parallel:
