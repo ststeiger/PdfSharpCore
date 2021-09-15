@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
-    <PackageReference Include="PdfSharpCore" Version="1.2.17" />
+    <ProjectReference Include="..\PdfSharpCore\PdfSharpCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

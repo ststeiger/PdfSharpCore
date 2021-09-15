@@ -26,8 +26,8 @@ MigraDocCore.Rendering was ported from MigraDoc version 1.32</Description>
     <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
     <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
     <PackageReference Include="MigraDocCore.DocumentObjectModel" Version="0.1.2" />
-    <PackageReference Include="PdfSharpCore.Charting" Version="0.1.2" />
-    <PackageReference Include="PdfSharpCore" Version="1.2.17" />
+    <ProjectReference Include="..\PdfSharpCore.Charting\PdfSharpCore.Charting.csproj" />
+    <ProjectReference Include="..\PdfSharpCore\PdfSharpCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
