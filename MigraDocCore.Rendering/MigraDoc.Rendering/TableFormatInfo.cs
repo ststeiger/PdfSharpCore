@@ -30,8 +30,11 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using MigraDocCore.DocumentObjectModel;
+using MigraDocCore.DocumentObjectModel.Tables;
 using MigraDocCore.DocumentObjectModel.Visitors;
+using PdfSharpCore.Drawing;
 
 namespace MigraDocCore.Rendering
 {
@@ -86,9 +89,9 @@ namespace MigraDocCore.Rendering
     internal int endRow = -1;
 
     internal int lastHeaderRow = -1;
-    internal SortedList formattedCells;
+    internal SortedList<Cell, FormattedCell> formattedCells;
     internal MergedCellList mergedCells;
-    internal SortedList bottomBorderMap;
-    internal SortedList connectedRowsMap;
+    internal SortedList<int, XUnit> bottomBorderMap;
+    internal SortedList<int, int> connectedRowsMap;
   }
 }

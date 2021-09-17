@@ -338,22 +338,22 @@ namespace MigraDocCore.DocumentObjectModel.Tables
         /// </summary>
         public int MergeRight
         {
-            get { return this.mergeRight.Value; }
-            set { this.mergeRight.Value = value; }
+            get { return this.mergeRight ?? 0; }
+            set { this.mergeRight = value; }
         }
         [DV]
-        internal NInt mergeRight = NInt.NullValue;
+        internal int? mergeRight;
 
         /// <summary>
         /// Gets or sets the number of cells to be merged down.
         /// </summary>
         public int MergeDown
         {
-            get { return this.mergeDown.Value; }
-            set { this.mergeDown.Value = value; }
+            get { return this.mergeDown ?? 0; }
+            set { this.mergeDown = value; }
         }
         [DV]
-        internal NInt mergeDown = NInt.NullValue;
+        internal int? mergeDown;
 
         /// <summary>
         /// Gets the collection of document objects that defines the cell.
@@ -405,10 +405,10 @@ namespace MigraDocCore.DocumentObjectModel.Tables
             if (!this.IsNull("Format"))
                 this.format.Serialize(serializer, "Format", null);
 
-            if (!this.mergeDown.IsNull)
+            if (this.mergeDown.HasValue)
                 serializer.WriteSimpleAttribute("MergeDown", this.MergeDown);
 
-            if (!this.mergeRight.IsNull)
+            if (this.mergeRight.HasValue)
                 serializer.WriteSimpleAttribute("MergeRight", this.MergeRight);
 
             if (!this.verticalAlignment.IsNull)

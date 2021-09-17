@@ -32,6 +32,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using MigraDocCore.DocumentObjectModel.IO;
 using MigraDocCore.DocumentObjectModel.Tables;
 using MigraDocCore.DocumentObjectModel.Visitors;
@@ -42,49 +43,8 @@ namespace MigraDocCore.DocumentObjectModel.Visitors
   /// <summary>
   /// Represents a merged list of cells of a table.
   /// </summary>
-  public class MergedCellList : ArrayList
+  public class MergedCellList : List<Cell>
   {
-
-    /// <summary>
-    /// Enumerator that can iterate through the MergedCellList.
-    /// </summary>
-    public class Enumerator : IEnumerator
-    {
-      internal Enumerator(MergedCellList list)
-      {
-        this.list = list;
-      }
-
-      #region IEnumerator Members
-
-      public void Reset()
-      {
-        this.index = -1;
-      }
-
-      public Cell Current
-      {
-        get
-        {
-          return (Cell)this.list[this.index];
-        }
-      }
-
-      object IEnumerator.Current
-      {
-        get { return Current; }
-      }
-
-      public bool MoveNext()
-      {
-        return ++index < this.list.Count;
-      }
-      #endregion
-
-      MergedCellList list;
-      int index = -1;
-    }
-
     /// <summary>
     /// Enumeration of neighbor positions of cells in a table.
     /// </summary>
@@ -145,14 +105,6 @@ namespace MigraDocCore.DocumentObjectModel.Visitors
     }
 
     /// <summary>
-    /// Gets the Enumerator for this list.
-    /// </summary>
-    public override IEnumerator GetEnumerator()
-    {
-      return new Enumerator(this);
-    }
-
-    /// <summary>
     /// Gets the cell at the specified position.
     /// </summary>
     public new Cell this[int index]
@@ -189,7 +141,7 @@ namespace MigraDocCore.DocumentObjectModel.Visitors
 
       if (cell.mergeRight > 0)
       {
-        Cell rightBorderCell = cell.Table[cell.Row.Index, cell.Column.Index + cell.mergeRight];
+        Cell rightBorderCell = cell.Table[cell.Row.Index, cell.Column.Index + (cell.mergeRight ?? 0)];
         if (rightBorderCell.borders != null && rightBorderCell.borders.right != null)
           borders.Right = rightBorderCell.borders.right.Clone();
         else
@@ -198,7 +150,7 @@ namespace MigraDocCore.DocumentObjectModel.Visitors
 
       if (cell.mergeDown > 0)
       {
-        Cell bottomBorderCell = cell.Table[cell.Row.Index + cell.mergeDown, cell.Column.Index];
+        Cell bottomBorderCell = cell.Table[cell.Row.Index + (cell.mergeDown ?? 0), cell.Column.Index];
         if (bottomBorderCell.borders != null && bottomBorderCell.borders.bottom != null)
           borders.Bottom = bottomBorderCell.borders.bottom.Clone();
         else
