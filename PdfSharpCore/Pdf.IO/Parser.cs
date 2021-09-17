@@ -1012,7 +1012,7 @@ namespace PdfSharpCore.Pdf.IO
             // Implementation note 18 Appendix  H:
             // Acrobat viewers require only that the %%EOF marker appear somewhere within the last 1024 bytes of the file.
             int idx;
-            if (length < 1030)
+            if (length <= 1030)
             {
                 // Reading the final 30 bytes should work for all files. But often it does not.
                 string trail = _lexer.ReadRawString(length - 31, 30); //lexer.Pdf.Substring(length - 30);
