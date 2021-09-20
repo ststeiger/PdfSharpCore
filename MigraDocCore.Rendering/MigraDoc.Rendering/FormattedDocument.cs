@@ -423,6 +423,19 @@ namespace MigraDocCore.Rendering
             return this.pageInfos[page];
         }
 
+
+        /// <summary>
+        /// Returns the absolute Y postion of the last item on last page in points.
+        /// Must be called after rendering the document.
+        /// </summary>
+        /// <returns>double the Y Position.</returns>
+        public double GetCurrentMigraDocPosition()
+        {
+            RenderInfo[] RenderInfos = GetRenderInfos(PageCount);
+            RenderInfo r = RenderInfos[RenderInfos.Length - 1];
+            return r.LayoutInfo.ContentArea.Y + r.LayoutInfo.ContentArea.Height;
+        }
+
         #region IAreaProvider Members
 
         Area IAreaProvider.GetNextArea()
