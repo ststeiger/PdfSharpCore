@@ -516,6 +516,8 @@ namespace PdfSharpCore.Drawing  // #??? aufräumen
             _gsStack = new GraphicsStateStack(this);
 #if CORE
             TargetContext = XGraphicTargetContext.CORE;
+#endif
+#if CORE || NET5_0
             _drawGraphics = false;
             if (form.Owner != null)
                 _renderer = new XGraphicsPdfRenderer(form, this);
