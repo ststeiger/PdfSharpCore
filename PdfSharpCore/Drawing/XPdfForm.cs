@@ -94,6 +94,21 @@ namespace PdfSharpCore.Drawing
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="XPdfForm"/> class from a stream and password.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="password">The password.</param>
+        internal XPdfForm(Stream stream, string password) {
+            // Create a dummy unique path
+            _path = "*" + Guid.NewGuid().ToString("B");
+
+            if (PdfReader.TestPdfFile(stream) == 0)
+                throw new ArgumentException("The specified stream has no valid PDF file header.", "stream");
+
+            _externalDocument = PdfReader.Open(stream, password, PdfDocumentOpenMode.ReadOnly);
+        }
+
+        /// <summary>
         /// Creates an XPdfForm from a file.
         /// </summary>
         public static new XPdfForm FromFile(string path)
@@ -108,6 +123,13 @@ namespace PdfSharpCore.Drawing
         public static XPdfForm FromStream(Stream stream)
         {
             return new XPdfForm(stream);
+        }
+
+        /// <summary>
+        /// Creates an XPdfForm from a stream and a password.
+        /// </summary>
+        public static XPdfForm FromStream(Stream stream, string password) {
+            return new XPdfForm(stream, password);
         }
 
         /*
