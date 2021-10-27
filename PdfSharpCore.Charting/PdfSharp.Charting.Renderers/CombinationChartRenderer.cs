@@ -277,7 +277,7 @@ namespace PdfSharpCore.Charting.Renderers
       cri.commonSeriesRendererInfos = cri.seriesRendererInfos;
       if (areaSeries.Count > 0)
       {
-        cri.areaSeriesRendererInfos = new SeriesRendererInfo[columnSeries.Count];
+        cri.areaSeriesRendererInfos = new SeriesRendererInfo[areaSeries.Count];
         areaSeries.CopyTo(cri.areaSeriesRendererInfos);
       }
       if (columnSeries.Count > 0)
@@ -287,7 +287,7 @@ namespace PdfSharpCore.Charting.Renderers
       }
       if (lineSeries.Count > 0)
       {
-        cri.lineSeriesRendererInfos = new SeriesRendererInfo[columnSeries.Count];
+        cri.lineSeriesRendererInfos = new SeriesRendererInfo[lineSeries.Count];
         lineSeries.CopyTo(cri.lineSeriesRendererInfos);
       }
     }
