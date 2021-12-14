@@ -63,7 +63,7 @@ namespace MigraDocCore.DocumentObjectModel
             if (!Enum.IsDefined(typeof(UnitType), unitType))
                 throw new ArgumentException();
 
-            XSize size = graphics.MeasureString(text, this.xFont);
+            XSize size = graphics.MeasureString(text, this.XFont);
             switch (unitType)
             {
                 case UnitType.Point:
@@ -121,6 +121,32 @@ namespace MigraDocCore.DocumentObjectModel
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the xfont used for measurement.
+        /// </summary>
+        private Font XFont
+        {
+            get { 
+                if (this.xFont == null)
+                {
+                    var style = XFontStyle.Regular;
+                    if (this.Font.Bold)
+                    {
+                        style |= XFontStyle.Bold;
+                    }
+                    if (this.Font.Italic)
+                    {
+                        style |= XFontStyle.Italic;
+                    }
+
+                    this.xFont = new XFont(this.Font.Name, this.Font.Size, style);
+                }
+
+                return this.xFont;
+             }
+        }
+
         Font font;
         XFont xFont;
         XGraphics graphics;
