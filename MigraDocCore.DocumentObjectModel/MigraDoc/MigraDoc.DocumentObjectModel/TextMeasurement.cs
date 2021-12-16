@@ -32,8 +32,6 @@
 
 using System;
 using System.Diagnostics;
-using System.ComponentModel;
-using MigraDocCore.DocumentObjectModel.Internals;
 using PdfSharpCore.Drawing;
 
 namespace MigraDocCore.DocumentObjectModel
@@ -63,7 +61,7 @@ namespace MigraDocCore.DocumentObjectModel
             if (!Enum.IsDefined(typeof(UnitType), unitType))
                 throw new ArgumentException();
 
-            XSize size = graphics.MeasureString(text, this.xFont);
+            var size = graphics.MeasureString(text, this.XFont);
             switch (unitType)
             {
                 case UnitType.Point:
@@ -99,7 +97,7 @@ namespace MigraDocCore.DocumentObjectModel
         /// <summary>
         /// Returns the size of the bounding box of the specified text in point.
         /// </summary>
-        public PdfSharpCore.Drawing.XSize MeasureString(string text)
+        public XSize MeasureString(string text)
         {
             return MeasureString(text, UnitType.Point);
         }
@@ -121,6 +119,32 @@ namespace MigraDocCore.DocumentObjectModel
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the xfont used for measurement.
+        /// </summary>
+        private XFont XFont
+        {
+            get { 
+                if (this.xFont == null)
+                {
+                    var style = XFontStyle.Regular;
+                    if (this.Font.Bold)
+                    {
+                        style |= XFontStyle.Bold;
+                    }
+                    if (this.Font.Italic)
+                    {
+                        style |= XFontStyle.Italic;
+                    }
+
+                    this.xFont = new XFont(this.Font.Name, this.Font.Size, style);
+                }
+
+                return this.xFont;
+             }
+        }
+
         Font font;
         XFont xFont;
         XGraphics graphics;
