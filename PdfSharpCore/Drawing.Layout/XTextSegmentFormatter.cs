@@ -158,7 +158,16 @@ namespace PdfSharpCore.Drawing.Layout
 				maxLineHeight = Math.Max(maxLineHeight, blocks[i].Environment.LineSpace);
 			}
 
-			return new XSize(width, height + maxLineHeight);
+			var calculatedWith = blocks.Any()
+				? blocks.Max(b => b.Location.X + b.Width)
+				: width;
+
+			if (width < calculatedWith)
+			{
+				calculatedWith = width;
+			}
+
+			return new XSize(calculatedWith, height + maxLineHeight);
 		}
 
 		private void ProcessTextSegments(IEnumerable<TextSegment> textSegments, XRect layoutRectangle, XStringFormat format, Action<Block, double, double> applyBlock)
