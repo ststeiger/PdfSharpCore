@@ -1,21 +1,19 @@
 ﻿
-using System.Linq;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
-using PdfSharpCore.Internal;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Fonts;
-
+using PdfSharpCore.Internal;
 using SixLabors.Fonts;
-
 
 namespace PdfSharpCore.Utils
 {
-
-
-    public class FontResolver 
+    public class FontResolver
         : IFontResolver
     {
         public string DefaultFontName => "Arial";
@@ -24,19 +22,35 @@ namespace PdfSharpCore.Utils
 
         private static readonly string[] SSupportedFonts;
 
+        private static readonly string[] SSupportedFontNames;
+
         public FontResolver()
         {
         }
 
         static FontResolver()
         {
-            string fontDir;
+#if NETSTANDARD1_3
+            string[] convertToNames(string[] paths)
+            {
+                var result = new string[paths.Length];
+                for (int i = 0; i < paths.Length; i++)
+                {
+                    result[i] = Path.GetFileName(paths[i]).ToLower();
+                }
+
+                return result;
+            }
+#else
+            string[] convertToNames(string[] paths) => Array.ConvertAll(paths, p => Path.GetFileName(p).ToLower());
+#endif
 
             bool isOSX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
             if (isOSX)
             {
-                fontDir = "/Library/Fonts/";
+                string fontDir = "/Library/Fonts/";
                 SSupportedFonts = System.IO.Directory.GetFiles(fontDir, "*.ttf", System.IO.SearchOption.AllDirectories);
+                SSupportedFontNames = convertToNames(SSupportedFonts);
                 SetupFontsFiles(SSupportedFonts);
                 return;
             }
@@ -46,15 +60,17 @@ namespace PdfSharpCore.Utils
             {
                 SSupportedFonts = LinuxSystemFontResolver.Resolve();
                 SetupFontsFiles(SSupportedFonts);
+                SSupportedFontNames = convertToNames(SSupportedFonts);
                 return;
             }
 
             bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
             if (isWindows)
             {
-                fontDir = System.Environment.ExpandEnvironmentVariables(@"%SystemRoot%\Fonts");
+                string fontDir = System.Environment.ExpandEnvironmentVariables(@"%SystemRoot%\Fonts");
                 SSupportedFonts = System.IO.Directory.GetFiles(fontDir, "*.ttf", System.IO.SearchOption.AllDirectories);
                 SetupFontsFiles(SSupportedFonts);
+                SSupportedFontNames = convertToNames(SSupportedFonts);
                 return;
             }
 
@@ -99,10 +115,9 @@ namespace PdfSharpCore.Utils
             }
         }
 
-
         public static void SetupFontsFiles(string[] sSupportedFonts)
         {
-            List<FontFileInfo> tempFontInfoList = new List<FontFileInfo>();
+            List<FontFileInfo> tempFontInfoList = new List<FontFileInfo>(sSupportedFonts.Length);
             foreach (string fontPathFile in sSupportedFonts)
             {
                 try
@@ -131,7 +146,6 @@ namespace PdfSharpCore.Utils
                 }
         }
 
-
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
         private static FontFamilyModel DeserializeFontFamily(string fontFamilyName, IEnumerable<FontFileInfo> fontList)
         {
@@ -155,28 +169,23 @@ namespace PdfSharpCore.Utils
 
         public byte[] GetFont(string faceFileName)
         {
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            string ttfPathFile = "";
+            try
             {
-                string ttfPathFile = "";
-                try
+                var name = Path.GetFileName(faceFileName).ToLower();
+                int index = Array.IndexOf(SSupportedFontNames, name);
+                if (index > -1)
                 {
-                    ttfPathFile = SSupportedFonts.ToList().First(x => x.ToLower().Contains(
-                        System.IO.Path.GetFileName(faceFileName).ToLower())
-                    );
-
-                    using (System.IO.Stream ttf = System.IO.File.OpenRead(ttfPathFile))
-                    {
-                        ttf.CopyTo(ms);
-                        ms.Position = 0;
-                        return ms.ToArray();
-                    }
-                }
-                catch (System.Exception e)
-                {
-                    System.Console.WriteLine(e);
-                    throw new System.Exception("No Font File Found - " + faceFileName + " - " + ttfPathFile);
+                    ttfPathFile = SSupportedFonts[index];
+                    return File.ReadAllBytes(ttfPathFile);
                 }
             }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine(e);
+            }
+
+            throw new System.Exception("No Font File Found - " + faceFileName + " - " + ttfPathFile);
         }
 
         public bool NullIfFontNotFound { get; set; } = false;
