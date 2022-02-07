@@ -118,6 +118,7 @@ namespace MigraDocCore.DocumentObjectModel.Visitors
                 ++insertedObjects;
                 break;
 
+              case Chars.ZeroWidthSpace:
               case '-': //minus
                 elements.InsertObject(idx + insertedObjects, new Text(currentString + ch));
                 ++insertedObjects;
