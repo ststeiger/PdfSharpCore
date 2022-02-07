@@ -77,7 +77,7 @@ namespace MigraDocCore.DocumentObjectModel
     public const char NumberSign = '#';
     public const char Question = '?';
     public const char Hyphen = '-';  // char(45)
-    public const char SoftHyphen = '­';  // char(173)
+    public const char SoftHyphen = '\u00ad';  // char(173)
     public const char Currency = '¤';
   }
 }

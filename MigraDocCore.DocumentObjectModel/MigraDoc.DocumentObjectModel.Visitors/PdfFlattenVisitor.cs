@@ -124,14 +124,14 @@ namespace MigraDocCore.DocumentObjectModel.Visitors
                 currentString = "";
                 break;
 
-              case '­': //soft hyphen
+              case Chars.SoftHyphen: //soft hyphen
                 if (currentString != "")
                 {
                   elements.InsertObject(idx + insertedObjects, new Text(currentString));
                   ++insertedObjects;
                   currentString = "";
                 }
-                elements.InsertObject(idx + insertedObjects, new Text("­"));
+                elements.InsertObject(idx + insertedObjects, new Text(new string(Chars.SoftHyphen, 1)));
                 ++insertedObjects;
                 currentString = "";
                 break;
