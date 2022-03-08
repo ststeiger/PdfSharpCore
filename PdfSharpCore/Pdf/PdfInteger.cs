@@ -38,7 +38,7 @@ namespace PdfSharpCore.Pdf
     /// Represents a direct integer value.
     /// </summary>
     [DebuggerDisplay("({Value})")]
-    public sealed class PdfInteger : PdfNumber, IConvertible
+    public sealed class PdfInteger : PdfNumber, IConvertible, IFormattable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PdfInteger"/> class.
@@ -172,6 +172,15 @@ namespace PdfSharpCore.Pdf
         uint IConvertible.ToUInt32(IFormatProvider provider)
         {
             return Convert.ToUInt32(_value);
+        }
+
+        #endregion
+
+        #region IFormattable Members
+
+        string IFormattable.ToString(string _value, IFormatProvider provider)
+        {
+            return _value;
         }
 
         #endregion
