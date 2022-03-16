@@ -147,7 +147,9 @@ namespace PdfSharpCore.Drawing.Layout
 
 			ProcessTextSegments(textSegments, layoutRectangle, format, (block, dx, dy) => blocks.Add(block), true);
 
-			var height = blocks.Max(b => b.Location.Y);
+			var height = blocks.Any()
+				? blocks.Max(b => b.Location.Y)
+				: 0;
 			var maxLineHeight = 0.0;
 			for (int i = blocks.Count - 1; i >= 0; i--)
 			{
