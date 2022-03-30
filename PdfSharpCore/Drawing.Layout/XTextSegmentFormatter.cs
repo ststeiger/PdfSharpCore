@@ -85,7 +85,8 @@ namespace PdfSharpCore.Drawing.Layout
 				textSegments,
 				layoutRectangle,
 				format,
-				(block, dx, dy) => _gfx.DrawString(block.Text, block.Environment.Font, block.Environment.Brush, dx + block.Location.X, dy + block.Location.Y)
+				(block, dx, dy) => _gfx.DrawString(block.Text, block.Environment.Font, block.Environment.Brush, dx + block.Location.X, dy + block.Location.Y),
+				false
 			);
 		}
 
@@ -144,9 +145,11 @@ namespace PdfSharpCore.Drawing.Layout
 			var layoutRectangle = new XRect(0, 0, width, 100000000);
 			var blocks = new List<Block>();
 
-			ProcessTextSegments(textSegments, layoutRectangle, format, (block, dx, dy) => blocks.Add(block));
+			ProcessTextSegments(textSegments, layoutRectangle, format, (block, dx, dy) => blocks.Add(block), true);
 
-			var height = blocks.Max(b => b.Location.Y);
+			var height = blocks.Any()
+				? blocks.Max(b => b.Location.Y)
+				: 0;
 			var maxLineHeight = 0.0;
 			for (int i = blocks.Count - 1; i >= 0; i--)
 			{
@@ -170,7 +173,7 @@ namespace PdfSharpCore.Drawing.Layout
 			return new XSize(calculatedWith, height + maxLineHeight);
 		}
 
-		private void ProcessTextSegments(IEnumerable<TextSegment> textSegments, XRect layoutRectangle, XStringFormat format, Action<Block, double, double> applyBlock)
+		private void ProcessTextSegments(IEnumerable<TextSegment> textSegments, XRect layoutRectangle, XStringFormat format, Action<Block, double, double> applyBlock, bool applyBlockIfLineBreak)
 		{
 			if (textSegments.All(ts => string.IsNullOrEmpty(ts.Text)))
 			{
@@ -242,7 +245,7 @@ namespace PdfSharpCore.Drawing.Layout
 						break;
 					}
 
-					if (block.Type == BlockType.LineBreak)
+					if (block.Type == BlockType.LineBreak && !applyBlockIfLineBreak)
 					{
 						continue;
 					}
@@ -397,6 +400,9 @@ namespace PdfSharpCore.Drawing.Layout
 
 							break;
 						}
+
+						// necessary to correctly calculate closing line breaks
+						block.Location = new XPoint(0, y);
 					}
 					else
 					{
