@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using PdfSharpCore.Pdf.IO;
+using PdfSharpCore.Pdf.IO.enums;
 
 namespace PdfSharpCore.Pdf.Internal
 {
@@ -55,7 +56,7 @@ namespace PdfSharpCore.Pdf.Internal
             _importedDocuments.Remove(path);
         }
 
-        public PdfDocument GetDocument(string path)
+        public PdfDocument GetDocument(string path, PdfReadAccuracy accuracy)
         {
             Debug.Assert(path.StartsWith("*") || Path.IsPathRooted(path), "Path must be full qualified.");
 
@@ -69,7 +70,7 @@ namespace PdfSharpCore.Pdf.Internal
             }
             if (document == null)
             {
-                document = PdfReader.Open(path, PdfDocumentOpenMode.Import);
+                document = PdfReader.Open(path, PdfDocumentOpenMode.Import, accuracy);
                 _importedDocuments.Add(path, document.Handle);
             }
             return document;
