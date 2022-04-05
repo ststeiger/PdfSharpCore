@@ -40,6 +40,7 @@ using System.Windows.Media;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.IO;
+using PdfSharpCore.Pdf.IO.enums;
 
 namespace PdfSharpCore.Drawing
 {
@@ -59,7 +60,7 @@ namespace PdfSharpCore.Drawing
         /// document. Furthermore, because XPdfForm can occupy very much memory, it is recommended to
         /// dispose XPdfForm objects if not needed anymore.
         /// </summary>
-        internal XPdfForm(string path)
+        internal XPdfForm(string path, PdfReadAccuracy accuracy)
         {
             int pageNumber;
             path = ExtractPageNumber(path, out pageNumber);
@@ -74,6 +75,7 @@ namespace PdfSharpCore.Drawing
                 throw new ArgumentException("The specified file has no valid PDF file header.", "path");
             
             _path = path;
+            _pathReadAccuracy = accuracy;
             if (pageNumber != 0)
                 PageNumber = pageNumber;
         }
@@ -82,7 +84,8 @@ namespace PdfSharpCore.Drawing
         /// Initializes a new instance of the <see cref="XPdfForm"/> class from a stream.
         /// </summary>
         /// <param name="stream">The stream.</param>
-        internal XPdfForm(Stream stream)
+        /// <param name="accuracy">Moderate allows for broken references.</param>
+        internal XPdfForm(Stream stream, PdfReadAccuracy accuracy)
         {
             // Create a dummy unique path
             _path = "*" + Guid.NewGuid().ToString("B");
@@ -90,7 +93,7 @@ namespace PdfSharpCore.Drawing
             if (PdfReader.TestPdfFile(stream) == 0)
                 throw new ArgumentException("The specified stream has no valid PDF file header.", "stream");
 
-            _externalDocument = PdfReader.Open(stream);
+            _externalDocument = PdfReader.Open(stream, accuracy);
         }
 
         /// <summary>
@@ -98,14 +101,15 @@ namespace PdfSharpCore.Drawing
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="password">The password.</param>
-        internal XPdfForm(Stream stream, string password) {
+        /// <param name="accuracy">Moderate allows for broken references.</param>
+        internal XPdfForm(Stream stream, string password, PdfReadAccuracy accuracy) {
             // Create a dummy unique path
             _path = "*" + Guid.NewGuid().ToString("B");
 
             if (PdfReader.TestPdfFile(stream) == 0)
                 throw new ArgumentException("The specified stream has no valid PDF file header.", "stream");
 
-            _externalDocument = PdfReader.Open(stream, password, PdfDocumentOpenMode.ReadOnly);
+            _externalDocument = PdfReader.Open(stream, password, PdfDocumentOpenMode.ReadOnly, accuracy);
         }
 
         /// <summary>
@@ -113,8 +117,16 @@ namespace PdfSharpCore.Drawing
         /// </summary>
         public static new XPdfForm FromFile(string path)
         {
+            return FromFile(path, PdfReadAccuracy.Strict);
+        }
+
+        /// <summary>
+        /// Creates an XPdfForm from a file.
+        /// </summary>
+        public static new XPdfForm FromFile(string path, PdfReadAccuracy accuracy)
+        {
             // TODO: Same file should return same object (that's why the function is static).
-            return new XPdfForm(path);
+            return new XPdfForm(path, accuracy);
         }
 
         /// <summary>
@@ -122,14 +134,29 @@ namespace PdfSharpCore.Drawing
         /// </summary>
         public static XPdfForm FromStream(Stream stream)
         {
-            return new XPdfForm(stream);
+            return FromStream(stream, PdfReadAccuracy.Strict);
+        }
+
+        /// <summary>
+        /// Creates an XPdfForm from a stream.
+        /// </summary>
+        public static XPdfForm FromStream(Stream stream, PdfReadAccuracy accuracy)
+        {
+            return new XPdfForm(stream, accuracy);
         }
 
         /// <summary>
         /// Creates an XPdfForm from a stream and a password.
         /// </summary>
         public static XPdfForm FromStream(Stream stream, string password) {
-            return new XPdfForm(stream, password);
+            return FromStream(stream, password, PdfReadAccuracy.Strict);
+        }
+
+        /// <summary>
+        /// Creates an XPdfForm from a stream and a password.
+        /// </summary>
+        public static XPdfForm FromStream(Stream stream, string password, PdfReadAccuracy accuracy) {
+            return new XPdfForm(stream, password, accuracy);
         }
 
         /*
@@ -370,11 +397,13 @@ namespace PdfSharpCore.Drawing
                     throw new InvalidOperationException("This XPdfForm is a template and not an imported PDF page; therefore it has no external document.");
 
                 if (_externalDocument == null)
-                    _externalDocument = PdfDocument.Tls.GetDocument(_path);
+                    _externalDocument = PdfDocument.Tls.GetDocument(_path, _pathReadAccuracy);
                 return _externalDocument;
             }
         }
         internal PdfDocument _externalDocument;
+
+        private PdfReadAccuracy _pathReadAccuracy;
 
         /// <summary>
         /// Extracts the page number if the path has the form 'MyFile.pdf#123' and returns
