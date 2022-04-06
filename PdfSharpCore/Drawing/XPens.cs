@@ -29,8 +29,6 @@
 
 // ReSharper disable UnusedMember.Global
 
-#define USE_CACHE_is_not_thread_safe
-
 namespace PdfSharpCore.Drawing
 {
     /// <summary>

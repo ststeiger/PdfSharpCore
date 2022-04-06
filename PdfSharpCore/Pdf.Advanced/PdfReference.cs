@@ -27,9 +27,6 @@
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
-// With this define each iref object gets a unique number (uid) to make them distinguishable in the debugger
-#define UNIQUE_IREF_
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

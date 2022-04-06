@@ -28,8 +28,6 @@
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
-#define CACHE_FONTS_
-
 using System;
 using System.Collections;
 using System.Text;

@@ -27,8 +27,6 @@
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
-#define ITALIC_SIMULATION
-
 using System;
 using System.Diagnostics;
 using System.Globalization;

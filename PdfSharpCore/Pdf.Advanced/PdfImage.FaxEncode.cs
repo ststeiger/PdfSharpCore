@@ -53,7 +53,6 @@
 
 #endregion
 
-#define USE_GOTO
 using System;
 using System.Diagnostics;
 
