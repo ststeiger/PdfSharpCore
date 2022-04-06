@@ -157,11 +157,6 @@ namespace PdfSharpCore.Pdf.Content
                         ContentReaderDiagnostics.HandleUnexpectedCharacter(']');
                         break;
 
-#if DEBUG
-                    default:
-                        Debug.Assert(false);
-                        break;
-#endif
                 }
             }
         }
@@ -186,16 +181,7 @@ namespace PdfSharpCore.Pdf.Content
             {
                 _lexer.ScanInlineImage();
             }
-#if DEBUG
-            if (op.OpCode.Operands != -1 && op.OpCode.Operands != _operands.Count)
-            {
-                if (op.OpCode.OpCodeName != OpCodeName.ID)
-                {
-                    GetType();
-                    Debug.Assert(false, "Invalid number of operands.");
-                }
-            }
-#endif
+
             op.Operands.Add(_operands);
             _operands.Clear();
             return op;

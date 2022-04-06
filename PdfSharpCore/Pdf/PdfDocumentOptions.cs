@@ -60,11 +60,8 @@ namespace PdfSharpCore.Pdf
             get { return _compressContentStreams; }
             set { _compressContentStreams = value; }
         }
-#if DEBUG
-        bool _compressContentStreams = false;
-#else
+
         bool _compressContentStreams = true;
-#endif
 
         /// <summary>
         /// Gets or sets a value indicating that all objects are not compressed.

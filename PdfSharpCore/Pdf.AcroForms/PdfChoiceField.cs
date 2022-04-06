@@ -58,19 +58,6 @@ namespace PdfSharpCore.Pdf.AcroForms
         {
             PdfArray opt = Elements.GetArray(Keys.Opt);
 
-#if DEBUG  // Check with //R080317 implemention
-            PdfArray opt2 = null;
-            if (Elements[Keys.Opt] is PdfArray)
-                opt2 = Elements[Keys.Opt] as PdfArray;
-            else if (Elements[Keys.Opt] is Advanced.PdfReference)
-            {
-                //falls das Array nicht direkt am Element hängt, 
-                //das Array aus dem referenzierten Element holen
-                opt2 = ((Advanced.PdfReference)Elements[Keys.Opt]).Value as PdfArray;
-            }
-            Debug.Assert(ReferenceEquals(opt, opt2));
-#endif
-
             if (opt != null)
             {
                 int count = opt.Elements.Count;

@@ -127,15 +127,6 @@ namespace PdfSharpCore
         /// </summary>
         public const string VersionPrerelease = "beta3b"; // "" for stable Release, e.g. "beta" or "rc.1.2" for Prerelease. // Also used for NuGet Version.
 
-#if DEBUG
-        /// <summary>
-        /// The calculated build number.
-        /// </summary>
-// ReSharper disable RedundantNameQualifier
-        public static int BuildNumber = (System.DateTime.Now - new System.DateTime(2005, 1, 1)).Days;
-// ReSharper restore RedundantNameQualifier
-#endif
-
         /// <summary>
         /// E.g. "2005-01-01", for use in NuGet Script.
         /// </summary>
@@ -234,46 +225,7 @@ namespace PdfSharpCore
         /// -wp : Windows Phone
         /// -wrt : Windows RunTime
         /// </summary>
-#if GDI && !WPF
-        // GDI+ (System.Drawing)
-        public const string Technology = "-gdi";
-#endif
-#if WPF && !GDI && !SILVERLIGHT
-        // Windows Presentation Foundation
-        public const string Technology = "-wpf";
-#endif
-#if WPF && GDI
-        // Hybrid - for testing only
-        public const string Technology = "-h";
-#endif
-#if SILVERLIGHT && !WINDOWS_PHONE
-        // Silverlight 5
-        public const string Technology = "-sl";
-#endif
-#if WINDOWS_PHONE
-        // Windows Phone
-        public const string Technology = "-wp";
-#endif
-#if NETFX_CORE
-        // WinRT
-        public const string Technology = "-wrt";
-#endif
-#if UWP
-        // Windows Universal App
-        public const string Technology = "-uwp";
-#endif
-#if CORE
-        // .net without GDI+ and WPF
-        public const string Technology = "";  // no extension
-#endif
-#if __IOS__
-        public const string Technology = "-ios";
-#endif
-#if __ANDROID__
-        public const string Technology = "-android";
-#endif
-#if PORTABLE
+
         public const string Technology = "-netstandard";
-#endif
     }
 }

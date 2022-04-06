@@ -248,28 +248,7 @@ namespace PdfSharpCore.Pdf
         public bool Opened
         {
             get { return _opened; }
-#if true
             set { _opened = value; }
-#else
-            // TODO: adjust openCount of ascendant...
-            set
-            {
-                if (_opened != value)
-                {
-                    _opened = value;
-                    int sign = value ? 1 : -1;
-                    PdfOutline parent = _parent;
-                    if (_opened)
-                    {
-                        while (parent != null)
-                            parent.openCount += 1 + _openCount;
-                    }
-                    else
-                    {
-                    }
-                }
-            }
-#endif
         }
         bool _opened;
 
@@ -484,16 +463,6 @@ namespace PdfSharpCore.Pdf
                 Outlines.Add(item);
 
                 current = item.Elements.GetReference(Keys.Next);
-#if DEBUG_
-                if (current == null)
-                {
-                    if (item.Reference != lastRef)
-                    {
-                        // Word produces PDFs that come to this case.
-                        GetType();
-                    }
-                }
-#endif
             }
         }
 
@@ -637,9 +606,6 @@ namespace PdfSharpCore.Pdf
 
         internal override void WriteObject(PdfWriter writer)
         {
-#if DEBUG
-            writer.WriteRaw("% Title = " + FilterUnicode(Title) + "\n");
-#endif
             // TODO: Proof that there is nothing to do here.
             bool hasKids = HasChildren;
             if (_parent != null || hasKids)
@@ -656,16 +622,6 @@ namespace PdfSharpCore.Pdf
                 base.WriteObject(writer);
             }
         }
-
-#if DEBUG
-        private string FilterUnicode(string text)
-        {
-            StringBuilder result = new StringBuilder();
-            foreach (char ch in text)
-                result.Append((uint)ch < 256 ? ch : '?');
-            return result.ToString();
-        }
-#endif
 
         /// <summary>
         /// Predefined keys of this dictionary.

@@ -247,11 +247,6 @@ namespace MigraDocCore.DocumentObjectModel.Internals
             var fieldInfos = type.GetRuntimeFields(); //(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (FieldInfo fieldInfo in fieldInfos)
             {
-#if DEBUG_
-        string name = fieldInfo.Name;
-        if (name == "parent")
-          name.GetType();
-#endif
                 var dvs = fieldInfo.GetCustomAttributes<DVAttribute>(false);
                 if (dvs.Count() == 1)
                 {
@@ -263,11 +258,6 @@ namespace MigraDocCore.DocumentObjectModel.Internals
             PropertyInfo[] propInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (PropertyInfo propInfo in propInfos)
             {
-#if DEBUG_
-        string name = propInfo.Name;
-        if (name == "Font")
-          name.GetType();
-#endif
                 var dvs = propInfo.GetCustomAttributes<DVAttribute>(false);
                 if (dvs.Count() == 1)
                 {

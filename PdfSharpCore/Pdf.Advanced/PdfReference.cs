@@ -71,9 +71,6 @@ namespace PdfSharpCore.Pdf.Advanced
                 throw new InvalidOperationException("Must not create iref for an object that already has one.");
             _value = pdfObject;
             pdfObject.Reference = this;
-#if UNIQUE_IREF && DEBUG
-            _uid = ++s_counter;
-#endif
         }
 
         /// <summary>
@@ -83,9 +80,6 @@ namespace PdfSharpCore.Pdf.Advanced
         {
             _objectID = objectID;
             _position = position;
-#if UNIQUE_IREF && DEBUG
-            _uid = ++s_counter;
-#endif
         }
 
         /// <summary>
@@ -234,10 +228,5 @@ namespace PdfSharpCore.Pdf.Advanced
                 return 0;
             }
         }
-
-#if UNIQUE_IREF && DEBUG
-        static int s_counter = 0;
-        int _uid;
-#endif
     }
 }

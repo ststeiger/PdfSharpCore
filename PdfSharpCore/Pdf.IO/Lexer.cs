@@ -147,14 +147,10 @@ namespace PdfSharpCore.Pdf.IO
                     return _symbol = ScanNumber();
             }
             if (char.IsDigit(ch))
-#if true_
-                return ScanNumberOrReference();
-#else
                 if (PeekReference())
                     return _symbol = ScanNumber();
                 else
                     return _symbol = ScanNumber();
-#endif
 
             if (char.IsLetter(ch))
                 return _symbol = ScanKeyword();
@@ -719,34 +715,7 @@ namespace PdfSharpCore.Pdf.IO
             }
             return _currChar;
         }
-
-#if DEBUG
-        public string SurroundingsOfCurrentPosition(bool hex)
-        {
-            const int range = 20;
-            int start = Math.Max(Position - range, 0);
-            int length = Math.Min(2 * range, PdfLength - start);
-            long posOld = _pdfSteam.Position;
-            _pdfSteam.Position = start;
-            byte[] bytes = new byte[length];
-            _pdfSteam.Read(bytes, 0, length);
-            _pdfSteam.Position = posOld;
-            string result = "";
-            if (hex)
-            {
-                for (int idx = 0; idx < length; idx++)
-                    result += ((int)bytes[idx]).ToString("x2");
-                //result += string.Format("{0:", (int) bytes[idx]);
-            }
-            else
-            {
-                for (int idx = 0; idx < length; idx++)
-                    result += (char)bytes[idx];
-            }
-            return result;
-        }
-#endif
-
+        
         /// <summary>
         /// Gets the current symbol.
         /// </summary>

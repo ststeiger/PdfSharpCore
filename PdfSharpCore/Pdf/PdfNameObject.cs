@@ -115,29 +115,7 @@ namespace PdfSharpCore.Pdf
         {
             return name._value != str;
         }
-
-#if leads_to_ambiguity
-        public static bool operator ==(string str, PdfName name)
-        {
-            return str == name.value;
-        }
-
-        public static bool operator !=(string str, PdfName name)
-        {
-            return str == name.value;
-        }
-
-        public static bool operator ==(PdfName name1, PdfName name2)
-        {
-            return name1.value == name2.value;
-        }
-
-        public static bool operator !=(PdfName name1, PdfName name2)
-        {
-            return name1.value != name2.value;
-        }
-#endif
-
+        
         /// <summary>
         /// Writes the name including the leading slash.
         /// </summary>

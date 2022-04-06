@@ -54,11 +54,7 @@ namespace MigraDocCore.Rendering
       if (this.lineFormat != null && !this.lineFormat.Color.IsEmpty)
         clr = this.lineFormat.Color;
 
-#if noCMYK
-      return XColor.FromArgb((int)clr.Argb);
-#else
       return ColorHelper.ToXColor(clr, this.lineFormat.Document.UseCmykColor);
-#endif
     }
 
     internal XUnit GetWidth()

@@ -132,12 +132,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
                 FillWindow();
                 bool canFlush = flush && (inputOff == inputEnd);
 
-#if DebugDeflation
-				if (DeflaterConstants.DEBUGGING) {
-					Console.WriteLine("window: [" + blockStart + "," + strstart + ","
-								+ lookahead + "], " + compressionFunction + "," + canFlush);
-				}
-#endif
                 switch (compressionFunction)
                 {
                     case DEFLATE_STORED:
@@ -217,12 +211,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
         /// <param name="length">The length of the dictionary data.</param>
         public void SetDictionary(byte[] buffer, int offset, int length)
         {
-#if DebugDeflation
-			if (DeflaterConstants.DEBUGGING && (strstart != 1) ) 
-			{
-				throw new InvalidOperationException("strstart not 1");
-			}
-#endif
             adler.Update(buffer, offset, length);
             if (length < MIN_MATCH)
             {
@@ -335,13 +323,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
 
             if (DeflaterConstants.COMPR_FUNC[level] != compressionFunction)
             {
-
-#if DebugDeflation
-				if (DeflaterConstants.DEBUGGING) {
-				   Console.WriteLine("Change from " + compressionFunction + " to "
-										  + DeflaterConstants.COMPR_FUNC[level]);
-				}
-#endif
                 switch (compressionFunction)
                 {
                     case DEFLATE_STORED:
@@ -422,11 +403,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
 
         void UpdateHash()
         {
-            /*
-                        if (DEBUGGING) {
-                            Console.WriteLine("updateHash: "+strstart);
-                        }
-            */
             ins_h = (window[strstart] << HASH_SHIFT) ^ window[strstart + 1];
         }
 
@@ -440,19 +416,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
             short match;
             int hash = ((ins_h << HASH_SHIFT) ^ window[strstart + (MIN_MATCH - 1)]) & HASH_MASK;
 
-#if DebugDeflation
-			if (DeflaterConstants.DEBUGGING) 
-			{
-				if (hash != (((window[strstart] << (2*HASH_SHIFT)) ^ 
-								  (window[strstart + 1] << HASH_SHIFT) ^ 
-								  (window[strstart + 2])) & HASH_MASK)) {
-						throw new SharpZipBaseException("hash inconsistent: " + hash + "/"
-												+window[strstart] + ","
-												+window[strstart + 1] + ","
-												+window[strstart + 2] + "," + HASH_SHIFT);
-					}
-			}
-#endif
             prev[strstart & WMASK] = match = head[hash];
             head[hash] = unchecked((short)strstart);
             ins_h = hash;
@@ -522,24 +485,8 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
                 niceLength = lookahead;
             }
 
-#if DebugDeflation
-
-			if (DeflaterConstants.DEBUGGING && (strstart > 2 * WSIZE - MIN_LOOKAHEAD))
-			{
-				throw new InvalidOperationException("need lookahead");
-			}
-#endif
-
             do
             {
-
-#if DebugDeflation
-
-				if (DeflaterConstants.DEBUGGING && (curMatch >= strstart) )
-				{
-					throw new InvalidOperationException("no future");
-				}
-#endif
                 if (window[curMatch + best_len] != scan_end ||
                     window[curMatch + best_len - 1] != scan_end1 ||
                     window[curMatch] != window[scan] ||
@@ -570,10 +517,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
 
                 if (scan > best_end)
                 {
-#if DebugDeflation
-					if (DeflaterConstants.DEBUGGING && (ins_h == 0) )
-						Console.Error.WriteLine("Found match: " + curMatch + "-" + (scan - strstart));
-#endif
                     matchStart = curMatch;
                     best_end = scan;
                     best_len = scan - strstart;
@@ -616,13 +559,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
                     lastBlock = false;
                 }
 
-#if DebugDeflation
-				if (DeflaterConstants.DEBUGGING) 
-				{
-				   Console.WriteLine("storedBlock[" + storedLength + "," + lastBlock + "]");
-				}
-#endif
-
                 huffman.FlushStoredBlock(window, blockStart, storedLength, lastBlock);
                 blockStart += storedLength;
                 return !lastBlock;
@@ -664,17 +600,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
                     FindLongestMatch(hashHead))
                 {
                     // longestMatch sets matchStart and matchLen
-#if DebugDeflation
-					if (DeflaterConstants.DEBUGGING) 
-					{
-						for (int i = 0 ; i < matchLen; i++) {
-							if (window[strstart + i] != window[matchStart + i]) {
-								throw new SharpZipBaseException("Match failure");
-							}
-						}
-					}
-#endif
-
                     bool full = huffman.TallyDist(strstart - matchStart, matchLen);
 
                     lookahead -= matchLen;
@@ -738,12 +663,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
                     prevAvailable = false;
 
                     // We are flushing everything
-#if DebugDeflation
-					if (DeflaterConstants.DEBUGGING && !flush) 
-					{
-						throw new SharpZipBaseException("Not flushing, but no lookahead");
-					}
-#endif
                     huffman.FlushBlock(window, blockStart, strstart - blockStart,
                         finish);
                     blockStart = strstart;
@@ -785,15 +704,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
                 // previous match was better
                 if ((prevLen >= MIN_MATCH) && (matchLen <= prevLen))
                 {
-#if DebugDeflation
-					if (DeflaterConstants.DEBUGGING) 
-					{
-					   for (int i = 0 ; i < matchLen; i++) {
-						  if (window[strstart-1+i] != window[prevMatch + i])
-							 throw new SharpZipBaseException();
-						}
-					}
-#endif
                     huffman.TallyDist(strstart - 1 - prevMatch, prevLen);
                     prevLen -= 2;
                     do

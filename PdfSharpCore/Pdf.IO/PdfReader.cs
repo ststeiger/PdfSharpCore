@@ -74,7 +74,6 @@ namespace PdfSharpCore.Pdf.IO
         /// </summary>
         public static int TestPdfFile(string path)
         {
-#if NETCOREAPP1_1 || (!NETFX_CORE && !PORTABLE)
             FileStream stream = null;
             try
             {
@@ -96,11 +95,7 @@ namespace PdfSharpCore.Pdf.IO
                 {
                     if (stream != null)
                     {
-#if NETCOREAPP1_1 || UWP
                         stream.Dispose();
-#else
-                        stream.Close();
-#endif
                     }
                 }
                 // ReSharper disable once EmptyGeneralCatchClause
@@ -108,7 +103,6 @@ namespace PdfSharpCore.Pdf.IO
                 {
                 }
             }
-#endif
             return 0;
         }
 
@@ -264,7 +258,6 @@ namespace PdfSharpCore.Pdf.IO
         /// </summary>
         public static PdfDocument Open(string path, string password, PdfDocumentOpenMode openmode, PdfPasswordProvider provider, PdfReadAccuracy accuracy)
         {
-#if NETCOREAPP1_1 || (!NETFX_CORE && !PORTABLE)
             PdfDocument document;
             Stream stream = null;
             try
@@ -279,16 +272,10 @@ namespace PdfSharpCore.Pdf.IO
             finally
             {
                 if (stream != null)
-#if NETCOREAPP1_1 || UWP
+
                     stream.Dispose();
-#else
-                    stream.Close();
-#endif
             }
             return document;
-#else
-            return null;
-#endif
         }
 
         /// <summary>
@@ -531,10 +518,6 @@ namespace PdfSharpCore.Pdf.IO
                     PdfReference iref = irefs[idx];
                     if (iref.Value == null)
                     {
-#if DEBUG_
-                        if (iref.ObjectNumber == 1074)
-                            iref.GetType();
-#endif
                         try
                         {
                             Debug.Assert(document._irefTable.Contains(iref.ObjectID));
@@ -576,14 +559,6 @@ namespace PdfSharpCore.Pdf.IO
                 // Fix references of trailer values and then objects and irefs are consistent.
                 document._trailer.Finish();
 
-#if DEBUG_
-    // Some tests...
-                PdfReference[] reachables = document.xrefTable.TransitiveClosure(document.trailer);
-                reachables.GetType();
-                reachables = document.xrefTable.AllXRefs;
-                document.xrefTable.CheckConsistence();
-#endif
-
                 if (openmode == PdfDocumentOpenMode.Modify)
                 {
                     // Create new or change existing document IDs.
@@ -610,9 +585,7 @@ namespace PdfSharpCore.Pdf.IO
                     //bool b = document.irefTable.Contains(new PdfObjectID(1108));
                     //b.GetType();
 
-                    document._irefTable.CheckConsistence();
                     document._irefTable.Renumber();
-                    document._irefTable.CheckConsistence();
                 }
             }
             catch (Exception ex)

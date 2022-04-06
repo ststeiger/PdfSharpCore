@@ -328,9 +328,7 @@ namespace PdfSharpCore.Pdf
                                             break;
 
                                         default:
-#if DEBUG_
-                                            Debug-Break.Break(true);
-#endif
+
                                             break;
 
                                     }
@@ -556,14 +554,8 @@ namespace PdfSharpCore.Pdf
             }
 
             Elements.SetName(Keys.Type, "/Pages");
-#if true
             // direct array
             Elements.SetValue(Keys.Kids, array);
-#else
-            // incdirect array
-            Document.xrefTable.Add(array);
-            Elements.SetValue(Keys.Kids, array.XRef);
-#endif
             Elements.SetInteger(Keys.Count, array.Elements.Count);
         }
 
@@ -575,7 +567,6 @@ namespace PdfSharpCore.Pdf
             // TODO: inherit inheritable keys...
             PdfDictionary kid = (PdfDictionary)iref.Value;
 
-#if true
             string type = kid.Elements.GetName(Keys.Type);
             if (type == "/Page")
             {
@@ -590,14 +581,6 @@ namespace PdfSharpCore.Pdf
                 PdfPage.InheritValues(kid, values);
                 return new PdfDictionary[] { kid };
             }
-
-#else
-            if (kid.Elements.GetName(Keys.Type) == "/Page")
-            {
-                PdfPage.InheritValues(kid, values);
-                return new PdfDictionary[] { kid };
-            }
-#endif
 
             Debug.Assert(kid.Elements.GetName(Keys.Type) == "/Pages");
             PdfPage.InheritValues(kid, ref values);

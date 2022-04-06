@@ -90,35 +90,6 @@ namespace PdfSharpCore.Pdf
                     Elements.SetReference(key, value);
                 }
             }
-#if old
-            get
-            {
-                PdfDictionary dict = Elements.GetDictionary(key);
-                if (dict == null)
-                    return null;
-                if (!(dict is PdfCustomValue))
-                    dict = new PdfCustomValue(dict);
-                return dict.Stream.Value;
-            }
-            set
-            {
-                PdfCustomValue cust;
-                PdfDictionary dict = Elements.GetDictionary(key);
-                if (dict == null)
-                {
-                    cust = new PdfCustomValue();
-                    Owner.Internals.AddObject(cust);
-                    Elements.Add(key, cust);
-                }
-                else
-                {
-                    cust = dict as PdfCustomValue;
-                    if (cust == null)
-                        cust = new PdfCustomValue(dict);
-                }
-                cust.Value = value;
-            }
-#endif
         }
 
         /// <summary>

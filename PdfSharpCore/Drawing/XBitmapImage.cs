@@ -27,42 +27,6 @@
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
-#if CORE
-#endif
-#if CORE_WITH_GDI
-using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using PdfSharpCore.Internal;
-
-#endif
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using PdfSharpCore.Internal;
-
-#endif
-#if WPF
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-#if !GDI
-using PdfSharpCore.Internal;
-#endif
-
-#endif
-#if NETFX_CORE
-using Windows.UI.Xaml.Media.Imaging;
-using PdfSharpCore.Internal;
-
-#endif
-
-// WPFHACK
-#pragma warning disable 0169
-#pragma warning disable 0649
-
 namespace PdfSharpCore.Drawing
 {
     /// <summary>
@@ -77,24 +41,6 @@ namespace PdfSharpCore.Drawing
         /// </summary>
         internal XBitmapImage(int width, int height)
         {
-#if GDI || CORE_WITH_GDI
-            try
-            {
-                Lock.EnterGdiPlus();
-                // Create a default 24 bit ARGB bitmap.
-                _gdiImage = new Bitmap(width, height);
-            }
-            finally { Lock.ExitGdiPlus(); }
-#endif
-#if WPF
-            DiagnosticsHelper.ThrowNotImplementedException("CreateBitmap");
-#endif
-#if NETFX_CORE
-            DiagnosticsHelper.ThrowNotImplementedException("CreateBitmap");
-#endif
-#if CORE || GDI && !WPF // Prevent unreachable code error
-            Initialize();
-#endif
         }
 
         /// <summary>

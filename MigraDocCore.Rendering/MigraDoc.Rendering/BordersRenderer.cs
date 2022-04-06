@@ -64,18 +64,10 @@ namespace MigraDocCore.Rendering
       else if (!this.borders.Color.IsEmpty)
         clr = this.borders.Color;
 
-#if noCMYK
-      return XColor.FromArgb((int)clr.Argb);
-#else
       //      bool cmyk = false; // BUG CMYK
       //      if (this.borders.Document != null)
       //        cmyk = this.borders.Document.UseCmykColor;
-      //#if DEBUG
-      //      else
-      //        GetT ype();
-      //#endif
       return ColorHelper.ToXColor(clr, this.borders.Document.UseCmykColor);
-#endif
     }
 
     private BorderStyle GetStyle(BorderType type)

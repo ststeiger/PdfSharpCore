@@ -192,23 +192,6 @@ namespace PdfSharpCore.Pdf
             //int count = Elements.Count;
             PdfName[] keys = Elements.KeyNames;
 
-#if DEBUG
-            // TODO: automatically set length
-            if (_stream != null)
-                Debug.Assert(Elements.ContainsKey(PdfStream.Keys.Length), "Dictionary has a stream but no length is set.");
-#endif
-
-#if DEBUG
-            // Sort keys for debugging purposes. Comparing PDF files with for example programms like
-            // Araxis Merge is easier with sorted keys.
-            if (writer.Layout == PdfWriterLayout.Verbose)
-            {
-                List<PdfName> list = new List<PdfName>(keys);
-                list.Sort(PdfName.Comparer);
-                list.CopyTo(keys, 0);
-            }
-#endif
-
             foreach (PdfName key in keys)
                 WriteDictionaryElement(writer, key);
             if (Stream != null)
@@ -225,15 +208,7 @@ namespace PdfSharpCore.Pdf
             if (key == null)
                 throw new ArgumentNullException("key");
             PdfItem item = Elements[key];
-#if DEBUG
-            // TODO: simplify PDFsharp
-            if (item is PdfObject && ((PdfObject)item).IsIndirect)
-            {
-                // Replace an indirect object by its Reference.
-                item = ((PdfObject)item).Reference;
-                Debug.Assert(false, "Check when we come here.");
-            }
-#endif
+
             key.WriteObject(writer);
             item.WriteObject(writer);
             writer.NewLine();
@@ -825,26 +800,9 @@ namespace PdfSharpCore.Pdf
                 {
                     if (options != VCF.None)
                     {
-#if NETFX_CORE && DEBUG_
-                        if (key == "/Resources")
-                            Debug-Break.Break();
-#endif
-                        Type type = GetValueType(key);
+                       Type type = GetValueType(key);
                         if (type != null)
                         {
-#if !NETFX_CORE && !PORTABLE
-                            Debug.Assert(typeof(PdfItem).IsAssignableFrom(type), "Type not allowed.");
-                            if (typeof(PdfDictionary).IsAssignableFrom(type))
-                            {
-                                value = obj = CreateDictionary(type, null);
-                            }
-                            else if (typeof(PdfArray).IsAssignableFrom(type))
-                            {
-                                value = obj = CreateArray(type, null);
-                            }
-                            else
-                                throw new NotImplementedException("Type other than array or dictionary.");
-#else
                             // Rewritten WinRT style.
                             TypeInfo typeInfo = type.GetTypeInfo();
                             Debug.Assert(typeof(PdfItem).GetTypeInfo().IsAssignableFrom(typeInfo), "Type not allowed.");
@@ -858,7 +816,7 @@ namespace PdfSharpCore.Pdf
                             }
                             else
                                 throw new NotImplementedException("Type other than array or dictionary.");
-#endif
+
                             if (options == VCF.CreateIndirect)
                             {
                                 _ownerDictionary.Owner._irefTable.Add(obj);
@@ -890,23 +848,6 @@ namespace PdfSharpCore.Pdf
                             Type type = GetValueType(key);
                             Debug.Assert(type != null, "No value type specified in meta information. Please send this file to PDFsharp support.");
 
-#if !NETFX_CORE && !PORTABLE
-                            if (type != null && type != value.GetType())
-                            {
-                                if (typeof(PdfDictionary).IsAssignableFrom(type))
-                                {
-                                    Debug.Assert(value is PdfDictionary, "Bug in PdfSharpCore. Please send this file to PDFsharp support.");
-                                    value = CreateDictionary(type, (PdfDictionary)value);
-                                }
-                                else if (typeof(PdfArray).IsAssignableFrom(type))
-                                {
-                                    Debug.Assert(value is PdfArray, "Bug in PdfSharpCore. Please send this file to PDFsharp support.");
-                                    value = CreateArray(type, (PdfArray)value);
-                                }
-                                else
-                                    throw new NotImplementedException("Type other than array or dictionary.");
-                            }
-#else
                             // Rewritten WinRT style.
                             TypeInfo typeInfo = type.GetTypeInfo();
                             if (type != null && type != value.GetType())
@@ -924,7 +865,6 @@ namespace PdfSharpCore.Pdf
                                 else
                                     throw new NotImplementedException("Type other than array or dictionary.");
                             }
-#endif
                         }
                         return value;
                     }
@@ -990,27 +930,7 @@ namespace PdfSharpCore.Pdf
 
             PdfArray CreateArray(Type type, PdfArray oldArray)
             {
-#if !NETFX_CORE && !UWP && !PORTABLE
-                ConstructorInfo ctorInfo;
-                PdfArray array;
-                if (oldArray == null)
-                {
-                    // Use contstructor with signature 'Ctor(PdfDocument owner)'.
-                    ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                        null, new Type[] { typeof(PdfDocument) }, null);
-                    Debug.Assert(ctorInfo != null, "No appropriate constructor found for type: " + type.Name);
-                    array = ctorInfo.Invoke(new object[] { _ownerDictionary.Owner }) as PdfArray;
-                }
-                else
-                {
-                    // Use contstructor with signature 'Ctor(PdfDictionary dict)'.
-                    ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                        null, new Type[] { typeof(PdfArray) }, null);
-                    Debug.Assert(ctorInfo != null, "No appropriate constructor found for type: " + type.Name);
-                    array = ctorInfo.Invoke(new object[] { oldArray }) as PdfArray;
-                }
-                return array;
-#else
+
                 // Rewritten WinRT style.
                 PdfArray array = null;
                 if (oldArray == null)
@@ -1046,32 +966,10 @@ namespace PdfSharpCore.Pdf
                     Debug.Assert(array != null, "No appropriate constructor found for type: " + type.Name);
                 }
                 return array;
-#endif
             }
 
             PdfDictionary CreateDictionary(Type type, PdfDictionary oldDictionary)
             {
-#if !NETFX_CORE && !UWP && !PORTABLE
-                ConstructorInfo ctorInfo;
-                PdfDictionary dict;
-                if (oldDictionary == null)
-                {
-                    // Use contstructor with signature 'Ctor(PdfDocument owner)'.
-                    ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                        null, new Type[] { typeof(PdfDocument) }, null);
-                    Debug.Assert(ctorInfo != null, "No appropriate constructor found for type: " + type.Name);
-                    dict = ctorInfo.Invoke(new object[] { _ownerDictionary.Owner }) as PdfDictionary;
-                }
-                else
-                {
-                    // Use contstructor with signature 'Ctor(PdfDictionary dict)'.
-                    ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                      null, new Type[] { typeof(PdfDictionary) }, null);
-                    Debug.Assert(ctorInfo != null, "No appropriate constructor found for type: " + type.Name);
-                    dict = ctorInfo.Invoke(new object[] { oldDictionary }) as PdfDictionary;
-                }
-                return dict;
-#else
                 // Rewritten WinRT style.
                 PdfDictionary dict = null;
                 if (oldDictionary == null)
@@ -1105,27 +1003,10 @@ namespace PdfSharpCore.Pdf
                     Debug.Assert(dict != null, "No appropriate constructor found for type: " + type.Name);
                 }
                 return dict;
-#endif
             }
 
             PdfItem CreateValue(Type type, PdfDictionary oldValue)
             {
-#if !NETFX_CORE && !UWP && !PORTABLE
-                ConstructorInfo ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                    null, new Type[] { typeof(PdfDocument) }, null);
-                PdfObject obj = ctorInfo.Invoke(new object[] { _ownerDictionary.Owner }) as PdfObject;
-                if (oldValue != null)
-                {
-                    obj.Reference = oldValue.Reference;
-                    obj.Reference.Value = obj;
-                    if (obj is PdfDictionary)
-                    {
-                        PdfDictionary dict = (PdfDictionary)obj;
-                        dict._elements = oldValue._elements;
-                    }
-                }
-                return obj;
-#else
                 // Rewritten WinRT style.
                 PdfObject obj = null;
                 var ctorInfos = type.GetTypeInfo().DeclaredConstructors; // GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[] { typeof(PdfDocument) }, null);
@@ -1150,7 +1031,6 @@ namespace PdfSharpCore.Pdf
                     }
                 }
                 return obj;
-#endif
             }
 
             /// <summary>
@@ -1289,23 +1169,7 @@ namespace PdfSharpCore.Pdf
                 {
                     if (value == null)
                         throw new ArgumentNullException("value");
-#if DEBUG_
-                    if (key == "/MediaBox")
-                        key.GetType();
 
-                    //if (value is PdfObject)
-                    //{
-                    //  PdfObject obj = (PdfObject)value;
-                    //  if (obj.Reference != null)
-                    //    throw new ArgumentException("An object with an indirect reference cannot be a direct value. Try to set an indirect refernece.");
-                    //}
-                    if (value is PdfDictionary)
-                    {
-                        PdfDictionary dict = (PdfDictionary)value;
-                        if (dict._stream != null)
-                            throw new ArgumentException("A dictionary with stream cannot be a direct value.");
-                    }
-#endif
                     PdfObject obj = value as PdfObject;
                     if (obj != null && obj.IsIndirect)
                         value = obj.Reference;
@@ -1323,16 +1187,6 @@ namespace PdfSharpCore.Pdf
                 {
                     if (value == null)
                         throw new ArgumentNullException("value");
-
-#if DEBUG
-                    PdfDictionary dictionary = value as PdfDictionary;
-                    if (dictionary != null)
-                    {
-                        PdfDictionary dict = dictionary;
-                        if (dict._stream != null)
-                            throw new ArgumentException("A dictionary with stream cannot be a direct value.");
-                    }
-#endif
 
                     PdfObject obj = value as PdfObject;
                     if (obj != null && obj.IsIndirect)
@@ -1780,17 +1634,9 @@ namespace PdfSharpCore.Pdf
                 PdfItem filter = _ownerDictionary.Elements["/Filter"];
                 if (filter != null)
                 {
-#if true
                     byte[] bytes = Filtering.Decode(_value, filter);
                     if (bytes != null)
                         stream = PdfEncoders.RawEncoding.GetString(bytes, 0, bytes.Length);
-#else
-
-                    if (_owner.Elements.GetString("/Filter") == "/FlateDecode")
-                    {
-                        stream = Filtering.FlateDecode.DecodeToString(_value);
-                    }
-#endif
                     else
                         throw new NotImplementedException("Unknown filter");
                 }
@@ -1899,14 +1745,10 @@ namespace PdfSharpCore.Pdf
         {
             get
             {
-#if true
                 return String.Format(CultureInfo.InvariantCulture, "dictionary({0},[{1}])={2}", 
                     ObjectID.DebuggerDisplay, 
                     Elements.Count,
                     _elements.DebuggerDisplay);
-#else
-                return String.Format(CultureInfo.InvariantCulture, "dictionary({0},[{1}])=", ObjectID.DebuggerDisplay, _elements.DebuggerDisplay);
-#endif
             }
         }
     }

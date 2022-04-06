@@ -30,25 +30,6 @@
 using System;
 using System.ComponentModel;
 using PdfSharpCore.Internal;
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-//using GdiLinearGradientBrush = System.Drawing.Drawing2D.LinearGradientBrush;
-#endif
-#if WPF
-using System.Windows;
-using System.Windows.Media;
-using SysPoint = System.Windows.Point;
-using SysSize = System.Windows.Size;
-using SysRect = System.Windows.Rect;
-using WpfBrush = System.Windows.Media.Brush;
-#endif
-#if UWP
-using Windows.UI;
-using Windows.UI.Xaml.Media;
-using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Brushes;
-#endif
 
 // ReSharper disable RedundantNameQualifier because it is required for hybrid build
 namespace PdfSharpCore.Drawing

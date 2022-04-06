@@ -1874,11 +1874,6 @@ namespace MigraDocCore.DocumentObjectModel.IO
                 // Resolve path, if it exists.
                 while (Symbol == Symbol.Dot)
                 {
-#if DEBUG
-                    if (valueName == "TabStops")
-                        valueName.GetType();
-#endif
-
                     val = doc.GetValue(valueName);
                     if (val == null)
                     {
@@ -1894,11 +1889,6 @@ namespace MigraDocCore.DocumentObjectModel.IO
                     AssertCondition(Symbol == Symbol.Identifier, DomMsgID.InvalidValueName, scanner.Token);
                     valueName = scanner.Token;
                     AssertCondition(valueName[0] != '_', DomMsgID.NoAccess, scanner.Token);
-
-#if DEBUG
-                    if (valueName == "TabStops")
-                        valueName.GetType();
-#endif
 
                     ReadCode();
                 }

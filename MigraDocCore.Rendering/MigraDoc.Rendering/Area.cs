@@ -142,10 +142,8 @@ namespace MigraDocCore.Rendering
     internal override Rectangle GetFittingRect(XUnit yPosition, XUnit height)
     {
       // BUG: Code removed because null is not handled in caller
-#if true
       if (yPosition + height > this.y + this.height + Renderer.Tolerance)
         return null;
-#endif
       return new Rectangle(this.x, yPosition, this.width, height);
     }
 

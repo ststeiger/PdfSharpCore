@@ -58,18 +58,6 @@ namespace PdfSharpCore.Fonts.OpenType
             base.PrepareForCompilation();
             DirectoryEntry.Length = _irefDirectoryEntry.Length;
             DirectoryEntry.CheckSum = _irefDirectoryEntry.CheckSum;
-#if DEBUG
-            // Check the checksum algorithm
-            if (DirectoryEntry.Tag != TableTagNames.Head)
-            {
-                byte[] bytes = new byte[DirectoryEntry.PaddedLength];
-                Buffer.BlockCopy(_irefDirectoryEntry.FontTable._fontData.FontSource.Bytes, _irefDirectoryEntry.Offset, bytes, 0, DirectoryEntry.PaddedLength);
-                uint checkSum1 = DirectoryEntry.CheckSum;
-                uint checkSum2 = CalcChecksum(bytes);
-                // TODO: Sometimes this Assert fails,
-                //Debug.Assert(checkSum1 == checkSum2, "Bug in checksum algorithm.");
-            }
-#endif
         }
 
         /// <summary>

@@ -315,11 +315,8 @@ namespace PdfSharpCore.Pdf.Content.Objects  // TODO: split into single files
             int count = (int)stream.Length;
             byte[] bytes = new byte[count];
             stream.Read(bytes, 0, count);
-#if !UWP && !PORTABLE
-            stream.Close();
-#else
             stream.Dispose();
-#endif
+
             return bytes;
         }
 
@@ -676,17 +673,6 @@ namespace PdfSharpCore.Pdf.Content.Objects  // TODO: split into single files
                                 break;
 
                             default:
-#if true_
-                                // not absolut necessary to use octal encoding for characters less than blank
-                                if (ch < ' ')
-                                {
-                                    s.Append("\\");
-                                    s.Append((char)(((ch >> 6) & 7) + '0'));
-                                    s.Append((char)(((ch >> 3) & 7) + '0'));
-                                    s.Append((char)((ch & 7) + '0'));
-                                }
-                                else
-#endif
                                 s.Append(ch);
                                 break;
                         }

@@ -33,15 +33,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
-#if CORE || GDI
-using System.Drawing;
-using GdiFontFamily = System.Drawing.FontFamily;
-#endif
-#if WPF
-using System.Windows.Media;
-using System.Windows.Markup;
-using WpfFontFamily = System.Windows.Media.FontFamily;
-#endif
 using PdfSharpCore.Fonts;
 using PdfSharpCore.Fonts.OpenType;
 using PdfSharpCore.Internal;
@@ -83,11 +74,7 @@ namespace PdfSharpCore.Drawing
                 FontFamilyInternal existingFontFamily;
                 if (Singleton._familiesByName.TryGetValue(fontFamily.Name, out existingFontFamily))
                 {
-#if DEBUG_
-                    if (fontFamily.Name == "xxx")
-                        fontFamily.GetType();
-#endif
-                    return existingFontFamily;
+                   return existingFontFamily;
                 }
                 Singleton._familiesByName.Add(fontFamily.Name, fontFamily);
                 return fontFamily;

@@ -33,9 +33,6 @@ using System.Diagnostics;
 //using Fixed = System.Int32;
 //using FWord = System.Int16;
 //using UFWord = System.UInt16;
-#if SILVERLIGHT
-using PdfSharpCore;
-#endif
 
 namespace PdfSharpCore.Fonts.OpenType
 {

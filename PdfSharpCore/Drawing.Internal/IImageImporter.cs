@@ -58,19 +58,6 @@ namespace PdfSharpCore.Drawing
     {
         internal StreamReaderHelper(Stream stream)
         {
-#if GDI || WPF
-            _stream = stream;
-            MemoryStream ms = stream as MemoryStream;
-            if (ms == null)
-            {
-                // THHO4STLA byte[] or MemoryStream?
-                _ownedMemoryStream = ms = new MemoryStream();
-                CopyStream(stream, ms);
-                // For .NET 4: stream.CopyTo(ms);
-            }
-            _data = ms.GetBuffer();
-            _length = (int)ms.Length;
-#else
             // For WinRT there is no GetBuffer() => alternative implementation for WinRT.
             // TODO: Are there advantages of GetBuffer()? It should reduce LOH fragmentation.
             _stream = stream;
@@ -80,7 +67,6 @@ namespace PdfSharpCore.Drawing
             _length = (int)_stream.Length;
             _data = new byte[_length];
             _stream.Read(_data, 0, _length);
-#endif
         }
 
         internal byte GetByte(int offset)
@@ -159,17 +145,6 @@ namespace PdfSharpCore.Drawing
         }
 
         private readonly int _length;
-
-#if GDI || WPF
-        /// <summary>
-        /// Gets the owned memory stream. Can be null if no MemoryStream was created.
-        /// </summary>
-        public MemoryStream OwnedMemoryStream
-        {
-            get { return _ownedMemoryStream; }
-        }
-        private readonly MemoryStream _ownedMemoryStream;
-#endif
     }
 
     /// <summary>

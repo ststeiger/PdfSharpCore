@@ -83,7 +83,6 @@ namespace PdfSharpCore.Pdf.Advanced
             return pdfFont;
         }
 
-#if true
         /// <summary>
         /// Gets a PdfFont from a font program. If no PdfFont already exists, a new one is created.
         /// </summary>
@@ -105,7 +104,6 @@ namespace PdfSharpCore.Pdf.Advanced
             }
             return pdfFont;
         }
-#endif
 
         /// <summary>
         /// Tries to gets a PdfFont from the font dictionary.

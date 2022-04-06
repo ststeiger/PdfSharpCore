@@ -64,10 +64,6 @@ namespace PdfSharpCore.Pdf.Advanced
         /// </summary>
         public void Add(PdfReference iref)
         {
-#if DEBUG
-            if (iref.ObjectID.ObjectNumber == 948)
-                GetType();
-#endif
             if (iref.ObjectID.IsEmpty)
                 iref.ObjectID = new PdfObjectID(GetNewObjectNumber());
 
@@ -218,53 +214,6 @@ namespace PdfSharpCore.Pdf.Advanced
             // TODO: Is this really so easy?
             PdfReference[] irefs = TransitiveClosure(_document._trailer);
 
-#if DEBUG
-            // Have any two objects the same ID?
-            Dictionary<int, int> ids = new Dictionary<int, int>();
-            foreach (PdfObjectID objID in ObjectTable.Keys)
-            {
-                ids.Add(objID.ObjectNumber, 0);
-            }
-
-            // Have any two irefs the same value?
-            //Dictionary<int, int> ids = new Dictionary<int, int>();
-            ids.Clear();
-            foreach (PdfReference iref in ObjectTable.Values)
-            {
-                ids.Add(iref.ObjectNumber, 0);
-            }
-
-            //
-            Dictionary<PdfReference, int> refs = new Dictionary<PdfReference, int>();
-            foreach (PdfReference iref in irefs)
-            {
-                refs.Add(iref, 0);
-            }
-            foreach (PdfReference value in ObjectTable.Values)
-            {
-                if (!refs.ContainsKey(value))
-                    value.GetType();
-            }
-
-            foreach (PdfReference iref in ObjectTable.Values)
-            {
-                if (iref.Value == null)
-                    GetType();
-                Debug.Assert(iref.Value != null);
-            }
-
-            foreach (PdfReference iref in irefs)
-            {
-                if (!ObjectTable.ContainsKey(iref.ObjectID))
-                    GetType();
-                Debug.Assert(ObjectTable.ContainsKey(iref.ObjectID));
-
-                if (iref.Value == null)
-                    GetType();
-                Debug.Assert(iref.Value != null);
-            }
-#endif
-
             _maxObjectNumber = 0;
             ObjectTable.Clear();
             foreach (PdfReference iref in irefs)
@@ -290,58 +239,13 @@ namespace PdfSharpCore.Pdf.Advanced
             for (int idx = 0; idx < count; idx++)
             {
                 PdfReference iref = irefs[idx];
-#if DEBUG_
-                if (iref.ObjectNumber == 1108)
-                    GetType();
-#endif
+
                 iref.ObjectID = new PdfObjectID(idx + 1);
                 // Rehash with new number.
                 ObjectTable.Add(iref.ObjectID, iref);
             }
             _maxObjectNumber = count;
             //CheckConsistence();
-        }
-
-        /// <summary>
-        /// Checks the logical consistence for debugging purposes (useful after reconstruction work).
-        /// </summary>
-        [Conditional("DEBUG_")]
-        public void CheckConsistence()
-        {
-            Dictionary<PdfReference, object> ht1 = new Dictionary<PdfReference, object>();
-            foreach (PdfReference iref in ObjectTable.Values)
-            {
-                Debug.Assert(!ht1.ContainsKey(iref), "Duplicate iref.");
-                Debug.Assert(iref.Value != null);
-                ht1.Add(iref, null);
-            }
-
-            Dictionary<PdfObjectID, object> ht2 = new Dictionary<PdfObjectID, object>();
-            foreach (PdfReference iref in ObjectTable.Values)
-            {
-                Debug.Assert(!ht2.ContainsKey(iref.ObjectID), "Duplicate iref.");
-                ht2.Add(iref.ObjectID, null);
-            }
-
-            ICollection collection = ObjectTable.Values;
-            int count = collection.Count;
-            PdfReference[] irefs = new PdfReference[count];
-            collection.CopyTo(irefs, 0);
-#if true
-            for (int i = 0; i < count; i++)
-                for (int j = 0; j < count; j++)
-                    if (i != j)
-                    {
-                        Debug.Assert(ReferenceEquals(irefs[i].Document, _document));
-                        Debug.Assert(irefs[i] != irefs[j]);
-                        Debug.Assert(!ReferenceEquals(irefs[i], irefs[j]));
-                        Debug.Assert(!ReferenceEquals(irefs[i].Value, irefs[j].Value));
-                        Debug.Assert(!Equals(irefs[i].ObjectID, irefs[j].Value.ObjectID));
-                        Debug.Assert(irefs[i].ObjectNumber != irefs[j].Value.ObjectNumber);
-                        Debug.Assert(ReferenceEquals(irefs[i].Document, irefs[j].Document));
-                        GetType();
-                    }
-#endif
         }
 
         ///// <summary>
@@ -380,7 +284,6 @@ namespace PdfSharpCore.Pdf.Advanced
         /// </summary>
         public PdfReference[] TransitiveClosure(PdfObject pdfObject, int depth)
         {
-            CheckConsistence();
             Dictionary<PdfItem, object> objects = new Dictionary<PdfItem, object>();
             _overflow = new Dictionary<PdfItem, object>();
             TransitiveClosureImplementation(objects, pdfObject);
@@ -398,28 +301,11 @@ namespace PdfSharpCore.Pdf.Advanced
                 goto TryAgain;
             }
 
-            CheckConsistence();
-
             ICollection collection = objects.Keys;
             int count = collection.Count;
             PdfReference[] irefs = new PdfReference[count];
             collection.CopyTo(irefs, 0);
 
-#if true_
-            for (int i = 0; i < count; i++)
-                for (int j = 0; j < count; j++)
-                    if (i != j)
-                    {
-                        Debug.Assert(ReferenceEquals(irefs[i].Document, _document));
-                        Debug.Assert(irefs[i] != irefs[j]);
-                        Debug.Assert(!ReferenceEquals(irefs[i], irefs[j]));
-                        Debug.Assert(!ReferenceEquals(irefs[i].Value, irefs[j].Value));
-                        Debug.Assert(!Equals(irefs[i].ObjectID, irefs[j].Value.ObjectID));
-                        Debug.Assert(irefs[i].ObjectNumber != irefs[j].Value.ObjectNumber);
-                        Debug.Assert(ReferenceEquals(irefs[i].Document, irefs[j].Document));
-                        GetType();
-                    }
-#endif
             return irefs;
         }
 
@@ -437,18 +323,6 @@ namespace PdfSharpCore.Pdf.Advanced
                         _overflow.Add(pdfObject, null);
                     return;
                 }
-#if DEBUG_
-                //enterCount++;
-                if (enterCount == 5400)
-                    GetType();
-                //if (!Object.ReferenceEquals(pdfObject.Owner, _document))
-                //  GetType();
-                //////Debug.Assert(Object.ReferenceEquals(pdfObject27.Document, _document));
-                //      if (item is PdfObject && ((PdfObject)item).ObjectID.ObjectNumber == 5)
-                //        Debug.WriteLine("items: " + ((PdfObject)item).ObjectID.ToString());
-                //if (pdfObject.ObjectNumber == 5)
-                //  GetType();
-#endif
 
                 IEnumerable enumerable = null; //(IEnumerator)pdfObject;
                 PdfDictionary dict;
@@ -489,10 +363,7 @@ namespace PdfSharpCore.Pdf.Advanced
                                 Debug.WriteLine(String.Format("Bad iref: {0}", iref.ObjectID.ToString()));
                             }
                             Debug.Assert(ReferenceEquals(iref.Document, _document) || iref.Document == null, "External object detected!");
-#if DEBUG_
-                            if (iref.ObjectID.ObjectNumber == 23)
-                                GetType();
-#endif
+
                             if (!objects.ContainsKey(iref))
                             {
                                 PdfObject value = iref.Value;

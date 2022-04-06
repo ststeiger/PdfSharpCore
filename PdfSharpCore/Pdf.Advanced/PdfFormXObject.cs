@@ -29,13 +29,6 @@
 
 using System;
 using System.Diagnostics;
-#if GDI
-using System.Drawing;
-using System.Drawing.Imaging;
-#endif
-#if WPF
-using System.Windows.Media;
-#endif
 using PdfSharpCore.Drawing;
 
 namespace PdfSharpCore.Pdf.Advanced
@@ -103,7 +96,6 @@ namespace PdfSharpCore.Pdf.Advanced
             PdfItem res = importPage.Elements["/Resources"];
             if (res != null) // unlikely but possible
             {
-#if true
                 // Get root object
                 PdfObject root;
                 if (res is PdfReference)
@@ -118,83 +110,6 @@ namespace PdfSharpCore.Pdf.Advanced
 
                 Debug.Assert(root.Reference != null);
                 Elements["/Resources"] = root.Reference;
-#else
-                // Get transitive closure
-                PdfObject[] resources = importPage.Owner.Internals.GetClosure(resourcesRoot);
-                int count = resources.Length;
-#if DEBUG_
-                for (int idx = 0; idx < count; idx++)
-                {
-                    Debug.Assert(resources[idx].XRef != null);
-                    Debug.Assert(resources[idx].XRef.Document != null);
-                    Debug.Assert(resources[idx].Document != null);
-                    if (resources[idx].ObjectID.ObjectNumber == 12)
-                        GetType();
-                }
-#endif
-                // 1st step. Already imported objects are reused and new ones are cloned.
-                for (int idx = 0; idx < count; idx++)
-                {
-                    PdfObject obj = resources[idx];
-                    if (importedObjectTable.Contains(obj.ObjectID))
-                    {
-                        // external object was already imported
-                        PdfReference iref = importedObjectTable[obj.ObjectID];
-                        Debug.Assert(iref != null);
-                        Debug.Assert(iref.Value != null);
-                        Debug.Assert(iref.Document == Owner);
-                        // replace external object by the already clone counterpart
-                        resources[idx] = iref.Value;
-                    }
-                    else
-                    {
-                        // External object was not imported ealier and must be cloned
-                        PdfObject clone = obj.Clone();
-                        Debug.Assert(clone.Reference == null);
-                        clone.Document = Owner;
-                        if (obj.Reference != null)
-                        {
-                            // add it to this (the importer) document
-                            Owner.irefTable.Add(clone);
-                            Debug.Assert(clone.Reference != null);
-                            // save old object identifier
-                            importedObjectTable.Add(obj.ObjectID, clone.Reference);
-                            //Debug.WriteLine("Cloned: " + obj.ObjectID.ToString());
-                        }
-                        else
-                        {
-                            // The root object (the /Resources value) is not an indirect object
-                            Debug.Assert(idx == 0);
-                            // add it to this (the importer) document
-                            Owner.irefTable.Add(clone);
-                            Debug.Assert(clone.Reference != null);
-                        }
-                        // replace external object by its clone
-                        resources[idx] = clone;
-                    }
-                }
-#if DEBUG_
-        for (int idx = 0; idx < count; idx++)
-        {
-          Debug.Assert(resources[idx].XRef != null);
-          Debug.Assert(resources[idx].XRef.Document != null);
-          Debug.Assert(resources[idx].Document != null);
-          if (resources[idx].ObjectID.ObjectNumber == 12)
-            GetType();
-        }
-#endif
-
-                // 2nd step. Fix up indirect references that still refers to the import document.
-                for (int idx = 0; idx < count; idx++)
-                {
-                    PdfObject obj = resources[idx];
-                    Debug.Assert(obj.Owner != null);
-                    FixUpObject(importedObjectTable, importedObjectTable.Owner, obj);
-                }
-
-                // Set resources key to the root of the clones
-                Elements["/Resources"] = resources[0].Reference;
-#endif
             }
 
             // Take /Rotate into account
@@ -231,9 +146,7 @@ namespace PdfSharpCore.Pdf.Advanced
 
             // Preserve filter because the content keeps unmodified
             PdfContent content = importPage.Contents.CreateSingleContent();
-#if !DEBUG
             content.Compressed = true;
-#endif
             PdfItem filter = content.Elements["/Filter"];
             if (filter != null)
                 Elements["/Filter"] = filter.Clone();
@@ -300,100 +213,7 @@ namespace PdfSharpCore.Pdf.Advanced
         {
             throw new NotImplementedException();
         }
-
-#if keep_code_some_time_as_reference
-        /// <summary>
-        /// Replace all indirect references to external objects by their cloned counterparts
-        /// owned by the importer document.
-        /// </summary>
-        void FixUpObject_old(PdfImportedObjectTable iot, PdfObject value)
-        {
-            // TODO: merge with PdfXObject.FixUpObject
-            PdfDictionary dict;
-            PdfArray array;
-            if ((dict = value as PdfDictionary) != null)
-            {
-                // Set document for cloned direct objects
-                if (dict.Owner == null)
-                    dict.Document = Owner;
-                else
-                    Debug.Assert(dict.Owner == Owner);
-
-                // Search for indirect references in all keys
-                PdfName[] names = dict.Elements.KeyNames;
-                foreach (PdfName name in names)
-                {
-                    PdfItem item = dict.Elements[name];
-                    // Is item an iref?
-                    PdfReference iref = item as PdfReference;
-                    if (iref != null)
-                    {
-                        // Does the iref already belong to this document?
-                        if (iref.Document == Owner)
-                        {
-                            // Yes: fine
-                            continue;
-                        }
-                        else
-                        {
-                            Debug.Assert(iref.Document == iot.ExternalDocument);
-                            // No: replace with iref of cloned object
-                            PdfReference newXRef = iot[iref.ObjectID];
-                            Debug.Assert(newXRef != null);
-                            Debug.Assert(newXRef.Document == Owner);
-                            dict.Elements[name] = newXRef;
-                        }
-                    }
-                    else if (item is PdfObject)
-                    {
-                        // Fix up inner objects
-                        FixUpObject_old(iot, (PdfObject)item);
-                    }
-                }
-            }
-            else if ((array = value as PdfArray) != null)
-            {
-                // Set document for cloned direct objects
-                if (array.Owner == null)
-                    array.Document = Owner;
-                else
-                    Debug.Assert(array.Owner == Owner);
-
-                // Search for indirect references in all array elements
-                int count = array.Elements.Count;
-                for (int idx = 0; idx < count; idx++)
-                {
-                    PdfItem item = array.Elements[idx];
-                    // Is item an iref?
-                    PdfReference iref = item as PdfReference;
-                    if (iref != null)
-                    {
-                        // Does the iref belongs to this document?
-                        if (iref.Document == Owner)
-                        {
-                            // Yes: fine
-                            continue;
-                        }
-                        else
-                        {
-                            Debug.Assert(iref.Document == iot.ExternalDocument);
-                            // No: replace with iref of cloned object
-                            PdfReference newXRef = iot[iref.ObjectID];
-                            Debug.Assert(newXRef != null);
-                            Debug.Assert(newXRef.Document == Owner);
-                            array.Elements[idx] = newXRef;
-                        }
-                    }
-                    else if (item is PdfObject)
-                    {
-                        // Fix up inner objects
-                        FixUpObject_old(iot, (PdfObject)item);
-                    }
-                }
-            }
-        }
-#endif
-
+        
         //    /// <summary>
         //    /// Returns ???
         //    /// </summary>

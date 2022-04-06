@@ -47,11 +47,7 @@ namespace MigraDocCore.Rendering.ChartMapper
         font.Color = XColor.Empty;
       else
       {
-#if noCMYK
-        font.Color = XColor.FromArgb((int)domFont.Color.Argb);
-#else
         font.Color = ColorHelper.ToXColor(domFont.Color, domFont.Document.UseCmykColor);
-#endif
       }
       font.Italic = domFont.Italic;
       if (!domFont.IsNull("Name"))

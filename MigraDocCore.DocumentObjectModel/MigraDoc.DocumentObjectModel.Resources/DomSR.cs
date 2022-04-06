@@ -22,12 +22,6 @@ namespace MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Resource
                 message = GetString(id);
                 if (message != null)
                 {
-#if DEBUG
-                    if (Regex.Matches(message, @"\{[0-9]\}").Count > args.Length)
-                    {
-                        //TODO too many placeholders or too less args...
-                    }
-#endif
                     message = String.Format(message, args);
                 }
                 else

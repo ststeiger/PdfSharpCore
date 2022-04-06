@@ -29,13 +29,4 @@
 
 namespace PdfSharpCore.Pdf.Advanced
 {
-#if true_  // Not yet used.
-    /// <summary>
-    /// TODO
-    /// </summary>
-    public static class PdfPageInterals
-    {
-        // TODO
-    }
-#endif
 }

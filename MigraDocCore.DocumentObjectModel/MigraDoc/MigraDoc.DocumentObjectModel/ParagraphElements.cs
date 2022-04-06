@@ -86,7 +86,7 @@ namespace MigraDocCore.DocumentObjectModel
         {
             if (text == null)
                 throw new ArgumentNullException("text");
-#if true
+
             Text txt = null;
             string[] lines = text.Split('\n');
             int lineCount = lines.Length;
@@ -108,12 +108,6 @@ namespace MigraDocCore.DocumentObjectModel
                     this.AddLineBreak();
             }
             return txt;
-#else
-      Text txt = new Text();
-      txt.Content = text;
-      this.Add(txt);
-      return txt;
-#endif
         }
 
         /// <summary>

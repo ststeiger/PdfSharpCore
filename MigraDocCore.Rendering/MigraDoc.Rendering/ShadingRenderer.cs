@@ -69,11 +69,7 @@ namespace MigraDocCore.Rendering
         return;
       if (IsVisible())
       {
-#if noCMYK
-        this.brush = new XSolidBrush(XColor.FromArgb((int)this.shading.Color.Argb));
-#else
         this.brush = new XSolidBrush(ColorHelper.ToXColor(this.shading.Color, this.shading.Document.UseCmykColor));
-#endif
       }
     }
     private Shading shading;

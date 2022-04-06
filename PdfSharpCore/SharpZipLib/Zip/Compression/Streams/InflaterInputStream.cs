@@ -45,10 +45,6 @@ using System.IO;
 
 // ReSharper disable RedundantThisQualifier
 
-#if false//!NETCF_1_0
-using System.Security.Cryptography;
-#endif
-
 namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
 {
 
@@ -174,15 +170,7 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
                 toRead -= count;
             }
 
-#if false//!NETCF_1_0
-			if ( cryptoTransform != null ) {
-				clearTextLength = cryptoTransform.TransformBlock(rawData, 0, rawLength, clearText, 0);
-			}
-			else 
-#endif
-            {
-                clearTextLength = rawLength;
-            }
+            clearTextLength = rawLength;
 
             available = clearTextLength;
         }
@@ -316,49 +304,15 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
             return (uint)ReadLeInt() | ((long)ReadLeInt() << 32);
         }
 
-#if false//!NETCF_1_0
-		/// <summary>
-		/// Get/set the <see cref="ICryptoTransform"/> to apply to any data.
-		/// </summary>
-		/// <remarks>Set this value to null to have no transform applied.</remarks>
-		public ICryptoTransform CryptoTransform
-		{
-			set { 
-				cryptoTransform = value;
-				if ( cryptoTransform != null ) {
-					if ( rawData == clearText ) {
-						if ( internalClearText == null ) {
-							internalClearText = new byte[rawData.Length];
-						}
-						clearText = internalClearText;
-					}
-					clearTextLength = rawLength;
-					if ( available > 0 ) {
-						cryptoTransform.TransformBlock(rawData, rawLength - available, available, clearText, rawLength - available);
-					}
-				} else {
-					clearText = rawData;
-					clearTextLength = rawLength;
-				}
-			}
-		}
-#endif
-
         #region Instance Fields
         int rawLength;
         byte[] rawData;
 
         int clearTextLength;
         byte[] clearText;
-#if false//!NETCF_1_0		
-		byte[] internalClearText;
-#endif
 
         int available;
 
-#if false//!NETCF_1_0
-		ICryptoTransform cryptoTransform;
-#endif
         Stream inputStream;
         #endregion
     }
@@ -511,9 +465,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
         /// </summary>		
         protected void StopDecrypting()
         {
-#if false//!NETCF_1_0			
-			inputBuffer.CryptoTransform = null;
-#endif
         }
 
         /// <summary>
@@ -665,41 +616,7 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
         {
             throw new NotSupportedException("InflaterInputStream WriteByte not supported");
         }
-
-#if !NETFX_CORE && !UWP && !PORTABLE
-        /// <summary>
-        /// Entry point to begin an asynchronous write.  Always throws a NotSupportedException.
-        /// </summary>
-        /// <param name="buffer">The buffer to write data from</param>
-        /// <param name="offset">Offset of first byte to write</param>
-        /// <param name="count">The maximum number of bytes to write</param>
-        /// <param name="callback">The method to be called when the asynchronous write operation is completed</param>
-        /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests</param>
-        /// <returns>An <see cref="System.IAsyncResult">IAsyncResult</see> that references the asynchronous write</returns>
-        /// <exception cref="NotSupportedException">Any access</exception>
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-        {
-            throw new NotSupportedException("InflaterInputStream BeginWrite not supported");
-        }
-#endif
-
-#if !NETFX_CORE && !UWP && !PORTABLE
-        /// <summary>
-        /// Closes the input stream.  When <see cref="IsStreamOwner"></see>
-        /// is true the underlying stream is also closed.
-        /// </summary>
-        public override void Close()
-        {
-            if (!isClosed)
-            {
-                isClosed = true;
-                if (isStreamOwner)
-                {
-                    baseInputStream.Close();
-                }
-            }
-        }
-#else
+        
         public void Close()
         {
             if (!isClosed)
@@ -712,7 +629,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
                 }
             }
         }
-#endif
 
         /// <summary>
         /// Reads decompressed data into the provided buffer byte array
@@ -794,12 +710,10 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
         ///// </summary>
         ////protected long csize;
 
-#if true || !NETFX_CORE
         /// <summary>
         /// Flag indicating wether this instance has been closed or not.
         /// </summary>
         bool isClosed;
-#endif
 
         /// <summary>
         /// Flag indicating wether this instance is designated the stream owner.

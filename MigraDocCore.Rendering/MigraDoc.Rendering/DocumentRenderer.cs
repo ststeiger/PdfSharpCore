@@ -73,16 +73,7 @@ namespace MigraDocCore.Rendering
             this.previousListNumbers[ListType.NumberList3] = 0;
             this.formattedDocument = new FormattedDocument(this.document, this);
             //REM: Size should not be necessary in this case.
-#if true
             XGraphics gfx = XGraphics.CreateMeasureContext(new XSize(2000, 2000), XGraphicsUnit.Point, XPageDirection.Downwards);
-#else
-#if GDI
-      XGraphics gfx = XGraphics.FromGraphics(Graphics.FromHwnd(IntPtr.Zero), new XSize(2000, 2000));
-#endif
-#if WPF
-      XGraphics gfx = XGraphics.FromDrawingContext(null, new XSize(2000, 2000), XGraphicsUnit.Point);
-#endif
-#endif
             //      this.previousListNumber = int.MinValue;
             //gfx.MUH = this.unicode;
             //gfx.MFEH = this.fontEmbedding;
@@ -358,7 +349,6 @@ namespace MigraDocCore.Rendering
         internal int ProgressMaximum;
         internal int ProgressCompleted;
 
-#if true
         /// <summary>
         /// Gets or sets the private fonts of the document.
         /// </summary>
@@ -369,6 +359,5 @@ namespace MigraDocCore.Rendering
         }
         //[DV]
         internal XPrivateFontCollection privateFonts;
-#endif
     }
 }

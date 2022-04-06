@@ -68,13 +68,8 @@ namespace PdfSharpCore.Pdf.Internal
             {
                 if (_winAnsiEncoding == null)
                 {
-#if !SILVERLIGHT && !NETFX_CORE && !UWP && !__IOS__ && !__ANDROID__ && !PORTABLE
-                    // Use .net encoder if available.
-                    _winAnsiEncoding = Encoding.GetEncoding(1252);
-#else
                     // Use own implementation in Silverlight and WinRT
                     _winAnsiEncoding = new AnsiEncoding();
-#endif
                 }
                 return _winAnsiEncoding;
             }
@@ -114,88 +109,7 @@ namespace PdfSharpCore.Pdf.Internal
         //{
         //  return RawString(bytes, 0, bytes.Length);
         //}
-
-#if true_
-        public static string EncodeAsLiteral(string text, bool unicode)
-        {
-            if (text == null || text == "")
-                return "<>";
-
-            StringBuilder pdf = new StringBuilder("");
-            if (!unicode)
-            {
-                byte[] bytes = WinAnsiEncoding.GetBytes(text);
-                int count = bytes.Length;
-                pdf.Append("(");
-                for (int idx = 0; idx < count; idx++)
-                {
-                    char ch = (char)bytes[idx];
-                    if (ch < 32)
-                    {
-                        switch (ch)
-                        {
-                            case '\n':
-                                pdf.Append("\\n");
-                                break;
-
-                            case '\r':
-                                pdf.Append("\\r");
-                                break;
-
-                            case '\t':
-                                pdf.Append("\\t");
-                                break;
-
-                            case '\f':
-                                pdf.Append("\\f");
-                                break;
-
-                            default:
-                                pdf.Append(InvalidChar); // TODO
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        switch (ch)
-                        {
-                            case '(':
-                                pdf.Append("\\(");
-                                break;
-
-                            case ')':
-                                pdf.Append("\\)");
-                                break;
-
-                            case '\\':
-                                pdf.Append("\\\\");
-                                break;
-
-                            default:
-                                pdf.Append(ch);
-                                break;
-                        }
-                    }
-                }
-                pdf.Append(')');
-            }
-            else
-            {
-                pdf.Append("<");
-                byte[] bytes = UnicodeEncoding.GetBytes(text);
-                int count = bytes.Length;
-                for (int idx = 0; idx < count; idx += 2)
-                {
-                    pdf.AppendFormat("{0:X2}{1:X2}", bytes[idx + 1], bytes[idx]);
-                    if (idx != 0 && (idx % 48) == 0)
-                        pdf.Append("\n");
-                }
-                pdf.Append(">");
-            }
-            return pdf.ToString();
-        }
-#endif
-
+        
         //public static string EncodeAsLiteral(string text)
         //{
         //  return EncodeAsLiteral(text, false);

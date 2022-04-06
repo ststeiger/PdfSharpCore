@@ -390,10 +390,6 @@ namespace MigraDocCore.Rendering
           leftOffset += table.Columns[0].LeftPadding;
           layoutInfo.Left = -leftOffset;
         }
-#if DEBUG
-        else
-          table.GetType();
-#endif
       }
 
       switch (this.table.Rows.Alignment)

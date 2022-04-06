@@ -211,12 +211,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
                     //					}
                 }
 
-#if DebugDeflation
-				if ( DeflaterConstants.DEBUGGING && (code != 65536) ) 
-				{
-					throw new SharpZipBaseException("Inconsistent bl_counts!");
-				}
-#endif
                 for (int i = 0; i < numCodes; i++)
                 {
                     int bits = length[i];
@@ -726,12 +720,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
             }
             literalTree.WriteTree(blTree);
             distTree.WriteTree(blTree);
-
-#if DebugDeflation
-			if (DeflaterConstants.DEBUGGING) {
-				blTree.CheckEmpty();
-			}
-#endif
         }
 
         /// <summary>
@@ -780,19 +768,7 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
                 }
             }
 
-#if DebugDeflation
-			if (DeflaterConstants.DEBUGGING) {
-				Console.Write("EOF: ");
-			}
-#endif
             literalTree.WriteSymbol(EOF_SYMBOL);
-
-#if DebugDeflation
-			if (DeflaterConstants.DEBUGGING) {
-				literalTree.CheckEmpty();
-				distTree.CheckEmpty();
-			}
-#endif
         }
 
         /// <summary>
@@ -804,11 +780,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression
         /// <param name="lastBlock">True if this is the last block</param>
         public void FlushStoredBlock(byte[] stored, int storedOffset, int storedLength, bool lastBlock)
         {
-#if DebugDeflation
-			//			if (DeflaterConstants.DEBUGGING) {
-			//				//Console.WriteLine("Flushing stored block "+ storedLength);
-			//			}
-#endif
             pending.WriteBits((DeflaterConstants.STORED_BLOCK << 1) + (lastBlock ? 1 : 0), 3);
             pending.AlignToByte();
             pending.WriteShort(storedLength);

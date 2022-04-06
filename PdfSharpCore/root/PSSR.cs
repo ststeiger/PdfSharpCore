@@ -352,17 +352,8 @@ namespace PdfSharpCore
                         Lock.EnterFontFactory();
                         if (_resmngr == null)
                         {
-#if true_
-                            // Force the English language.
-                            System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
-#endif
-#if !NETFX_CORE && !UWP && !PORTABLE
-                            _resmngr = new ResourceManager("PdfSharpCore.Resources.Messages",
-                                Assembly.GetExecutingAssembly());
-#else
                             _resmngr = new ResourceManager("PdfSharpCore.Resources.Messages",
                                 typeof(PSSR).GetTypeInfo().Assembly);
-#endif
                         }
                     }
                     finally { Lock.ExitFontFactory(); }
@@ -372,27 +363,8 @@ namespace PdfSharpCore
         }
         static ResourceManager _resmngr;
 
-        /// <summary>
-        /// Writes all messages defined by PSMsgID.
-        /// </summary>
-        [Conditional("DEBUG")]
-        public static void TestResourceMessages()
-        {
-#if !SILVERLIGHT && !__IOS__ && !__ANDROID__ && !PORTABLE
-            string[] names = Enum.GetNames(typeof(PSMsgID));
-            foreach (string name in names)
-            {
-                string message = String.Format("{0}: '{1}'", name, ResMngr.GetString(name));
-                Debug.Assert(message != null);
-                Debug.WriteLine(message);
-            }
-#else
-#endif
-        }
-
         static PSSR()
         {
-            TestResourceMessages();
         }
 
         #endregion

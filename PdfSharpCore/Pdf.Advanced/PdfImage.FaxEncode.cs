@@ -750,28 +750,19 @@ namespace PdfSharpCore.Pdf.Advanced
         /// <param name="bits">The count of bits.</param>
         internal void WriteBits(uint value, uint bits)
         {
-#if true
             // TODO: Try to make this faster!
 
             // If we have to write more bits than fit into the buffer, we fill
             // the buffer and call the same routine recursively for the rest.
-#if USE_GOTO
-            // Use GOTO instead of end recursion: (is this faster?)
-            SimulateRecursion:
-#endif
             if (bits + _bitsInBuffer > 8)
             {
                 // We can't add all bits this time.
                 uint bitsNow = 8 - _bitsInBuffer;
                 uint bitsRemainder = bits - bitsNow;
                 WriteBits(value >> (int)(bitsRemainder), bitsNow); // that fits
-#if USE_GOTO
-                bits = bitsRemainder;
-                goto SimulateRecursion;
-#else
+
         WriteBits(value, bitsRemainder);
         return;
-#endif
             }
 
             _buffer = (_buffer << (int)bits) + (value & masks[bits]);
@@ -784,25 +775,6 @@ namespace PdfSharpCore.Pdf.Advanced
                 _bitsInBuffer = 0;
                 ++_bytesOffsetWrite;
             }
-#else
-            // Simple implementation writing bit by bit:
-            int mask = 1 << (int)(bits - 1);
-            for (int b = 0; b < bits; ++b)
-            {
-                if ((value & mask) != 0)
-                    buffer = (buffer << 1) + 1;
-                else
-                    buffer = buffer << 1;
-                ++bitsInBuffer;
-                mask /= 2;
-                if (bitsInBuffer == 8)
-                {
-                    imageData[bytesOffsetWrite] = (byte)buffer;
-                    bitsInBuffer = 0;
-                    ++bytesOffsetWrite;
-                }
-            }
-#endif
         }
 
         /// <summary>

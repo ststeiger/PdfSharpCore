@@ -30,18 +30,8 @@
 using System;
 using System.Diagnostics;
 using System.Text;
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-#endif
-#if WPF
-using System.Windows;
-using System.Windows.Media;
-#endif
 using PdfSharpCore.Pdf.Internal;
-#if !EDF_CORE
 using PdfSharpCore.Drawing;
-#endif
 
 namespace PdfSharpCore.Fonts.OpenType
 {
@@ -221,11 +211,7 @@ namespace PdfSharpCore.Fonts.OpenType
 
             //flags = image.
 
-#if !EDF_CORE
             Encoding ansi = PdfEncoders.WinAnsiEncoding; // System.Text.Encoding.Default;
-#else
-            Encoding ansi = null; //$$$ PdfEncoders.WinAnsiEncoding; // System.Text.Encoding.Default;
-#endif
 
             Encoding unicode = Encoding.Unicode;
             byte[] bytes = new byte[256];

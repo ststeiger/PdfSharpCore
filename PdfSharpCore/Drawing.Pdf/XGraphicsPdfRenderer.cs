@@ -34,21 +34,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Text;
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-#endif
-#if WPF
-using System.Windows;
-using System.Windows.Media;
-using SysPoint = System.Windows.Point;
-using SysSize = System.Windows.Size;
-#endif
-#if NETFX_CORE
-using Windows.UI.Xaml.Media;
-using SysPoint = Windows.Foundation.Point;
-using SysSize = Windows.Foundation.Size;
-#endif
 using PdfSharpCore.Fonts.OpenType;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf;
@@ -392,34 +377,9 @@ namespace PdfSharpCore.Drawing.Pdf
             if (pen == null && brush == null)
                 throw new ArgumentNullException("pen");
 
-#if CORE || PORTABLE
             Realize(pen, brush);
             AppendPath(path._corePath);
             AppendStrokeFill(pen, brush, path.FillMode, false);
-#endif
-#if GDI && !WPF
-            Realize(pen, brush);
-            AppendPath(path._gdipPath);
-            AppendStrokeFill(pen, brush, path.FillMode, false);
-#endif
-#if WPF && !GDI
-            Realize(pen, brush);
-            AppendPath(path._pathGeometry);
-            AppendStrokeFill(pen, brush, path.FillMode, false);
-#endif
-#if WPF && GDI
-            Realize(pen, brush);
-            if (_gfx.TargetContext == XGraphicTargetContext.GDI)
-                AppendPath(path._gdipPath);
-            else
-                AppendPath(path._pathGeometry);
-            AppendStrokeFill(pen, brush, path.FillMode, false);
-#endif
-#if NETFX_CORE
-            Realize(pen, brush);
-            AppendPath(path._pathGeometry);
-            AppendStrokeFill(pen, brush, path.FillMode, false);
-#endif
         }
 
         // ----- DrawString ---------------------------------------------------------------------------
@@ -549,7 +509,6 @@ namespace PdfSharpCore.Drawing.Pdf
                 //verticalOffset = font.Size * Const.BoldEmphasis / 2;
             }
 
-#if ITALIC_SIMULATION
             if (italicSimulation)
             {
                 if (_gfxState.ItalicSimulationOn)
@@ -583,10 +542,7 @@ namespace PdfSharpCore.Drawing.Pdf
                     AppendFormatArgs("{0:" + format2 + "} {1:" + format2 + "} Td {2} Tj\n", pos.X, pos.Y, text);
                 }
             }
-#else
-                AdjustTextMatrix(ref pos);
-                AppendFormat2("{0:" + format2 + "} {1:" + format2 + "} Td {2} Tj\n", pos.X, pos.Y, text);
-#endif
+
             if (underline)
             {
                 double underlinePosition = lineSpace * realizedFont.FontDescriptor._descriptor.UnderlinePosition / font.CellSpace;
@@ -1139,30 +1095,6 @@ namespace PdfSharpCore.Drawing.Pdf
             }
         }
 
-#if WPF || NETFX_CORE
-        void AppendPartialArc(SysPoint point1, SysPoint point2, double rotationAngle,
-            SysSize size, bool isLargeArc, SweepDirection sweepDirection, PathStart pathStart)
-        {
-            const string format = Config.SignificantFigures4;
-
-            Debug.Assert(pathStart == PathStart.Ignore1st);
-
-            int pieces;
-            PointCollection points = GeometryHelper.ArcToBezier(point1.X, point1.Y, size.Width, size.Height, rotationAngle, isLargeArc,
-              sweepDirection == SweepDirection.Clockwise, point2.X, point2.Y, out pieces);
-
-            int count = points.Count;
-            int start = count % 3 == 1 ? 1 : 0;
-            if (start == 1)
-                AppendFormatPoint("{0:" + format + "} {1:" + format + "} m\n", points[0].X, points[0].Y);
-            for (int idx = start; idx < count; idx += 3)
-                AppendFormat3Points("{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "} {4:" + format + "} {5:" + format + "} c\n",
-                  points[idx].X, points[idx].Y,
-                  points[idx + 1].X, points[idx + 1].Y,
-                  points[idx + 2].X, points[idx + 2].Y);
-        }
-#endif
-
         /// <summary>
         /// Appends a Bézier curve for a cardinal spline through pt1 and pt2.
         /// </summary>
@@ -1175,60 +1107,6 @@ namespace PdfSharpCore.Drawing.Pdf
                 pt2.X, pt2.Y);
         }
 
-#if CORE_ 
-        /// <summary>
-        /// Appends the content of a GraphicsPath object.
-        /// </summary>
-        internal void AppendPath(GraphicsPath path)
-        {
-            int count = path.PointCount;
-            if (count == 0)
-                return;
-            PointF[] points = path.PathPoints;
-            Byte[] types = path.PathTypes;
-
-            for (int idx = 0; idx < count; idx++)
-            {
-                // From GDI+ documentation:
-                const byte PathPointTypeStart = 0; // move
-                const byte PathPointTypeLine = 1; // line
-                const byte PathPointTypeBezier = 3; // default Bezier (= cubic Bezier)
-                const byte PathPointTypePathTypeMask = 0x07; // type mask (lowest 3 bits).
-                //const byte PathPointTypeDashMode = 0x10; // currently in dash mode.
-                //const byte PathPointTypePathMarker = 0x20; // a marker for the path.
-                const byte PathPointTypeCloseSubpath = 0x80; // closed flag
-
-                byte type = types[idx];
-                switch (type & PathPointTypePathTypeMask)
-                {
-                    case PathPointTypeStart:
-                        //PDF_moveto(pdf, points[idx].X, points[idx].Y);
-                        AppendFormat("{0:" + format + "} {1:" + format + "} m\n", points[idx].X, points[idx].Y);
-                        break;
-
-                    case PathPointTypeLine:
-                        //PDF_lineto(pdf, points[idx].X, points[idx].Y);
-                        AppendFormat("{0:" + format + "} {1:" + format + "} l\n", points[idx].X, points[idx].Y);
-                        if ((type & PathPointTypeCloseSubpath) != 0)
-                            Append("h\n");
-                        break;
-
-                    case PathPointTypeBezier:
-                        Debug.Assert(idx + 2 < count);
-                        //PDF_curveto(pdf, points[idx].X, points[idx].Y, 
-                        //                 points[idx + 1].X, points[idx + 1].Y, 
-                        //                 points[idx + 2].X, points[idx + 2].Y);
-                        AppendFormat("{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "} {4:" + format + "} {5:" + format + "} c\n", points[idx].X, points[idx].Y,
-                            points[++idx].X, points[idx].Y, points[++idx].X, points[idx].Y);
-                        if ((types[idx] & PathPointTypeCloseSubpath) != 0)
-                            Append("h\n");
-                        break;
-                }
-            }
-        }
-#endif
-
-#if CORE  || __IOS__ || __ANDROID__ || PORTABLE
         /// <summary>
         /// Appends the content of a GraphicsPath object.
         /// </summary>
@@ -1281,66 +1159,7 @@ namespace PdfSharpCore.Drawing.Pdf
             //    }
             //}
         }
-#endif
 
-#if GDI
-        /// <summary>
-        /// Appends the content of a GraphicsPath object.
-        /// </summary>
-        internal void AppendPath(GraphicsPath path)
-        {
-#if true
-            AppendPath(XGraphics.MakeXPointArray(path.PathPoints, 0, path.PathPoints.Length), path.PathTypes);
-#else
-            int count = path.PointCount;
-            if (count == 0)
-                return;
-            PointF[] points = path.PathPoints;
-            Byte[] types = path.PathTypes;
-
-            for (int idx = 0; idx < count; idx++)
-            {
-                // From GDI+ documentation:
-                const byte PathPointTypeStart = 0; // move
-                const byte PathPointTypeLine = 1; // line
-                const byte PathPointTypeBezier = 3; // default Bezier (= cubic Bezier)
-                const byte PathPointTypePathTypeMask = 0x07; // type mask (lowest 3 bits).
-                //const byte PathPointTypeDashMode = 0x10; // currently in dash mode.
-                //const byte PathPointTypePathMarker = 0x20; // a marker for the path.
-                const byte PathPointTypeCloseSubpath = 0x80; // closed flag
-
-                byte type = types[idx];
-                switch (type & PathPointTypePathTypeMask)
-                {
-                    case PathPointTypeStart:
-                        //PDF_moveto(pdf, points[idx].X, points[idx].Y);
-                        AppendFormat("{0:" + format + "} {1:" + format + "} m\n", points[idx].X, points[idx].Y);
-                        break;
-
-                    case PathPointTypeLine:
-                        //PDF_lineto(pdf, points[idx].X, points[idx].Y);
-                        AppendFormat("{0:" + format + "} {1:" + format + "} l\n", points[idx].X, points[idx].Y);
-                        if ((type & PathPointTypeCloseSubpath) != 0)
-                            Append("h\n");
-                        break;
-
-                    case PathPointTypeBezier:
-                        Debug.Assert(idx + 2 < count);
-                        //PDF_curveto(pdf, points[idx].X, points[idx].Y, 
-                        //                 points[idx + 1].X, points[idx + 1].Y, 
-                        //                 points[idx + 2].X, points[idx + 2].Y);
-                        AppendFormat("{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "} {4:" + format + "} {5:" + format + "} c\n", points[idx].X, points[idx].Y,
-                            points[++idx].X, points[idx].Y, points[++idx].X, points[idx].Y);
-                        if ((types[idx] & PathPointTypeCloseSubpath) != 0)
-                            Append("h\n");
-                        break;
-                }
-            }
-#endif
-        }
-#endif
-
-#if CORE || GDI || __IOS__ || __ANDROID__ || PORTABLE
         void AppendPath(XPoint[] points, Byte[] types)
         {
             const string format = Config.SignificantFigures4;
@@ -1389,117 +1208,6 @@ namespace PdfSharpCore.Drawing.Pdf
                 }
             }
         }
-#endif
-
-#if WPF || NETFX_CORE
-        /// <summary>
-        /// Appends the content of a PathGeometry object.
-        /// </summary>
-        internal void AppendPath(PathGeometry geometry)
-        {
-            const string format = Config.SignificantFigures4;
-
-            foreach (PathFigure figure in geometry.Figures)
-            {
-#if DEBUG
-                //#warning For DdlGBE_Chart_Layout (WPF) execution stucks at this Assertion.
-                // The empty Figure is added via XGraphicsPath.CurrentPathFigure Getter.
-                // Some methods like XGraphicsPath.AddRectangle() or AddLine() use this emtpy Figure to add Segments, others like AddEllipse() don't.
-                // Here, _pathGeometry.AddGeometry() of course ignores this first Figure and adds a second.
-                // Encapsulate relevant Add methods to delete a first emty Figure or move the Addition of an first empty Figure to a GetOrCreateCurrentPathFigure() or simply remove Assertion?
-                // Look for:
-                // MAOS4STLA: CurrentPathFigure.
-
-
-                if (figure.Segments.Count == 0)
-                    42.GetType();
-                Debug.Assert(figure.Segments.Count > 0);
-#endif
-                // Skip the Move if the segment is empty. Workaround for empty segments. Empty segments should not occur (see Debug.Assert above).
-                if (figure.Segments.Count > 0)
-                {
-                    // Move to start point.
-                    SysPoint currentPoint = figure.StartPoint;
-                    AppendFormatPoint("{0:" + format + "} {1:" + format + "} m\n", currentPoint.X, currentPoint.Y);
-
-                    foreach (PathSegment segment in figure.Segments)
-                    {
-                        Type type = segment.GetType();
-                        if (type == typeof(LineSegment))
-                        {
-                            // Draw a single line.
-                            SysPoint point = ((LineSegment)segment).Point;
-                            currentPoint = point;
-                            AppendFormatPoint("{0:" + format + "} {1:" + format + "} l\n", point.X, point.Y);
-                        }
-                        else if (type == typeof(PolyLineSegment))
-                        {
-                            // Draw connected lines.
-                            PointCollection points = ((PolyLineSegment)segment).Points;
-                            foreach (SysPoint point in points)
-                            {
-                                currentPoint = point;  // I forced myself not to optimize this assignment.
-                                AppendFormatPoint("{0:" + format + "} {1:" + format + "} l\n", point.X, point.Y);
-                            }
-                        }
-                        else if (type == typeof(BezierSegment))
-                        {
-                            // Draw Bézier curve.
-                            BezierSegment seg = (BezierSegment)segment;
-                            SysPoint point1 = seg.Point1;
-                            SysPoint point2 = seg.Point2;
-                            SysPoint point3 = seg.Point3;
-                            AppendFormat3Points("{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "} {4:" + format + "} {5:" + format + "} c\n",
-                                point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y);
-                            currentPoint = point3;
-                        }
-                        else if (type == typeof(PolyBezierSegment))
-                        {
-                            // Draw connected Bézier curves.
-                            PointCollection points = ((PolyBezierSegment)segment).Points;
-                            int count = points.Count;
-                            if (count > 0)
-                            {
-                                Debug.Assert(count % 3 == 0, "Number of Points in PolyBezierSegment are not a multiple of 3.");
-                                for (int idx = 0; idx < count - 2; idx += 3)
-                                {
-                                    SysPoint point1 = points[idx];
-                                    SysPoint point2 = points[idx + 1];
-                                    SysPoint point3 = points[idx + 2];
-                                    AppendFormat3Points("{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "} {4:" + format + "} {5:" + format + "} c\n",
-                                        point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y);
-                                }
-                                currentPoint = points[count - 1];
-                            }
-                        }
-                        else if (type == typeof(ArcSegment))
-                        {
-                            // Draw arc.
-                            ArcSegment seg = (ArcSegment)segment;
-                            AppendPartialArc(currentPoint, seg.Point, seg.RotationAngle, seg.Size, seg.IsLargeArc, seg.SweepDirection, PathStart.Ignore1st);
-                            currentPoint = seg.Point;
-                        }
-                        else if (type == typeof(QuadraticBezierSegment))
-                        {
-                            QuadraticBezierSegment seg = (QuadraticBezierSegment)segment;
-                            currentPoint = seg.Point2;
-                            // TODOWPF: Undone because XGraphics has no such curve type
-                            throw new NotImplementedException("AppendPath with QuadraticBezierSegment.");
-                        }
-                        else if (type == typeof(PolyQuadraticBezierSegment))
-                        {
-                            PolyQuadraticBezierSegment seg = (PolyQuadraticBezierSegment)segment;
-                            currentPoint = seg.Points[seg.Points.Count - 1];
-                            // TODOWPF: Undone because XGraphics has no such curve type
-                            throw new NotImplementedException("AppendPath with PolyQuadraticBezierSegment.");
-                        }
-                    }
-                    if (figure.IsClosed)
-                        Append("h\n");
-                }
-            }
-        }
-#endif
 
         internal void Append(string value)
         {
@@ -1509,11 +1217,6 @@ namespace PdfSharpCore.Drawing.Pdf
         internal void AppendFormatArgs(string format, params object[] args)
         {
             _content.AppendFormat(CultureInfo.InvariantCulture, format, args);
-#if DEBUG
-            string dummy = _content.ToString();
-            dummy = dummy.Substring(Math.Max(0, dummy.Length - 100));
-            dummy.GetType();
-#endif
         }
 
         internal void AppendFormatString(string format, string s)
@@ -1884,62 +1587,11 @@ namespace PdfSharpCore.Drawing.Pdf
         {
             // If EffectiveCtm is not yet realized InverseEffectiveCtm is invalid.
             Debug.Assert(_gfxState.UnrealizedCtm.IsIdentity, "Somewhere a RealizeTransform is missing.");
-#if true
             // See in #else case why this is correct.
             XPoint pt = _gfxState.WorldTransform.Transform(point);
             return _gfxState.InverseEffectiveCtm.Transform(new XPoint(pt.X, PageHeightPt / DefaultViewMatrix.M22 - pt.Y));
-#else
-            // Get inverted PDF world transform matrix.
-            XMatrix invers = _gfxState.EffectiveCtm;
-            invers.Invert();
-
-            // Apply transform in Windows world space.
-            XPoint pt1 = _gfxState.WorldTransform.Transform(point);
-#if true
-            // Do the transformation (see #else case) in one step.
-            XPoint pt2 = new XPoint(pt1.X, PageHeightPt / DefaultViewMatrix.M22 - pt1.Y);
-#else
-            // Replicable version
-
-            // Apply default transformation.
-            pt1.X = pt1.X * DefaultViewMatrix.M11;
-            pt1.Y = pt1.Y * DefaultViewMatrix.M22;
-
-            // Convert from Windows space to PDF space.
-            XPoint pt2 = new XPoint(pt1.X, PageHeightPt - pt1.Y);
-
-            pt2.X = pt2.X / DefaultViewMatrix.M11;
-            pt2.Y = pt2.Y / DefaultViewMatrix.M22;
-#endif
-            XPoint pt3 = invers.Transform(pt2);
-            return pt3;
-#endif
         }
         #endregion
-
-#if GDI
-        [Conditional("DEBUG")]
-        void DumpPathData(PathData pathData)
-        {
-            XPoint[] points = new XPoint[pathData.Points.Length];
-            for (int i = 0; i < points.Length; i++)
-                points[i] = new XPoint(pathData.Points[i].X, pathData.Points[i].Y);
-
-            DumpPathData(points, pathData.Types);
-        }
-#endif
-#if CORE || GDI
-        [Conditional("DEBUG")]
-        void DumpPathData(XPoint[] points, byte[] types)
-        {
-            int count = points.Length;
-            for (int idx = 0; idx < count; idx++)
-            {
-                string info = PdfEncoders.Format("{0:X}   {1:####0.000} {2:####0.000}", types[idx], points[idx].X, points[idx].Y);
-                Debug.WriteLine(info, "PathData");
-            }
-        }
-#endif
 
         /// <summary>
         /// Gets the owning PdfDocument of this page or form.

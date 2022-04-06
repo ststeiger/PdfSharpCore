@@ -45,18 +45,6 @@ namespace PdfSharpCore.SharpZipLib
     /// A variety of other exceptions are possible for example <see cref="ArgumentNullException"></see></remarks>
     internal class SharpZipBaseException : ApplicationException
     {
-#if false//!NETCF_1_0 && !NETCF_2_0
-		/// <summary>
-		/// Deserialization constructor 
-		/// </summary>
-		/// <param name="info"><see cref="System.Runtime.Serialization.SerializationInfo"/> for this constructor</param>
-		/// <param name="context"><see cref="StreamingContext"/> for this constructor</param>
-		protected SharpZipBaseException(SerializationInfo info, StreamingContext context )
-			: base( info, context )
-		{
-		}
-#endif
-
         /// <summary>
         /// Initializes a new instance of the SharpZipBaseException class.
         /// </summary>

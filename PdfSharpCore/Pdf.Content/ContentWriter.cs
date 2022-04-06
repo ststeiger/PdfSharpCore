@@ -42,20 +42,13 @@ namespace PdfSharpCore.Pdf.Content
         public ContentWriter(Stream contentStream)
         {
             _stream = contentStream;
-#if DEBUG
-            //layout = PdfWriterLayout.Verbose;
-#endif
         }
 
         public void Close(bool closeUnderlyingStream)
         {
             if (_stream != null && closeUnderlyingStream)
             {
-#if UWP || PORTABLE
                 _stream.Dispose();
-#else
-                _stream.Close();
-#endif
                 _stream = null;
             }
         }

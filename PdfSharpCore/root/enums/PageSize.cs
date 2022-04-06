@@ -137,38 +137,6 @@ namespace PdfSharpCore
         /// </summary>
         A6 = 19,
 
-#if true_
-        /// <summary>
-        /// Identifies a paper sheet size of 917 mm times 1297 mm or 36.00 inch times 51.20 inch.
-        /// </summary>
-        C0 = 19,
-
-        /// <summary>
-        /// Identifies a paper sheet size of 648 mm times 917 mm or 25.60 inch times 36.00 inch.
-        /// </summary>
-        C1 = 20,
-
-        /// <summary>
-        /// Identifies a paper sheet size of 458 mm times 648 mm or 18.00 inch times 25.60 inch.
-        /// </summary>
-        C2 = 21,
-
-        /// <summary>
-        /// Identifies a paper sheet size of 324 mm times 458 mm or 12.80 inch times 18.00 inch.
-        /// </summary>
-        C3 = 22,
-
-        /// <summary>
-        /// Identifies a paper sheet size of 229 mm times 324 mm or 9.00 inch times 12.80 inch.
-        /// </summary>
-        C4 = 23,
-
-        /// <summary>
-        /// Identifies a paper sheet size of 162 mm times 229 mm or 6.40 inch times 9.0 inch.
-        /// </summary>
-        C5 = 24,
-#endif
-
         // Current U.S. loose paper sizes 
         // see http://www.reference.com/browse/wiki/Paper_size
 

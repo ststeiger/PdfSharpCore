@@ -97,11 +97,7 @@ namespace PdfSharpCore.Pdf.IO
             _lexer.Position = position;
             int objectNumber = ReadInteger();
             int generationNumber = ReadInteger();
-#if DEBUG && CORE
-            if (objectNumber == 1074)
-                GetType();
-#endif
-            return new PdfObjectID(objectNumber, generationNumber);
+           return new PdfObjectID(objectNumber, generationNumber);
         }
 
 
@@ -116,11 +112,6 @@ namespace PdfSharpCore.Pdf.IO
         /// <param name="fromObjecStream">If true, the objects is parsed from an object stream.</param>
         public PdfObject ReadObject(PdfObject pdfObject, PdfObjectID objectID, bool includeReferences, bool fromObjecStream)
         {
-#if DEBUG_
-            Debug.WriteLine("ReadObject: " + objectID);
-            if (objectID.ObjectNumber == 20)
-                GetType();
-#endif
             int objectNumber = objectID.ObjectNumber;
             int generationNumber = objectID.GenerationNumber;
             if (!fromObjecStream)
@@ -129,42 +120,10 @@ namespace PdfSharpCore.Pdf.IO
                 objectNumber = ReadInteger();
                 generationNumber = ReadInteger();
             }
-#if DEBUG
-            // The following assertion sometime failed (see below)
-            //Debug.Assert(objectID == new PdfObjectID(objectNumber, generationNumber));
-            if (!fromObjecStream && objectID != new PdfObjectID(objectNumber, generationNumber))
-            {
-                // A special kind of bug? Or is this an undocumented PDF feature?
-                // PDF4NET 2.6 provides a sample called 'Unicode', which produces a file 'unicode.pdf'
-                // The iref table of this file contains the following entries:
-                //    iref
-                //    0 148
-                //    0000000000 65535 f
-                //    0000000015 00000 n
-                //    0000000346 00000 n
-                //    ....
-                //    0000083236 00000 n
-                //    0000083045 00000 n
-                //    0000083045 00000 n
-                //    0000083045 00000 n
-                //    0000083045 00000 n
-                //    0000080334 00000 n
-                //    ....
-                // Object 84, 85, 86, and 87 maps to the same dictionary, but all PDF readers I tested
-                // ignores this mismatch! The following assertion failed about 50 times with this file.
-#if true_
-                string message = String.Format("xref entry {0} {1} maps to object {2} {3}.",
-                    objectID.ObjectNumber, objectID.GenerationNumber, objectNumber, generationNumber);
-                Debug.Assert(false, message);
-#endif
-            }
-#endif
+
             // Always use object ID from iref table (see above).
             objectNumber = objectID.ObjectNumber;
             generationNumber = objectID.GenerationNumber;
-#if true_
-            Debug.WriteLine(String.Format("obj: {0} {1}", objectNumber, generationNumber));
-#endif
             if (!fromObjecStream)
                 ReadSymbol(Symbol.Obj);
 
@@ -267,41 +226,14 @@ namespace PdfSharpCore.Pdf.IO
             {
                 PdfDictionary dict = (PdfDictionary)pdfObject;
                 Debug.Assert(checkForStream, "Unexpected stream...");
-#if true_
-                ReadStream(dict);
-#else
                 int length = GetStreamLength(dict);
                 byte[] bytes = _lexer.ReadStream(length);
-#if true_
-                if (dict.Elements.GetString("/Filter") == "/FlateDecode")
-                {
-                    if (dict.Elements["/Subtype"] == null)
-                    {
-                        try
-                        {
-                            byte[] decoded = Filtering.FlateDecode.Decode(bytes);
-                            if (decoded.Length == 0)
-                                goto End;
-                            string pageContent = Filtering.FlateDecode.DecodeToString(bytes);
-                            if (pageContent.Length > 100)
-                                pageContent = pageContent.Substring(pageContent.Length - 100);
-                            pageContent.GetType();
-                            bytes = decoded;
-                            dict.Elements.Remove("/Filter");
-                            dict.Elements.SetInteger("/Length", bytes.Length);
-                        }
-                        catch
-                        {
-                        }
-                    }
-                End: ;
-                }
-#endif
+
                 PdfDictionary.PdfStream stream = new PdfDictionary.PdfStream(bytes, dict);
                 dict.Stream = stream;
                 ReadSymbol(Symbol.EndStream);
                 symbol = ScanNextToken();
-#endif
+
                 if (symbol == Symbol.Eof)
                 {
                     symbol = Symbol.EndObj;
@@ -382,20 +314,9 @@ namespace PdfSharpCore.Pdf.IO
             return array;
         }
 
-#if DEBUG_
-        static int ReadDictionaryCounter;
-#endif
-
         internal PdfDictionary ReadDictionary(PdfDictionary dict, bool includeReferences)
         {
             Debug.Assert(Symbol == Symbol.BeginDictionary);
-
-#if DEBUG_
-            ReadDictionaryCounter++;
-            Debug.WriteLine(ReadDictionaryCounter.ToString());
-            if (ReadDictionaryCounter == 101)
-                GetType();
-#endif
 
             if (dict == null)
                 dict = new PdfDictionary(_document);
@@ -422,21 +343,11 @@ namespace PdfSharpCore.Pdf.IO
             return dict;
         }
 
-#if DEBUG_
-        static int ParseObjectCounter;
-#endif
-
         /// <summary>
         /// Parses whatever comes until the specified stop symbol is reached.
         /// </summary>
         private void ParseObject(Symbol stop)
         {
-#if DEBUG_
-            ParseObjectCounter++;
-            Debug.WriteLine(ParseObjectCounter.ToString());
-            if (ParseObjectCounter == 178)
-                GetType();
-#endif
             Symbol symbol;
             while ((symbol = ScanNextToken()) != Symbol.Eof)
             {
@@ -884,40 +795,11 @@ namespace PdfSharpCore.Pdf.IO
         internal PdfReference ReadCompressedObject(PdfObjectID objectID, int index)
         {
             PdfReference iref;
-#if true
             Debug.Assert(_document._irefTable.ObjectTable.ContainsKey(objectID));
             if (!_document._irefTable.ObjectTable.TryGetValue(objectID, out iref))
             {
                 throw new NotImplementedException("This case is not coded or something else went wrong");
             }
-#else
-            // We should never come here because the object stream must be a type 1 entry in the xref stream
-            // and iref was created before.
-
-            // Has the specified object already an iref in the object table?
-            if (!_document._irefTable.ObjectTable.TryGetValue(objectID, out iref))
-            {
-                try
-                {
-#if true_
-                    iref = new PdfReference(objectID,);
-                    iref.ObjectID = objectID;
-                    _document._irefTable.Add(os);
-#else
-                    PdfDictionary dict = (PdfDictionary)ReadObject(null, objectID, false, false);
-                    PdfObjectStream os = new PdfObjectStream(dict);
-                    iref = new PdfReference(os);
-                    iref.ObjectID = objectID;
-                    _document._irefTable.Add(os);
-#endif
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.Message);
-                    throw;
-                }
-            }
-#endif
 
             // Read in object stream object when we come here for the very first time.
             if (iref.Value == null)
@@ -964,10 +846,6 @@ namespace PdfSharpCore.Pdf.IO
         /// </summary>
         internal PdfReference ReadCompressedObject(int objectNumber, int offset)
         {
-#if DEBUG__
-            if (objectNumber == 1034)
-                GetType();
-#endif
             // Generation is always 0 for compressed objects.
             PdfObjectID objectID = new PdfObjectID(objectNumber);
             _lexer.Position = offset;
@@ -991,10 +869,6 @@ namespace PdfSharpCore.Pdf.IO
             for (int idx = 0; idx < n; idx++)
             {
                 int number = ReadInteger();
-#if DEBUG
-                if (number == 1074)
-                    GetType();
-#endif
                 int offset = ReadInteger() + first;  // Calculate absolute offset.
                 header[idx] = new int[] { number, offset };
             }
@@ -1231,16 +1105,6 @@ namespace PdfSharpCore.Pdf.IO
                 bytes = DecodeCrossReferenceStream(bytesRaw, columns, predictor);
             }
 
-#if DEBUG_
-            for (int idx = 0; idx < bytes.Length; idx++)
-            {
-                if (idx % 4 == 0)
-                    Console.WriteLine();
-                Console.Write("{0:000} ", (int)bytes[idx]);
-            }
-            Console.WriteLine();
-#endif
-
             //     bytes.GetType();
             // Add to table.
             //    xrefTable.Add(new PdfReference(objectID, -1));
@@ -1286,37 +1150,6 @@ namespace PdfSharpCore.Pdf.IO
             Debug.Assert(wsum * subsectionEntryCount == bytes.Length, "Check implementation here.");
             int testcount = subsections[0][1];
             int[] currentSubsection = subsections[0];
-#if DEBUG && CORE
-            if (PdfDiagnostics.TraceXrefStreams)
-            {
-                for (int idx = 0; idx < testcount; idx++)
-                {
-                    uint field1 = StreamHelper.ReadBytes(bytes, idx * wsum, wsize[0]);
-                    uint field2 = StreamHelper.ReadBytes(bytes, idx * wsum + wsize[0], wsize[1]);
-                    uint field3 = StreamHelper.ReadBytes(bytes, idx * wsum + wsize[0] + wsize[1], wsize[2]);
-                    string res = String.Format("{0,2:00}: {1} {2,5} {3}  // ", idx, field1, field2, field3);
-                    switch (field1)
-                    {
-                        case 0:
-                            res += "Fee list: object number, generation number";
-                            break;
-
-                        case 1:
-                            res += "Not compresed: offset, generation number";
-                            break;
-
-                        case 2:
-                            res += "Compressed: object stream object number, index in stream";
-                            break;
-
-                        default:
-                            res += "??? Type undefined";
-                            break;
-                    }
-                    Debug.WriteLine(res);
-                }
-            }
-#endif
 
             int index2 = -1;
             for (int ssc = 0; ssc < subsectionCount; ssc++)
@@ -1347,18 +1180,12 @@ namespace PdfSharpCore.Pdf.IO
 
                             int position = (int)item.Field2;
                             objectID = ReadObjectNumber(position);
-#if DEBUG
-                            if (objectID.ObjectNumber == 1074)
-                                GetType();
-#endif
+
                             Debug.Assert(objectID.GenerationNumber == item.Field3);
 
                             //// Ignore the latter one.
                             if (!xrefTable.Contains(objectID))
                             {
-#if DEBUG
-                                GetType();
-#endif
                                 // Add iref for all uncrompressed objects.
                                 xrefTable.Add(new PdfReference(objectID, position));
 
@@ -1779,10 +1606,6 @@ namespace PdfSharpCore.Pdf.IO
             int rows = size / rowSizeRaw;
 
             byte[] result = new byte[rows * columns];
-#if DEBUG
-            for (int i = 0; i < result.Length; ++i)
-                result[i] = 88;
-#endif
 
             for (int row = 0; row < rows; ++row)
             {

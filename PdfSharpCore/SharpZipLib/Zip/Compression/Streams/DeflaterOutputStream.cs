@@ -45,11 +45,6 @@ using PdfSharpCore.SharpZipLib.Checksums;
 
 // ReSharper disable RedundantThisQualifier
 
-//#if !NETCF_1_0
-//using System.Security.Cryptography;
-//using PdfSharpCore.SharpZipLib.Encryption;
-//#endif
-
 namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
 {
     /// <summary>
@@ -154,12 +149,8 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
                     break;
                 }
 
-#if true//NETCF_1_0
                 if (keys != null)
                 {
-#else
-				if (cryptoTransform_ != null) {
-#endif
                     EncryptBlock(buffer_, 0, len);
                 }
 
@@ -173,22 +164,10 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
 
             baseOutputStream_.Flush();
 
-#if true//NETCF_1_0
             if (keys != null)
             {
                 keys = null;
             }
-#else
-			if (cryptoTransform_ != null) {
-#if !NET_1_1 && !NETCF_2_0
-				if (cryptoTransform_ is ZipAESTransform) {
-					AESAuthCode = ((ZipAESTransform)cryptoTransform_).GetAuthCode();
-				}
-#endif
-				cryptoTransform_.Dispose();
-				cryptoTransform_ = null;
-			}
-#endif
         }
 
         /// <summary>
@@ -218,16 +197,7 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
 
         string password;
 
-#if true//NETCF_1_0
         uint[] keys;
-#else
-		ICryptoTransform cryptoTransform_;
-
-		/// <summary>
-		/// Returns the 10 byte AUTH CODE to be appended immediately following the AES data stream.
-		/// </summary>
-		protected byte[] AESAuthCode;
-#endif
 
         /// <summary>
         /// Get/set the password used for encryption.
@@ -266,16 +236,12 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
         /// </param>
         protected void EncryptBlock(byte[] buffer, int offset, int length)
         {
-#if true//NETCF_1_0
             for (int i = offset; i < offset + length; ++i)
             {
                 byte oldbyte = buffer[i];
                 buffer[i] ^= EncryptByte();
                 UpdateKeys(oldbyte);
             }
-#else
-			cryptoTransform_.TransformBlock(buffer, 0, length, buffer, 0);
-#endif
         }
 
         /// <summary>
@@ -284,7 +250,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
         /// <param name="password">The password.</param>
         protected void InitializePassword(string password)
         {
-#if true//NETCF_1_0
             keys = new uint[] {
 				0x12345678,
 				0x23456789,
@@ -297,33 +262,7 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
             {
                 UpdateKeys((byte)rawPassword[i]);
             }
-
-#else			
-			PkzipClassicManaged pkManaged = new PkzipClassicManaged();
-			byte[] key = PkzipClassic.GenerateKeys(ZipConstants.ConvertToArray(password));
-			cryptoTransform_ = pkManaged.CreateEncryptor(key, null);
-#endif
         }
-
-#if false//!NET_1_1 && !NETCF_2_0
-		/// <summary>
-		/// Initializes encryption keys based on given password.
-		/// </summary>
-		protected void InitializeAESPassword(ZipEntry entry, string rawPassword,
-											out byte[] salt, out byte[] pwdVerifier) {
-			salt = new byte[entry.AESSaltLen];
-			// Salt needs to be cryptographically random, and unique per file
-			if (_aesRnd == null)
-				_aesRnd = new RNGCryptoServiceProvider();
-			_aesRnd.GetBytes(salt);
-			int blockSize = entry.AESKeySize / 8;	// bits to bytes
-
-			cryptoTransform_ = new ZipAESTransform(rawPassword, salt, blockSize, true);
-			pwdVerifier = ((ZipAESTransform)cryptoTransform_).PwdVerifier;
-		}
-#endif
-
-#if true//NETCF_1_0
 
         /// <summary>
         /// Encrypt a single byte 
@@ -347,7 +286,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
             keys[1] = keys[1] * 134775813 + 1;
             keys[2] = Crc32.ComputeCrc32(keys[2], (byte)(keys[1] >> 24));
         }
-#endif
 
         #endregion
 
@@ -367,11 +305,7 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
                 {
                     break;
                 }
-#if true//NETCF_1_0
                 if (keys != null)
-#else
-				if (cryptoTransform_ != null) 
-#endif
                 {
                     EncryptBlock(buffer_, 0, deflateCount);
                 }
@@ -492,41 +426,7 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
         {
             throw new NotSupportedException("DeflaterOutputStream Read not supported");
         }
-
-#if !NETFX_CORE && !UWP && !PORTABLE
-		/// <summary>
-		/// Asynchronous reads are not supported a NotSupportedException is always thrown
-		/// </summary>
-		/// <param name="buffer">The buffer to read into.</param>
-		/// <param name="offset">The offset to start storing data at.</param>
-		/// <param name="count">The number of bytes to read</param>
-		/// <param name="callback">The async callback to use.</param>
-		/// <param name="state">The state to use.</param>
-		/// <returns>Returns an <see cref="IAsyncResult"/></returns>
-		/// <exception cref="NotSupportedException">Any access</exception>
-		public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-		{
-			throw new NotSupportedException("DeflaterOutputStream BeginRead not currently supported");
-		}
-#endif
-
-#if !NETFX_CORE && !UWP && !PORTABLE
-        /// <summary>
-		/// Asynchronous writes arent supported, a NotSupportedException is always thrown
-		/// </summary>
-		/// <param name="buffer">The buffer to write.</param>
-		/// <param name="offset">The offset to begin writing at.</param>
-		/// <param name="count">The number of bytes to write.</param>
-		/// <param name="callback">The <see cref="AsyncCallback"/> to use.</param>
-		/// <param name="state">The state object.</param>
-		/// <returns>Returns an IAsyncResult.</returns>
-		/// <exception cref="NotSupportedException">Any access</exception>
-		public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-		{
-			throw new NotSupportedException("BeginWrite is not supported");
-		}
-#endif
-
+        
         /// <summary>
         /// Flushes the stream by calling <see cref="DeflaterOutputStream.Flush">Flush</see> on the deflater and then
         /// on the underlying stream.  This ensures that all bytes are flushed.
@@ -538,36 +438,6 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
             baseOutputStream_.Flush();
         }
 
-#if !NETFX_CORE && !UWP && !PORTABLE
-		/// <summary>
-		/// Calls <see cref="Finish"/> and closes the underlying
-		/// stream when <see cref="IsStreamOwner"></see> is true.
-		/// </summary>
-		public override void Close()
-		{
-			if ( !isClosed_ ) {
-				isClosed_ = true;
-
-				try {
-					Finish();
-#if true//NETCF_1_0
-                    keys =null;
-#else
-					if ( cryptoTransform_ != null ) {
-						GetAuthCodeIfAES();
-						cryptoTransform_.Dispose();
-						cryptoTransform_ = null;
-					}
-#endif
-				}
-				finally {
-					if( isStreamOwner_ ) {
-						baseOutputStream_.Close();
-					}
-				}
-			}
-		}
-#else
         public void Close()
         {
             if (!isClosed_)
@@ -577,15 +447,7 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
                 try
                 {
                     Finish();
-#if true//NETCF_1_0
                     keys = null;
-#else
-					if ( cryptoTransform_ != null ) {
-						GetAuthCodeIfAES();
-						cryptoTransform_.Dispose();
-						cryptoTransform_ = null;
-					}
-#endif
                 }
                 finally
                 {
@@ -597,16 +459,9 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
                 }
             }
         }
-#endif
-
 
         private void GetAuthCodeIfAES()
         {
-#if false//!NET_1_1 && !NETCF_2_0
-			if (cryptoTransform_ is ZipAESTransform) {
-				AESAuthCode = ((ZipAESTransform)cryptoTransform_).GetAuthCode();
-			}
-#endif
         }
 
         /// <summary>
@@ -658,19 +513,13 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
         /// </summary>
         protected Stream baseOutputStream_;
 
-#if true || !NETFX_CORE && !UWP
         bool isClosed_;
-#endif
 
         bool isStreamOwner_ = true;
         #endregion
 
         #region Static Fields
 
-#if false//!NET_1_1 && !NETCF_2_0
-		// Static to help ensure that multiple files within a zip will get different random salt
-		private static RNGCryptoServiceProvider _aesRnd;
-#endif
         #endregion
     }
 }

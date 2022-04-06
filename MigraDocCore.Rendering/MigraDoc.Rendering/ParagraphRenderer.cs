@@ -1014,14 +1014,9 @@ namespace MigraDocCore.Rendering
 
         TabOffset NextTabOffset()
         {
-#if false
-      TabOffset offset =
-        (TabOffset)this.tabOffsets[this.tabIdx];
-#else
             TabOffset offset = this.tabOffsets.Count > this.tabIdx ?
               (TabOffset)this.tabOffsets[this.tabIdx] :
               new TabOffset(0, 0);
-#endif
             ++this.tabIdx;
             return offset;
         }
@@ -2119,7 +2114,7 @@ namespace MigraDocCore.Rendering
             this.lastTab = null;
             this.lastTabPosition = 0;
             this.currentYPosition += this.currentVerticalInfo.height;
-#if true
+
             Rectangle rect = this.formattingArea.GetFittingRect(currentYPosition, this.currentVerticalInfo.height + BottomBorderOffset);
             if (rect == null)
                 return false;
@@ -2128,15 +2123,6 @@ namespace MigraDocCore.Rendering
             this.currentXPosition = StartXPosition; // depends on "currentVerticalInfo"
             this.currentVerticalInfo = new VerticalLineInfo();
             this.currentVerticalInfo = CalcCurrentVerticalInfo();
-#else
-      if (this.formattingArea.GetFittingRect(currentYPosition, this.currentVerticalInfo.height + BottomBorderOffset) == null)
-        return false;
-
-      this.currentVerticalInfo = new VerticalLineInfo();
-      this.currentVerticalInfo = CalcCurrentVerticalInfo();
-      this.isFirstLine = false;
-      this.currentXPosition = this.StartXPosition;
-#endif
             this.startLeaf = this.currentLeaf;
             this.currentBlankCount = 0;
             this.currentWordsWidth = 0;
@@ -2457,12 +2443,9 @@ namespace MigraDocCore.Rendering
             if (underlineType == Underline.Words && !isWord)
                 return null;
 
-#if noCMYK
-      XPen pen = new XPen(XColor.FromArgb(font.Color.Argb), font.Size / 16);
-#else
-            XPen pen = new XPen(ColorHelper.ToXColor(font.Color, this.paragraph.Document.UseCmykColor), font.Size / 16);
-#endif
-            switch (font.Underline)
+           XPen pen = new XPen(ColorHelper.ToXColor(font.Color, this.paragraph.Document.UseCmykColor), font.Size / 16);
+
+           switch (font.Underline)
             {
                 case Underline.DotDash:
                     pen.DashStyle = XDashStyle.DashDot;

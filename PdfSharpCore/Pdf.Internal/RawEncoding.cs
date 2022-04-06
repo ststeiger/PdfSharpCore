@@ -79,10 +79,6 @@ namespace PdfSharpCore.Pdf.Internal
         {
             for (int count = charCount; count > 0; charIndex++, byteIndex++, count--)
             {
-#if DEBUG_
-                if ((uint) chars[charIndex] > 255)
-                    Debug-Break.Break(true);
-#endif
                 //Debug.Assert((uint)chars[charIndex] < 256, "Raw string contains invalid character with a value > 255.");
                 bytes[byteIndex] = (byte)chars[charIndex];
                 //#warning Here is a HACK that must not be ignored!
@@ -147,19 +143,5 @@ namespace PdfSharpCore.Pdf.Internal
         {
             return byteCount;
         }
-
-#if SILVERLIGHT
-        /// <summary>
-        /// When overridden in a derived class, decodes all the bytes in the specified byte array into a string.
-        /// </summary>
-        /// <param name="bytes">The byte array containing the sequence of bytes to decode.</param>
-        /// <returns>
-        /// A <see cref="T:System.String"/> containing the results of decoding the specified sequence of bytes.
-        /// </returns>
-        public string GetString(byte[] bytes)
-        {
-            return GetString(bytes, 0, bytes.Length);
-        }
-#endif
     }
 }

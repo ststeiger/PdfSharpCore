@@ -228,15 +228,11 @@ namespace PdfSharpCore.Pdf
         /// </summary>
         public override string ToString()
         {
-#if true
             PdfStringEncoding encoding = (PdfStringEncoding)(_flags & PdfStringFlags.EncodingMask);
             string pdf = (_flags & PdfStringFlags.HexLiteral) == 0 ?
                 PdfEncoders.ToStringLiteral(_value, encoding, null) :
                 PdfEncoders.ToHexStringLiteral(_value, encoding, null);
             return pdf;
-#else
-            return _value;
-#endif
         }
 
         /// <summary>

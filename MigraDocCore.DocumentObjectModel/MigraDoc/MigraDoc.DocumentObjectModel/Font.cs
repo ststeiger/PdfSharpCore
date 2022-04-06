@@ -269,23 +269,6 @@ namespace MigraDocCore.DocumentObjectModel
         //    .Animation = wdAnimationNone
         #endregion
 
-#if !PORTABLE
-        /// <summary>
-        /// Gets a value indicating whether the specified font exists.
-        /// </summary>
-        public static bool Exists(string fontName)
-        {
-            System.Drawing.FontFamily[] families = System.Drawing.FontFamily.Families;
-            foreach (System.Drawing.FontFamily family in families)
-            {
-                if (String.Compare(family.Name, fontName, true) == 0)
-                    return true;
-            }
-            return false;
-        }
-#endif
-
-
         #region Internal
         /// <summary>
         /// Get a bitmask of all non-null properties.
@@ -363,10 +346,6 @@ namespace MigraDocCore.DocumentObjectModel
                 if (!this.name.IsNull && this.name.Value != "")
                     serializer.WriteSimpleAttribute("Name", this.Name);
 
-#if DEBUG // Test
-                if (!this.size.IsNull && this.Size != 0 && this.Size.Point == 0)
-                    this.GetType();
-#endif
                 if ((!this.size.IsNull))
                     serializer.WriteSimpleAttribute("Size", this.Size);
 
@@ -394,7 +373,6 @@ namespace MigraDocCore.DocumentObjectModel
             {
                 int pos = serializer.BeginContent("Font");
 
-#if true
                 // Don't write null values if font is null.
                 // Do write null values if font is not null!
                 if ((!name.IsNull && Name != String.Empty && font == null) ||
@@ -425,31 +403,7 @@ namespace MigraDocCore.DocumentObjectModel
 
                 if (!color.IsNull && (font == null || this.Color.Argb != font.Color.Argb))// && this.Color.RGB != Color.Transparent.RGB)
                     serializer.WriteSimpleAttribute("Color", this.Color);
-#else
-        if ((!this.name.IsNull && this.Name != String.Empty) && (font == null || this.Name != font.Name))
-          serializer.WriteSimpleAttribute("Name", this.Name);
 
-        if (!this.size.IsNull && (font == null || this.Size != font.Size))
-          serializer.WriteSimpleAttribute("Size", this.Size);
-        //NBool and NEnum have to be compared directly to check whether the value Null is
-        if (!this.bold.IsNull && (font == null || this.Bold != font.Bold))
-          serializer.WriteSimpleAttribute("Bold", this.Bold);
-
-        if (!this.italic.IsNull && (font == null || this.Italic != font.Italic))
-          serializer.WriteSimpleAttribute("Italic", this.Italic);
-
-        if (!this.underline.IsNull && (font == null || this.Underline != font.Underline))
-          serializer.WriteSimpleAttribute("Underline", this.Underline);
-
-        if (!this.superscript.IsNull && (font == null || this.Superscript != font.Superscript))
-          serializer.WriteSimpleAttribute("Superscript", this.Superscript);
-
-        if (!this.subscript.IsNull && (font == null || this.Subscript != font.Subscript))
-          serializer.WriteSimpleAttribute("Subscript", this.Subscript);
-
-        if (!this.color.IsNull && (font == null || this.Color.Argb != font.Color.Argb))// && this.Color.RGB != Color.Transparent.RGB)
-          serializer.WriteSimpleAttribute("Color", this.Color);
-#endif
                 serializer.EndContent(pos);
             }
         }

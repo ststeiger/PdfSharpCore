@@ -69,11 +69,7 @@ namespace MigraDocCore.Rendering
       if (this.fillFormat == null || !IsVisible())
         return null;
 
-#if noCMYK
-      return new XSolidBrush(XColor.FromArgb(this.fillFormat.Color.Argb));
-#else
       return new XSolidBrush(ColorHelper.ToXColor(this.fillFormat.Color, this.fillFormat.Document.UseCmykColor));
-#endif
     }
     private XGraphics gfx;
     private FillFormat fillFormat;

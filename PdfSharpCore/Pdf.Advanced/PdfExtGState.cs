@@ -29,13 +29,6 @@
 
 using System.Globalization;
 
-#if GDI
-using System.Drawing;
-using System.Drawing.Imaging;
-#endif
-#if WPF
-#endif
-
 namespace PdfSharpCore.Pdf.Advanced
 {
     /// <summary>
@@ -51,32 +44,6 @@ namespace PdfSharpCore.Pdf.Advanced
             : base(document)
         {
             Elements.SetName(Keys.Type, "/ExtGState");
-
-#if true_
-            //AIS false
-            //BM /Normal
-            //ca 1
-            //CA 1
-            //op false
-            //OP false
-            //OPM 1
-            //SA true
-            //SMask /None
-            //Type /ExtGState
-
-            Elements.SetValue(Keys.AIS, new PdfBoolean(false)); // The alpha source
-            Elements.SetName("/BM", "Normal");
-            Elements.SetValue(Keys.op, new PdfBoolean(false));
-            Elements.SetValue(Keys.OP, new PdfBoolean(false));
-            Elements.SetValue(Keys.OPM, new PdfInteger(1));
-            Elements.SetValue("/SA", new PdfBoolean(true));
-            Elements.SetName("/SMask", "None");
-#endif
-            //#if OP_HACK
-            //            Elements.SetValue(Keys.op, new PdfBoolean(false));
-            //            Elements.SetValue(Keys.OP, new PdfBoolean(false));
-            //            Elements.SetValue(Keys.OPM, new PdfInteger(1));
-            //#endif
         }
 
         /// <summary>

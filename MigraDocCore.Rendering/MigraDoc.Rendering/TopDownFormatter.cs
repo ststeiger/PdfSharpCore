@@ -198,15 +198,11 @@ namespace MigraDocCore.Rendering
           }
           isFirstOnPage = true;
           prevBottomMargin = 0;
-#if false
-          area = this.areaProvider.GetNextArea();
-#else
           if (!ready)  //!!!newTHHO 19.01.2007: korrekt? oder GetNextArea immer ausführen???
           {
             area = this.areaProvider.GetNextArea();
             maxHeight = area.Height;
           }
-#endif
         }
         if (idx == this.elements.Count && !ready)
         {
