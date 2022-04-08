@@ -153,7 +153,7 @@ namespace PdfSharpCore.Utils
             return font;
         }
 
-        public byte[] GetFont(string faceFileName)
+        public virtual byte[] GetFont(string faceFileName)
         {
             using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
             {
