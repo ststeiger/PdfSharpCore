@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -99,6 +99,11 @@ namespace PdfSharpCore.Pdf.Security
             /// </summary>
             [KeyInfo(KeyType.Dictionary | KeyType.Optional)]
             public const string CF = "/CF";
+
+            /// <summary>
+            /// (Optional)The method used, if any, by the conforming reader to decrypt data.
+            /// </summary>
+            public const string CFM = "/CFM";
 
             /// <summary>
             /// (Optional; meaningful only when the value of V is 4; PDF 1.5)

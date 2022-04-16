@@ -201,15 +201,9 @@ namespace PdfSharpCore.Pdf.Advanced
             iref = _document._trailer.Elements[Keys.Encrypt] as PdfReference;
             if (iref != null)
             {
-                iref = _document._irefTable[iref.ObjectID];
-                Debug.Assert(iref.Value != null);
-                _document._trailer.Elements[Keys.Encrypt] = iref;
-
-                // The encryption dictionary (security handler) was read in before the XRefTable construction 
-                // was completed. The next lines fix that state (it took several hours to find these bugs...).
-                iref.Value = _document._trailer._securityHandler;
-                _document._trailer._securityHandler.Reference = iref;
-                iref.Value.Reference = iref;
+                _document._irefTable.Remove(_document._irefTable[iref.ObjectID]);
+                _document._irefTable.Add(_document._trailer._securityHandler);
+                _document._trailer.Elements[Keys.Encrypt] = _document._trailer._securityHandler;
             }
 
             Elements.Remove(Keys.Prev);
