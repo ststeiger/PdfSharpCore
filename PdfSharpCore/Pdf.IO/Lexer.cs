@@ -562,15 +562,19 @@ namespace PdfSharpCore.Pdf.IO
                     ScanNextChar(true);
                     break;
                 }
-                if (char.IsLetterOrDigit(_currChar))
+                if (IsHexChar(_currChar))
                 {
-                    hex[0] = char.ToUpper(_currChar);
-                    hex[1] = char.ToUpper(_nextChar);
-                    int ch = int.Parse(new string(hex), NumberStyles.AllowHexSpecifier);
+                    hex[0] = _currChar;
+                    hex[1] = IsHexChar(_nextChar) ? _nextChar : ' ';
+                    int ch = int.Parse(new string(hex), NumberStyles.HexNumber);
                     _token.Append(Convert.ToChar(ch));
                     ScanNextChar(true);
-                    ScanNextChar(true);
+                    if (_currChar != '>')
+                        ScanNextChar(true);
                 }
+                else
+                    // prevent endless loop in case _currChar is neither '>' nor a hex-char nor whitespace
+                    ScanNextChar(true);
             }
             string chars = _token.ToString();
             int count = chars.Length;
@@ -583,6 +587,13 @@ namespace PdfSharpCore.Pdf.IO
                 return _symbol = Symbol.UnicodeHexString;
             }
             return _symbol = Symbol.HexString;
+        }
+
+        internal static bool IsHexChar(char c)
+        {
+            return char.IsDigit(c) ||
+                (c >= 'A' && c <= 'F') ||
+                (c >= 'a' && c <= 'f');
         }
 
         /// <summary>
