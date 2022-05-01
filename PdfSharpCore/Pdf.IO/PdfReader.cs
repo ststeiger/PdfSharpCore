@@ -74,7 +74,6 @@ namespace PdfSharpCore.Pdf.IO
         /// </summary>
         public static int TestPdfFile(string path)
         {
-#if NETCOREAPP1_1 || (!NETFX_CORE && !PORTABLE)
             FileStream stream = null;
             try
             {
@@ -96,11 +95,7 @@ namespace PdfSharpCore.Pdf.IO
                 {
                     if (stream != null)
                     {
-#if NETCOREAPP1_1 || UWP
                         stream.Dispose();
-#else
-                        stream.Close();
-#endif
                     }
                 }
                 // ReSharper disable once EmptyGeneralCatchClause
@@ -108,7 +103,6 @@ namespace PdfSharpCore.Pdf.IO
                 {
                 }
             }
-#endif
             return 0;
         }
 
@@ -264,7 +258,6 @@ namespace PdfSharpCore.Pdf.IO
         /// </summary>
         public static PdfDocument Open(string path, string password, PdfDocumentOpenMode openmode, PdfPasswordProvider provider, PdfReadAccuracy accuracy)
         {
-#if NETCOREAPP1_1 || (!NETFX_CORE && !PORTABLE)
             PdfDocument document;
             Stream stream = null;
             try
@@ -279,16 +272,10 @@ namespace PdfSharpCore.Pdf.IO
             finally
             {
                 if (stream != null)
-#if NETCOREAPP1_1 || UWP
                     stream.Dispose();
-#else
-                    stream.Close();
-#endif
+
             }
             return document;
-#else
-            return null;
-#endif
         }
 
         /// <summary>

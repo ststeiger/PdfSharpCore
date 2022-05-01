@@ -42,7 +42,6 @@ namespace PdfSharpCore.Pdf.Internal
         /// </summary>
         public static XColor EnsureColorMode(PdfColorMode colorMode, XColor color)
         {
-#if true
             if (colorMode == PdfColorMode.Rgb && color.ColorSpace != XColorSpace.Rgb)
                 return XColor.FromArgb((int)(color.A * 255), color.R, color.G, color.B);
 
@@ -50,13 +49,6 @@ namespace PdfSharpCore.Pdf.Internal
                 return XColor.FromCmyk(color.A, color.C, color.M, color.Y, color.K);
 
             return color;
-#else
-      if (colorMode == PdfColorMode.Rgb && color.ColorSpace != XColorSpace.Rgb)
-        throw new InvalidOperationException(PSSR.InappropriateColorSpace(colorMode, color.ColorSpace));
-
-      if (colorMode == PdfColorMode.Cmyk && color.ColorSpace != XColorSpace.Cmyk)
-        throw new InvalidOperationException(PSSR.InappropriateColorSpace(colorMode, color.ColorSpace));
-#endif
         }
 
         /// <summary>

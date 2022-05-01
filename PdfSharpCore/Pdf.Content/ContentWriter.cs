@@ -51,11 +51,7 @@ namespace PdfSharpCore.Pdf.Content
         {
             if (_stream != null && closeUnderlyingStream)
             {
-#if UWP || PORTABLE
                 _stream.Dispose();
-#else
-                _stream.Close();
-#endif
                 _stream = null;
             }
         }

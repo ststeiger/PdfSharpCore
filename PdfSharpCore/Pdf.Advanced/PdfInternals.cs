@@ -191,12 +191,7 @@ namespace PdfSharpCore.Pdf.Advanced
         public T CreateIndirectObject<T>() where T : PdfObject
         {
             T result = null;
-#if !NETFX_CORE && !UWP && !PORTABLE
-            ConstructorInfo ctorInfo = typeof(T).GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.ExactBinding,
-                null, new Type[] { typeof(PdfDocument) }, null);
-#else
             ConstructorInfo ctorInfo = null; // TODO
-#endif
             if (ctorInfo != null)
             {
                 result = (T)ctorInfo.Invoke(new object[] { _document });

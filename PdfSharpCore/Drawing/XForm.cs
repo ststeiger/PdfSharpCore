@@ -29,19 +29,9 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-#endif
-#if WPF
-using System.Windows.Media;
-#endif
 using PdfSharpCore.Drawing.Pdf;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.Advanced;
-using PdfSharpCore.Pdf.Filters;
 
 namespace PdfSharpCore.Drawing
 {
@@ -79,49 +69,6 @@ namespace PdfSharpCore.Drawing
         /// </summary>
         protected XForm()
         { }
-
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the XForm class such that it can be drawn on the specified graphics
-        /// object.
-        /// </summary>
-        /// <param name="gfx">The graphics object that later is used to draw this form.</param>
-        /// <param name="size">The size in points of the form.</param>
-        public XForm(XGraphics gfx, XSize size)
-        {
-            if (gfx == null)
-                throw new ArgumentNullException("gfx");
-            if (size.Width < 1 || size.Height < 1)
-                throw new ArgumentNullException("size", "The size of the XPdfForm is to small.");
-
-            _formState = FormState.Created;
-            //templateSize = size;
-            _viewBox.Width = size.Width;
-            _viewBox.Height = size.Height;
-
-            // If gfx belongs to a PdfPage also create the PdfFormXObject
-            if (gfx.PdfPage != null)
-            {
-                _document = gfx.PdfPage.Owner;
-                _pdfForm = new PdfFormXObject(_document, this);
-                PdfRectangle rect = new PdfRectangle(new XPoint(), size);
-                _pdfForm.Elements.SetRectangle(PdfFormXObject.Keys.BBox, rect);
-            }
-        }
-#endif
-
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the XForm class such that it can be drawn on the specified graphics
-        /// object.
-        /// </summary>
-        /// <param name="gfx">The graphics object that later is used to draw this form.</param>
-        /// <param name="width">The width of the form.</param>
-        /// <param name="height">The height of the form.</param>
-        public XForm(XGraphics gfx, XUnit width, XUnit height)
-            : this(gfx, new XSize(width, height))
-        { }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XForm"/> class that represents a page of a PDF document.
@@ -230,35 +177,6 @@ namespace PdfSharpCore.Drawing
         /// </summary>
         internal virtual void Finish()
         {
-#if GDI
-            if (_formState == FormState.NotATemplate || _formState == FormState.Finished)
-                return;
-
-            if (Gfx.Metafile != null)
-                _gdiImage = Gfx.Metafile;
-
-            Debug.Assert(_formState == FormState.Created || _formState == FormState.UnderConstruction);
-            _formState = FormState.Finished;
-            Gfx.Dispose();
-            Gfx = null;
-
-            if (PdfRenderer != null)
-            {
-                //pdfForm.CreateStream(PdfEncoders.RawEncoding.GetBytes(PdfRenderer.GetContent()));
-                PdfRenderer.Close();
-                Debug.Assert(PdfRenderer == null);
-
-                if (_document.Options.CompressContentStreams)
-                {
-                    _pdfForm.Stream.Value = Filtering.FlateDecode.Encode(_pdfForm.Stream.Value, _document.Options.FlateEncodeMode);
-                    _pdfForm.Elements["/Filter"] = new PdfName("/FlateDecode");
-                }
-                int length = _pdfForm.Stream.Length;
-                _pdfForm.Elements.SetInteger("/Length", length);
-            }
-#endif
-#if WPF
-#endif
         }
 
         /// <summary>
@@ -518,33 +436,5 @@ namespace PdfSharpCore.Drawing
 
         internal XGraphicsPdfRenderer PdfRenderer;
 
-#if WPF && !SILVERLIGHT
-        /// <summary>
-        /// Gets a value indicating whether this image is cmyk.
-        /// </summary>
-        /// <value><c>true</c> if this image is cmyk; otherwise, <c>false</c>.</value>
-        internal override bool IsCmyk
-        {
-            get { return false; } // not supported and not relevant
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this image is JPEG.
-        /// </summary>
-        /// <value><c>true</c> if this image is JPEG; otherwise, <c>false</c>.</value>
-        internal override bool IsJpeg
-        {
-            get { return base.IsJpeg; }// not supported and not relevant
-        }
-
-        /// <summary>
-        /// Gets the JPEG memory stream (if IsJpeg returns true).
-        /// </summary>
-        /// <value>The memory.</value>
-        public override MemoryStream Memory
-        {
-            get { throw new NotImplementedException(); }
-        }
-#endif
     }
 }

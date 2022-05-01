@@ -31,32 +31,9 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-#if CORE
-#endif
-#if GDI
-using System.Drawing;
-#endif
-#if WPF
-using System.Windows;
-using SysPoint = System.Windows.Point;
-using SysSize = System.Windows.Size;
-#endif
-#if NETFX_CORE
-using Windows.UI.Xaml.Media;
-using SysPoint = Windows.Foundation.Point;
-using SysSize = Windows.Foundation.Size;
-#endif
-#if !EDF_CORE
 using PdfSharpCore.Internal;
-#else
-using PdfSharpCore.Internal;
-#endif
 
-#if !EDF_CORE
 namespace PdfSharpCore.Drawing
-#else
-namespace Edf.Drawing
-#endif
 {
     /// <summary>
     /// Represents a pair of floating point x- and y-coordinates that defines a point
@@ -75,39 +52,6 @@ namespace Edf.Drawing
             _x = x;
             _y = y;
         }
-
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the XPoint class with the specified point.
-        /// </summary>
-        public XPoint(System.Drawing.Point point)
-        {
-            _x = point.X;
-            _y = point.Y;
-        }
-#endif
-
-#if WPF || NETFX_CORE
-        /// <summary>
-        /// Initializes a new instance of the XPoint class with the specified point.
-        /// </summary>
-        public XPoint(SysPoint point)
-        {
-            _x = point.X;
-            _y = point.Y;
-        }
-#endif
-
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the XPoint class with the specified point.
-        /// </summary>
-        public XPoint(PointF point)
-        {
-            _x = point.X;
-            _y = point.Y;
-        }
-#endif
 
         /// <summary>
         /// Determines whether two points are equal.
@@ -210,38 +154,6 @@ namespace Edf.Drawing
             set { _y = value; }
         }
         double _y;
-
-#if CORE
-#if UseGdiObjects
-        /// <summary>
-        /// Converts this XPoint to a System.Drawing.Point.
-        /// </summary>
-        public PointF ToPointF()
-        {
-            return new PointF((float)_x, (float)_y);
-        }
-#endif
-#endif
-
-#if GDI
-        /// <summary>
-        /// Converts this XPoint to a System.Drawing.Point.
-        /// </summary>
-        public PointF ToPointF()
-        {
-            return new PointF((float)_x, (float)_y);
-        }
-#endif
-
-#if WPF || NETFX_CORE
-        /// <summary>
-        /// Converts this XPoint to a System.Windows.Point.
-        /// </summary>
-        public SysPoint ToPoint()
-        {
-            return new SysPoint(_x, _y);
-        }
-#endif
 
         /// <summary>
         /// Converts this XPoint to a human readable string.

@@ -32,13 +32,6 @@ using System.Globalization;
 using PdfSharpCore.Pdf.Content;
 using PdfSharpCore.Pdf.IO;
 
-#if GDI
-using System.Drawing;
-#endif
-#if WPF
-using System.Windows;
-#endif
-
 namespace PdfSharpCore.Internal
 {
     enum NotImplementedBehaviour

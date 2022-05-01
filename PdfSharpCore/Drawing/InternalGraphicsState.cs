@@ -27,14 +27,6 @@
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-#endif
-#if WPF
-using System.Windows.Media;
-#endif
-
 namespace PdfSharpCore.Drawing
 {
     // In GDI+ the functions Save/Restore, BeginContainer/EndContainer, Transform, SetClip and ResetClip
@@ -105,18 +97,6 @@ namespace PdfSharpCore.Drawing
         /// </summary>
         public void Pushed()
         {
-#if GDI
-            // Nothing to do.
-#endif
-#if WPF && !SILVERLIGHT
-            // Nothing to do.
-#endif
-#if SILVERLIGHT
-            // Save current level of Canvas stack.
-            _stackLevel = _gfx._dc.Level;
-            // Create new Canvas for subsequent UIElements.
-            _gfx._dc.PushCanvas();
-#endif
         }
 
         /// <summary>
@@ -125,65 +105,9 @@ namespace PdfSharpCore.Drawing
         public void Popped()
         {
             Invalid = true;
-#if GDI
-            // Nothing to do.
-#endif
-#if WPF && !SILVERLIGHT
-            // Pop all objects pushed in this state.
-            if (_gfx.TargetContext == XGraphicTargetContext.WPF)
-            {
-                for (int idx = 0; idx < _transformPushLevel; idx++)
-                    _gfx._dc.Pop();
-                _transformPushLevel = 0;
-                for (int idx = 0; idx < _geometryPushLevel; idx++)
-                    _gfx._dc.Pop();
-                _geometryPushLevel = 0;
-            }
-#endif
-#if SILVERLIGHT
-      // Pop all Canvas objects created in this state.
-      _gfx._dc.Pop(_gfx._dc.Level - _stackLevel);
-#endif
         }
 
         public bool Invalid;
-
-#if GDI_
-        /// <summary>
-        /// The GDI+ GraphicsState if contructed from XGraphicsState.
-        /// </summary>
-        public GraphicsState GdiGraphicsState;
-#endif
-
-#if WPF && !SILVERLIGHT
-        public void PushTransform(MatrixTransform transform)
-        {
-            _gfx._dc.PushTransform(transform);
-            _transformPushLevel++;
-        }
-        int _transformPushLevel;
-
-        public void PushClip(Geometry geometry)
-        {
-            _gfx._dc.PushClip(geometry);
-            _geometryPushLevel++;
-        }
-        int _geometryPushLevel;
-#endif
-
-#if SILVERLIGHT
-        public void PushTransform(MatrixTransform transform)
-        {
-            _gfx._dc.PushTransform(transform);
-        }
-
-        public void PushClip(Geometry geometry)
-        {
-            _gfx._dc.PushClip(geometry);
-        }
-
-        int _stackLevel;
-#endif
 
         readonly XGraphics _gfx;
 

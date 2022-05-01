@@ -30,13 +30,6 @@
 using System;
 using System.Diagnostics;
 
-//using Fixed = System.Int32;
-//using FWord = System.Int16;
-//using UFWord = System.UInt16;
-#if SILVERLIGHT
-using PdfSharpCore;
-#endif
-
 namespace PdfSharpCore.Fonts.OpenType
 {
     // TODO: Create a font driver for reading and writing OpenType font files.

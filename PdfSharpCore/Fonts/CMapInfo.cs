@@ -101,11 +101,7 @@ namespace PdfSharpCore.Fonts
             byte[] ansi = new byte[256 - 32];
             for (int idx = 0; idx < 256 - 32; idx++)
                 ansi[idx] = (byte)(idx + 32);
-#if EDF_CORE
-            string text = null; // PdfEncoders.WinAnsiEncoding.GetString(ansi, 0, ansi.Length);
-#else
             string text = PdfEncoders.WinAnsiEncoding.GetString(ansi, 0, ansi.Length);
-#endif
             AddChars(text);
         }
 

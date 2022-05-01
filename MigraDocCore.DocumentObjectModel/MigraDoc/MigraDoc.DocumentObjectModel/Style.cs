@@ -409,15 +409,10 @@ namespace MigraDocCore.DocumentObjectModel
         string name = DdlEncoder.QuoteIfNameContainsBlanks(this.Name);
         string baseName = DdlEncoder.QuoteIfNameContainsBlanks(this.BaseStyle);
         serializer.WriteLine(name + " : " + baseName);
-
-#if true
         Style refStyle0 = Document.Styles[Document.Styles.GetIndex(this.baseStyle.Value)];
         refStyle = Document.Styles[this.baseStyle.Value];
         refFormat = refStyle != null ? refStyle.ParagraphFormat : null;
         refFont = refStyle.Font;
-#else
-        refFormat = null;
-#endif
       }
 
       serializer.BeginContent();

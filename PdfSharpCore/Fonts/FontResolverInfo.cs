@@ -31,15 +31,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using PdfSharpCore.Drawing;
-#if CORE
-using System.Drawing;
-#endif
-#if GDI
-using System.Drawing;
-#endif
-#if WPF
-using System.Windows.Media;
-#endif
 
 namespace PdfSharpCore.Fonts
 {

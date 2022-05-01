@@ -27,14 +27,6 @@
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
-#if GDI
-using System.Drawing;
-using System.Drawing.Imaging;
-#endif
-#if WPF
-using System.Windows.Media;
-#endif
-
 namespace PdfSharpCore.Pdf.Advanced
 {
     /// <summary>

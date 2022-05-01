@@ -378,16 +378,6 @@ namespace PdfSharpCore
         [Conditional("DEBUG")]
         public static void TestResourceMessages()
         {
-#if !SILVERLIGHT && !__IOS__ && !__ANDROID__ && !PORTABLE
-            string[] names = Enum.GetNames(typeof(PSMsgID));
-            foreach (string name in names)
-            {
-                string message = String.Format("{0}: '{1}'", name, ResMngr.GetString(name));
-                Debug.Assert(message != null);
-                Debug.WriteLine(message);
-            }
-#else
-#endif
         }
 
         static PSSR()

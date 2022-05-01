@@ -97,10 +97,6 @@ namespace PdfSharpCore.Pdf.IO
             _lexer.Position = position;
             int objectNumber = ReadInteger();
             int generationNumber = ReadInteger();
-#if DEBUG && CORE
-            if (objectNumber == 1074)
-                GetType();
-#endif
             return new PdfObjectID(objectNumber, generationNumber);
         }
 
@@ -1286,37 +1282,6 @@ namespace PdfSharpCore.Pdf.IO
             Debug.Assert(wsum * subsectionEntryCount == bytes.Length, "Check implementation here.");
             int testcount = subsections[0][1];
             int[] currentSubsection = subsections[0];
-#if DEBUG && CORE
-            if (PdfDiagnostics.TraceXrefStreams)
-            {
-                for (int idx = 0; idx < testcount; idx++)
-                {
-                    uint field1 = StreamHelper.ReadBytes(bytes, idx * wsum, wsize[0]);
-                    uint field2 = StreamHelper.ReadBytes(bytes, idx * wsum + wsize[0], wsize[1]);
-                    uint field3 = StreamHelper.ReadBytes(bytes, idx * wsum + wsize[0] + wsize[1], wsize[2]);
-                    string res = String.Format("{0,2:00}: {1} {2,5} {3}  // ", idx, field1, field2, field3);
-                    switch (field1)
-                    {
-                        case 0:
-                            res += "Fee list: object number, generation number";
-                            break;
-
-                        case 1:
-                            res += "Not compresed: offset, generation number";
-                            break;
-
-                        case 2:
-                            res += "Compressed: object stream object number, index in stream";
-                            break;
-
-                        default:
-                            res += "??? Type undefined";
-                            break;
-                    }
-                    Debug.WriteLine(res);
-                }
-            }
-#endif
 
             int index2 = -1;
             for (int ssc = 0; ssc < subsectionCount; ssc++)

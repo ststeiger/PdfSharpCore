@@ -29,14 +29,6 @@
 
 using System;
 using System.IO;
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-#endif
-#if WPF
-using System.Windows.Media;
-#endif
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.IO;
@@ -65,11 +57,9 @@ namespace PdfSharpCore.Drawing
             int pageNumber;
             path = ExtractPageNumber(path, out pageNumber);
 
-#if true // !NETFX_CORE && !PORTABLE
             path = Path.GetFullPath(path);
             if (!File.Exists(path))
                 throw new FileNotFoundException(PSSR.FileNotFound(path));
-#endif
 
             if (PdfReader.TestPdfFile(path) == 0)
                 throw new ArgumentException("The specified file has no valid PDF file header.", "path");

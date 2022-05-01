@@ -31,30 +31,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-#if CORE
-#endif
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-#endif
-#if WPF
-using System.Windows;
-using System.Windows.Media;
-using SysPoint = System.Windows.Point;
-using SysSize = System.Windows.Size;
-using SysRect = System.Windows.Rect;
-#endif
-#if NETFX_CORE
-using Windows.UI.Xaml.Media;
-using SysPoint = Windows.Foundation.Point;
-using SysSize = Windows.Foundation.Size;
-using SysRect = Windows.Foundation.Rect;
-#endif
-#if !EDF_CORE
 using PdfSharpCore.Internal;
-#else
-using PdfSharpCore.Internal;
-#endif
 
 namespace PdfSharpCore.Drawing
 {
@@ -126,45 +103,6 @@ namespace PdfSharpCore.Drawing
                 _height = size.Height;
             }
         }
-
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the XRect class.
-        /// </summary>
-        public XRect(PointF location, SizeF size)
-        {
-            _x = location.X;
-            _y = location.Y;
-            _width = size.Width;
-            _height = size.Height;
-        }
-#endif
-
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the XRect class.
-        /// </summary>
-        public XRect(RectangleF rect)
-        {
-            _x = rect.X;
-            _y = rect.Y;
-            _width = rect.Width;
-            _height = rect.Height;
-        }
-#endif
-
-#if WPF || NETFX_CORE
-        /// <summary>
-        /// Initializes a new instance of the XRect class.
-        /// </summary>
-        public XRect(SysRect rect)
-        {
-            _x = rect.X;
-            _y = rect.Y;
-            _width = rect.Width;
-            _height = rect.Height;
-        }
-#endif
 
         /// <summary>
         /// Creates a rectangle from for straight lines.
@@ -754,56 +692,6 @@ namespace PdfSharpCore.Drawing
                 }
             }
         }
-
-#if CORE  // Internal version in CORE build.
-#if UseGdiObjects
-        /// <summary>
-        /// Converts this instance to a System.Drawing.RectangleF.
-        /// </summary>
-        internal RectangleF ToRectangleF()
-        {
-            return new RectangleF((float)_x, (float)_y, (float)_width, (float)_height);
-        }
-#endif
-#endif
-
-#if GDI
-        /// <summary>
-        /// Converts this instance to a System.Drawing.RectangleF.
-        /// </summary>
-        public RectangleF ToRectangleF()
-        {
-            return new RectangleF((float)_x, (float)_y, (float)_width, (float)_height);
-        }
-#endif
-
-#if GDI
-        /// <summary>
-        /// Performs an implicit  conversion from a System.Drawing.Rectangle to an XRect.
-        /// </summary>
-        public static implicit operator XRect(Rectangle rect)
-        {
-            return new XRect(rect.X, rect.Y, rect.Width, rect.Height);
-        }
-
-        /// <summary>
-        /// Performs an implicit  conversion from a System.Drawing.RectangleF to an XRect.
-        /// </summary>
-        public static implicit operator XRect(RectangleF rect)
-        {
-            return new XRect(rect.X, rect.Y, rect.Width, rect.Height);
-        }
-#endif
-
-#if WPF || NETFX_CORE
-        /// <summary>
-        /// Performs an implicit conversion from System.Windows.Rect to XRect.
-        /// </summary>
-        public static implicit operator XRect(SysRect rect)
-        {
-            return new XRect(rect.X, rect.Y, rect.Width, rect.Height);
-        }
-#endif
 
         bool ContainsInternal(double x, double y)
         {

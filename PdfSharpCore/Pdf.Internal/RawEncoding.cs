@@ -147,19 +147,5 @@ namespace PdfSharpCore.Pdf.Internal
         {
             return byteCount;
         }
-
-#if SILVERLIGHT
-        /// <summary>
-        /// When overridden in a derived class, decodes all the bytes in the specified byte array into a string.
-        /// </summary>
-        /// <param name="bytes">The byte array containing the sequence of bytes to decode.</param>
-        /// <returns>
-        /// A <see cref="T:System.String"/> containing the results of decoding the specified sequence of bytes.
-        /// </returns>
-        public string GetString(byte[] bytes)
-        {
-            return GetString(bytes, 0, bytes.Length);
-        }
-#endif
     }
 }
