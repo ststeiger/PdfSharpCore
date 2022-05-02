@@ -414,7 +414,7 @@ namespace PdfSharpCore.Pdf
                     iref.Position = writer.Position;
                     iref.Value.WriteObject(writer);
                 }
-                int startxref = writer.Position;
+                var startxref = writer.Position;
                 _irefTable.WriteObject(writer);
                 writer.WriteRaw("trailer\n");
                 _trailer.Elements.SetInteger("/Size", count + 1);

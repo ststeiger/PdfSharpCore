@@ -41,7 +41,7 @@ namespace PdfSharpCore.Pdf.IO
         BeginStream, EndStream,
         BeginArray, EndArray,
         BeginDictionary, EndDictionary,
-        Obj, EndObj, R, XRef, Trailer, StartXRef, Eof,
+        Obj, EndObj, R, XRef, Trailer, StartXRef, Eof, Long
 #pragma warning restore 1591
     }
 }
