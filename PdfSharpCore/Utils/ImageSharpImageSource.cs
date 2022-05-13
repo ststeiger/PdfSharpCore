@@ -12,6 +12,13 @@ namespace PdfSharpCore.Utils
 {
     public class ImageSharpImageSource<TPixel> : ImageSource where TPixel : unmanaged, IPixel<TPixel>
     {
+
+        public static IImageSource FromImageSharpImage(Image<TPixel> image, IImageFormat imgFormat, int? quality = 75)
+        {
+            var _path = "*" + Guid.NewGuid().ToString("B");
+            return new ImageSharpImageSourceImpl<TPixel>(_path, image, (int)quality, imgFormat is PngFormat);
+        }
+
         protected override IImageSource FromBinaryImpl(string name, Func<byte[]> imageSource, int? quality = 75)
         {
             var image = Image.Load<TPixel>(imageSource.Invoke(), out IImageFormat imgFormat);
