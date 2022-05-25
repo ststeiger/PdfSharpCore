@@ -70,9 +70,9 @@ namespace PdfSharpCore.Pdf.IO
             Close(true);
         }
 
-        public int Position
+        public long Position
         {
-            get { return (int)_stream.Position; }
+            get { return _stream.Position; }
         }
 
         /// <summary>
@@ -127,6 +127,16 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Writes the specified value to the PDF stream.
         /// </summary>
+        public void Write(long value)
+        {
+            WriteSeparator(CharCat.Character);
+            WriteRaw(value.ToString(CultureInfo.InvariantCulture));
+            _lastCat = CharCat.Character;
+        }
+
+        /// <summary>
+        /// Writes the specified value to the PDF stream.
+        /// </summary>
         public void Write(uint value)
         {
             WriteSeparator(CharCat.Character);
@@ -138,6 +148,16 @@ namespace PdfSharpCore.Pdf.IO
         /// Writes the specified value to the PDF stream.
         /// </summary>
         public void Write(PdfInteger value)
+        {
+            WriteSeparator(CharCat.Character);
+            _lastCat = CharCat.Character;
+            WriteRaw(value.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        /// <summary>
+        /// Writes the specified value to the PDF stream.
+        /// </summary>
+        public void Write(PdfLong value)
         {
             WriteSeparator(CharCat.Character);
             _lastCat = CharCat.Character;
@@ -495,12 +515,12 @@ namespace PdfSharpCore.Pdf.IO
             }
         }
 
-        public void WriteEof(PdfDocument document, int startxref)
+        public void WriteEof(PdfDocument document, long startxref)
         {
             WriteRaw("startxref\n");
             WriteRaw(startxref.ToString(CultureInfo.InvariantCulture));
             WriteRaw("\n%%EOF\n");
-            int fileSize = (int)_stream.Position;
+            var fileSize = _stream.Position;
             if (_layout == PdfWriterLayout.Verbose)
             {
                 TimeSpan duration = DateTime.Now - document._creation;

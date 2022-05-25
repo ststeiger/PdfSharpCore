@@ -35,8 +35,6 @@ using System.IO;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf.Internal;
 
-#pragma warning disable 1591
-
 namespace PdfSharpCore.Pdf.IO
 {
     /// <summary>
@@ -54,7 +52,7 @@ namespace PdfSharpCore.Pdf.IO
         public Lexer(Stream pdfInputStream)
         {
             _pdfSteam = pdfInputStream;
-            _pdfLength = (int)_pdfSteam.Length;
+            _pdfLength = _pdfSteam.Length;
             _idxChar = 0;
             Position = 0;
         }
@@ -62,7 +60,7 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Gets or sets the position within the PDF stream.
         /// </summary>
-        public int Position
+        public long Position
         {
             get { return _idxChar; }
             set
@@ -173,7 +171,7 @@ namespace PdfSharpCore.Pdf.IO
         /// </summary>
         public byte[] ReadStream(int length)
         {
-            int pos;
+            long pos;
 
             // Skip illegal blanks behind «stream».
             while (_currChar == Chars.SP)
@@ -203,7 +201,7 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Reads a string in raw encoding.
         /// </summary>
-        public String ReadRawString(int position, int length)
+        public string ReadRawString(long position, int length)
         {
             _pdfSteam.Position = position;
             byte[] bytes = new byte[length];
@@ -303,23 +301,17 @@ namespace PdfSharpCore.Pdf.IO
             long l = Int64.Parse(_token.ToString(), CultureInfo.InvariantCulture);
             if (l >= Int32.MinValue && l <= Int32.MaxValue)
                 return Symbol.Integer;
-            if (l > 0 && l <= UInt32.MaxValue)
-                return Symbol.UInteger;
+            if (l >= Int64.MinValue && l <= Int64.MaxValue)
+                return Symbol.Long;
 
             // Got an AutoCAD PDF file that contains this: /C 264584027963392
             // Best we can do is to convert it to real value.
             return Symbol.Real;
-            //thr ow new PdfReaderException("Number exceeds integer range.");
         }
 
         public Symbol ScanNumberOrReference()
         {
             Symbol result = ScanNumber();
-            if (result == Symbol.Integer)
-            {
-                int pos = Position;
-                string objectNumber = Token;
-            }
             return result;
         }
 
@@ -643,7 +635,7 @@ namespace PdfSharpCore.Pdf.IO
             // A Reference has the form "nnn mmm R". The implementation of the the parser used a
             // reduce/shift algorithm in the first place. But this case is the only one we need to
             // look ahead 3 tokens. 
-            int positon = Position;
+            var positon = Position;
 
             // Skip digits.
             while (char.IsDigit(_currChar))
@@ -731,32 +723,32 @@ namespace PdfSharpCore.Pdf.IO
             return _currChar;
         }
 
-#if DEBUG
-        public string SurroundingsOfCurrentPosition(bool hex)
-        {
-            const int range = 20;
-            int start = Math.Max(Position - range, 0);
-            int length = Math.Min(2 * range, PdfLength - start);
-            long posOld = _pdfSteam.Position;
-            _pdfSteam.Position = start;
-            byte[] bytes = new byte[length];
-            _pdfSteam.Read(bytes, 0, length);
-            _pdfSteam.Position = posOld;
-            string result = "";
-            if (hex)
-            {
-                for (int idx = 0; idx < length; idx++)
-                    result += ((int)bytes[idx]).ToString("x2");
-                //result += string.Format("{0:", (int) bytes[idx]);
-            }
-            else
-            {
-                for (int idx = 0; idx < length; idx++)
-                    result += (char)bytes[idx];
-            }
-            return result;
-        }
-#endif
+// #if DEBUG
+//         public string SurroundingsOfCurrentPosition(bool hex)
+//         {
+//             const int range = 20;
+//             int start = Math.Max(Position - range, 0);
+//             int length = Math.Min(2 * range, PdfLength - start);
+//             long posOld = _pdfSteam.Position;
+//             _pdfSteam.Position = start;
+//             byte[] bytes = new byte[length];
+//             _pdfSteam.Read(bytes, 0, length);
+//             _pdfSteam.Position = posOld;
+//             string result = "";
+//             if (hex)
+//             {
+//                 for (int idx = 0; idx < length; idx++)
+//                     result += ((int)bytes[idx]).ToString("x2");
+//                 //result += string.Format("{0:", (int) bytes[idx]);
+//             }
+//             else
+//             {
+//                 for (int idx = 0; idx < length; idx++)
+//                     result += (char)bytes[idx];
+//             }
+//             return result;
+//         }
+// #endif
 
         /// <summary>
         /// Gets the current symbol.
@@ -810,6 +802,7 @@ namespace PdfSharpCore.Pdf.IO
                 return uint.Parse(_token.ToString(), CultureInfo.InvariantCulture);
             }
         }
+        public long TokenToLong => long.Parse(_token.ToString(), CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Interprets current token as real or integer literal.
@@ -876,13 +869,13 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Gets the length of the PDF output.
         /// </summary>
-        public int PdfLength
+        public long PdfLength
         {
             get { return _pdfLength; }
         }
 
-        readonly int _pdfLength;
-        int _idxChar;
+        readonly long _pdfLength;
+        long _idxChar;
         char _currChar;
         char _nextChar;
         StringBuilder _token;
