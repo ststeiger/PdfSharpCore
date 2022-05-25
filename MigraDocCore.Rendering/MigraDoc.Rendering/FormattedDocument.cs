@@ -580,17 +580,13 @@ namespace MigraDocCore.Rendering
             switch (align)
             {
                 case ElementAlignment.Near:
-#if true
                     // Allow negative offsets (supporting "Anschnitt" for images)
                     if (layoutInfo.HorizontalReference == HorizontalReference.Page ||
                       layoutInfo.HorizontalReference == HorizontalReference.PageMargin)
                         xPos = layoutInfo.MarginLeft; // Ignore layoutInfo.Left if absolute position is specified
                     else
                         xPos = Math.Max(layoutInfo.MarginLeft, layoutInfo.Left);
-#else
-          //!!!delTHHO 22.10.2008 
-          xPos = Math.Max(layoutInfo.MarginLeft, layoutInfo.Left);
-#endif
+
                     layoutInfo.ContentArea.X = xPos;
                     break;
 

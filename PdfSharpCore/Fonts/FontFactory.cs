@@ -31,19 +31,6 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-#if CORE || GDI
-using System.Drawing;
-using GdiFontFamily = System.Drawing.FontFamily;
-using GdiFont = System.Drawing.Font;
-#endif
-#if WPF
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Resources;
-using WpfFontFamily = System.Windows.Media.FontFamily;
-using WpfGlyphTypeface = System.Windows.Media.GlyphTypeface;
-using WpfTypeface = System.Windows.Media.Typeface;
-#endif
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Fonts.OpenType;
 using PdfSharpCore.Internal;
@@ -154,38 +141,6 @@ namespace PdfSharpCore.Fonts
             }
             finally { Lock.ExitFontFactory(); }
         }
-
-#if GDI
-        /// <summary>
-        /// Registers the font face.
-        /// </summary>
-        public static XFontSource RegisterFontFace(byte[] fontBytes)
-        {
-            try
-            {
-                Lock.EnterFontFactory();
-                ulong key = FontHelper.CalcChecksum(fontBytes);
-                XFontSource fontSource;
-                if (FontSourcesByKey.TryGetValue(key, out fontSource))
-                {
-                    throw new InvalidOperationException("Font face already registered.");
-                }
-                fontSource = XFontSource.GetOrCreateFrom(fontBytes);
-                Debug.Assert(FontSourcesByKey.ContainsKey(key));
-                Debug.Assert(fontSource.Fontface != null);
-
-                //fontSource.Fontface = new OpenTypeFontface(fontSource);
-                //FontSourcesByKey.Add(checksum, fontSource);
-                //FontSourcesByFontName.Add(fontSource.FontName, fontSource);
-
-                XGlyphTypeface glyphTypeface = new XGlyphTypeface(fontSource);
-                FontSourcesByName.Add(glyphTypeface.Key, fontSource);
-                GlyphTypefaceCache.AddGlyphTypeface(glyphTypeface);
-                return fontSource;
-            }
-            finally { Lock.ExitFontFactory(); }
-        }
-#endif
 
         /// <summary>
         /// Gets the bytes of a physical font with specified face name.

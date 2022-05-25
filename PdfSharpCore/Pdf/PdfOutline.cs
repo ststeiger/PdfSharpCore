@@ -248,28 +248,7 @@ namespace PdfSharpCore.Pdf
         public bool Opened
         {
             get { return _opened; }
-#if true
             set { _opened = value; }
-#else
-            // TODO: adjust openCount of ascendant...
-            set
-            {
-                if (_opened != value)
-                {
-                    _opened = value;
-                    int sign = value ? 1 : -1;
-                    PdfOutline parent = _parent;
-                    if (_opened)
-                    {
-                        while (parent != null)
-                            parent.openCount += 1 + _openCount;
-                    }
-                    else
-                    {
-                    }
-                }
-            }
-#endif
         }
         bool _opened;
 

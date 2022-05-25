@@ -40,51 +40,10 @@
 
 using System;
 using System.Diagnostics;
-#if !NETFX_CORE && !UWP && !PORTABLE
-using System.Security.Cryptography;
-#endif
 
 // ReSharper disable InconsistentNaming
-
-#if SILVERLIGHT || WINDOWS_PHONE || UWP || (GDI && DEBUG) || PORTABLE
 namespace PdfSharpCore.Pdf.Security
 {
-
-#if false && (UWP || PORTABLE)
-    class HashAlgorithm
-    {
-        public int HashSizeValue { get; set; }
-
-        public virtual void Initialize()
-        { }
-
-        protected virtual void HashCore(byte[] array, int ibStart, int cbSize)
-        { }
-
-        protected virtual byte[] HashFinal()
-        {
-            return null;
-        }
-
-        public byte[] HashValue { get; set; }
-
-        public void TransformBlock(byte[] a, int b, int c, byte[] d, int e)
-        { }
-
-        public void TransformFinalBlock(byte[] a, int b, int c)
-        { }
-
-        public byte[] ComputeHash(byte[] a)
-        {
-            return null;
-        }
-
-        public byte[] Hash
-        {
-            get { return null; }
-        }
-    }
-#endif
     /// <summary>
     /// A managed implementation of the MD5 algorithm.
     /// Necessary because MD5 is not part of the framework in Silverlight and WP.
@@ -234,7 +193,6 @@ namespace PdfSharpCore.Pdf.Security
 
         static class MD5Core
         {
-#if true
             public static byte[] GetHash(byte[] input)
             {
                 if (null == input)
@@ -257,7 +215,6 @@ namespace PdfSharpCore.Pdf.Security
                 // The final data block. 
                 return GetHashFinalBlock(input, startIndex, input.Length - startIndex, abcd, (Int64)input.Length * 8);
             }
-#endif
 
             internal static byte[] GetHashFinalBlock(byte[] input, int ibStart, int cbSize, ABCDStruct abcd, Int64 len)
             {
@@ -444,56 +401,4 @@ namespace PdfSharpCore.Pdf.Security
             }
         }
     }
-
-#if GDI && DEBUG && true_
-
-    // See here for details: http://archive.msdn.microsoft.com/SilverlightMD5/WorkItem/View.aspx?WorkItemId=3
-
-    public static class TestMD5
-    {
-        public static void Test()
-        {
-            Random rnd = new Random();
-            for (int i = 0; i < 10000; i++)
-            {
-                int count = rnd.Next(1000) + 1;
-                Console.WriteLine(String.Format("{0}: {1}", i, count));
-                Test2(count);
-            }
-        }
-
-        static void Test2(int count)
-        {
-            byte[] bytes = new byte[count];
-
-            for (int idx = 0; idx < count; idx += 16)
-                Array.Copy(Guid.NewGuid().ToByteArray(), 0, bytes, idx, Math.Min(16, count - idx));
-
-            MD5 md5dotNet = new MD5CryptoServiceProvider();
-            md5dotNet.Initialize();
-            MD5Managed md5m = new MD5Managed();
-            md5m.Initialize();
-
-            byte[] result1 = md5dotNet.ComputeHash(bytes);
-            byte[] result2 = md5m.ComputeHash(bytes);
-
-            if (!CompareBytes(result1, result2))
-            {
-                count.GetType();
-                //throw new Exception("Bug in MD5Managed...");
-            }
-        }
-
-        static bool CompareBytes(byte[] bytes1, byte[] bytes2)
-        {
-            for (int idx = 0; idx < bytes1.Length; idx++)
-            {
-                if (bytes1[idx] != bytes2[idx])
-                    return false;
-            }
-            return true;
-        }
-    }
-#endif
 }
-#endif

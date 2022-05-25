@@ -152,8 +152,7 @@ namespace PdfSharpCore.Pdf
             /// <param name="r">The second object to compare.</param>
             public int Compare(PdfName l, PdfName r)
             {
-#if true_
-#else
+
                 if (l != null)
                 {
                     if (r != null)
@@ -163,7 +162,6 @@ namespace PdfSharpCore.Pdf
                 if (r != null)
                     return 1;
                 return 0;
-#endif
             }
         }
     }

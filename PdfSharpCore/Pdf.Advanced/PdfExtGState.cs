@@ -29,13 +29,6 @@
 
 using System.Globalization;
 
-#if GDI
-using System.Drawing;
-using System.Drawing.Imaging;
-#endif
-#if WPF
-#endif
-
 namespace PdfSharpCore.Pdf.Advanced
 {
     /// <summary>

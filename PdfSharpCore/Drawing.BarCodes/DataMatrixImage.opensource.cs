@@ -28,16 +28,6 @@
 #endregion
 
 using System;
-#if GDI
-using System.Drawing;
-using System.Drawing.Imaging;
-#endif
-#if WPF
-using System.Windows;
-using System.Windows.Media;
-#endif
-
-
 
 // ========================================================================================
 // ========================================================================================
@@ -188,30 +178,7 @@ namespace PdfSharpCore.Drawing.BarCodes
         /// </summary>
         public XImage CreateImage(char[] code, int rows, int columns, int pixelsize)
         {
-#if GDI
-      Bitmap bm = new Bitmap(columns * pixelsize, rows * pixelsize);
-      using (Graphics gfx = Graphics.FromImage(bm))
-      {
-        gfx.FillRectangle(System.Drawing.Brushes.White, new Rectangle(0, 0, columns * pixelsize, rows * pixelsize));
-
-        for (int i = rows - 1; i >= 0; i--)
-        {
-          for (int j = 0; j < columns; j++)
-          {
-            if (code[((rows - 1) - i) * columns + j] == (char)1)
-              gfx.FillRectangle(System.Drawing.Brushes.Black, j * pixelsize, i * pixelsize, pixelsize, pixelsize);
-          }
-        }
-        System.Drawing.Pen pen = new System.Drawing.Pen(System.Drawing.Color.Firebrick, pixelsize);
-        gfx.DrawLine(pen, 0, 0, rows * pixelsize, columns * pixelsize);
-        gfx.DrawLine(pen, columns * pixelsize, 0, 0, rows * pixelsize);
-      }
-      XImage image = XImage.FromGdiPlusImage(bm);
-      image.Interpolate = false;
-      return image;
-#elif WPF || __IOS__ || __ANDROID__ || PORTABLE
             return null;
-#endif
         }
     }
 

@@ -48,12 +48,6 @@ namespace PdfSharpCore.Pdf.Advanced
         public PdfObjectStream(PdfDocument document)
             : base(document)
         {
-#if DEBUG && CORE
-            if (Internal.PdfDiagnostics.TraceObjectStreams)
-            {
-                Debug.WriteLine("PdfObjectStream(document) created.");
-            }
-#endif
         }
 
         /// <summary>
@@ -68,13 +62,6 @@ namespace PdfSharpCore.Pdf.Advanced
 
             Parser parser = new Parser(null, new MemoryStream(Stream.Value));
             _header = parser.ReadObjectStreamHeader(n, first);
-
-#if DEBUG && CORE
-            if (Internal.PdfDiagnostics.TraceObjectStreams)
-            {
-                Debug.WriteLine(String.Format("PdfObjectStream(document) created. Header item count: {0}", _header.GetLength(0)));
-            }
-#endif
         }
 
         /// <summary>
@@ -162,12 +149,4 @@ namespace PdfSharpCore.Pdf.Advanced
             public const string Extends = "/Extends";
         }
     }
-
-#if DEBUG && CORE
-    static class ObjectStreamDiagnostics
-    {
-        public static void AddObjectStreamXRef()
-        { }
-    }
-#endif
 }

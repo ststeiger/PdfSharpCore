@@ -666,40 +666,7 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
             throw new NotSupportedException("InflaterInputStream WriteByte not supported");
         }
 
-#if !NETFX_CORE && !UWP && !PORTABLE
-        /// <summary>
-        /// Entry point to begin an asynchronous write.  Always throws a NotSupportedException.
-        /// </summary>
-        /// <param name="buffer">The buffer to write data from</param>
-        /// <param name="offset">Offset of first byte to write</param>
-        /// <param name="count">The maximum number of bytes to write</param>
-        /// <param name="callback">The method to be called when the asynchronous write operation is completed</param>
-        /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests</param>
-        /// <returns>An <see cref="System.IAsyncResult">IAsyncResult</see> that references the asynchronous write</returns>
-        /// <exception cref="NotSupportedException">Any access</exception>
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-        {
-            throw new NotSupportedException("InflaterInputStream BeginWrite not supported");
-        }
-#endif
 
-#if !NETFX_CORE && !UWP && !PORTABLE
-        /// <summary>
-        /// Closes the input stream.  When <see cref="IsStreamOwner"></see>
-        /// is true the underlying stream is also closed.
-        /// </summary>
-        public override void Close()
-        {
-            if (!isClosed)
-            {
-                isClosed = true;
-                if (isStreamOwner)
-                {
-                    baseInputStream.Close();
-                }
-            }
-        }
-#else
         public void Close()
         {
             if (!isClosed)
@@ -707,12 +674,10 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
                 isClosed = true;
                 if (isStreamOwner)
                 {
-                    //baseInputStream.Close();
                     baseInputStream.Dispose();
                 }
             }
         }
-#endif
 
         /// <summary>
         /// Reads decompressed data into the provided buffer byte array
@@ -794,12 +759,10 @@ namespace PdfSharpCore.SharpZipLib.Zip.Compression.Streams
         ///// </summary>
         ////protected long csize;
 
-#if true || !NETFX_CORE
         /// <summary>
         /// Flag indicating wether this instance has been closed or not.
         /// </summary>
         bool isClosed;
-#endif
 
         /// <summary>
         /// Flag indicating wether this instance is designated the stream owner.

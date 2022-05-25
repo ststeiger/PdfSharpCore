@@ -52,9 +52,6 @@ namespace PdfSharpCore.Fonts
         {
             if (_stream != null && closeUnderlyingStream)
             {
-#if !UWP && !PORTABLE
-                _stream.Close();
-#endif
                 _stream.Dispose();
             }
             _stream = null;

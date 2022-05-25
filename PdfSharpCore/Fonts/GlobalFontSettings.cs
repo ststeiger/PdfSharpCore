@@ -57,10 +57,8 @@ namespace PdfSharpCore.Fonts
         {
             get 
             {
-#if NETCOREAPP1_1
                 if (_fontResolver == null) FontResolver = new FontResolver();
-#endif
-                return _fontResolver; 
+                    return _fontResolver; 
             }
             set
             {

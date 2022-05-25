@@ -27,21 +27,7 @@
 // DEALINGS IN THE SOFTWARE.
 #endregion
 
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-#endif
-#if WPF
-using System.Windows;
-using System.Windows.Media;
-#endif
-using PdfSharpCore.Pdf.Internal;
-using PdfSharpCore.Fonts;
-#if !EDF_CORE
 using PdfSharpCore.Drawing;
-#endif
-
-#pragma warning disable 0649
 
 namespace PdfSharpCore.Fonts.OpenType
 {

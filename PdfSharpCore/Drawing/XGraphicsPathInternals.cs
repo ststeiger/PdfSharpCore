@@ -52,25 +52,5 @@ namespace PdfSharpCore.Drawing
             _path = path;
         }
         XGraphicsPath _path;
-
-#if GDI
-        /// <summary>
-        /// Gets the underlying GDI+ path object.
-        /// </summary>
-        public GraphicsPath GdiPath
-        {
-            get { return _path._gdipPath; }
-        }
-#endif
-
-#if WPF || NETFX_CORE
-        /// <summary>
-        /// Gets the underlying WPF path geometry object.
-        /// </summary>
-        public PathGeometry WpfPath
-        {
-            get { return _path._pathGeometry; }
-        }
-#endif
     }
 }

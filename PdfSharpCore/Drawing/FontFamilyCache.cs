@@ -33,15 +33,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
-#if CORE || GDI
-using System.Drawing;
-using GdiFontFamily = System.Drawing.FontFamily;
-#endif
-#if WPF
-using System.Windows.Media;
-using System.Windows.Markup;
-using WpfFontFamily = System.Windows.Media.FontFamily;
-#endif
 using PdfSharpCore.Fonts;
 using PdfSharpCore.Fonts.OpenType;
 using PdfSharpCore.Internal;

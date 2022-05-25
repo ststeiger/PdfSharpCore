@@ -43,12 +43,6 @@ namespace PdfSharpCore.Pdf.Advanced
         public PdfCrossReferenceStream(PdfDocument document)
             : base(document)
         {
-#if DEBUG && CORE
-            if (Internal.PdfDiagnostics.TraceXrefStreams)
-            {
-                Debug.WriteLine("PdfCrossReferenceStream created.");
-            }
-#endif
         }
 
         public readonly List<CrossReferenceStreamEntry> Entries = new List<CrossReferenceStreamEntry>();

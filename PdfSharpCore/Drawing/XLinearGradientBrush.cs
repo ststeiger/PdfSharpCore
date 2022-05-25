@@ -30,26 +30,6 @@
 using System;
 using System.ComponentModel;
 using PdfSharpCore.Internal;
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using GdiLinearGradientBrush =System.Drawing.Drawing2D.LinearGradientBrush;
-#endif
-#if WPF
-using System.Windows;
-using System.Windows.Media;
-using SysPoint = System.Windows.Point;
-using SysSize = System.Windows.Size;
-using SysRect = System.Windows.Rect;
-using WpfBrush = System.Windows.Media.Brush;
-#endif
-#if UWP
-using Windows.UI;
-using Windows.UI.Xaml.Media;
-using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Brushes;
-#endif
-
 // ReSharper disable RedundantNameQualifier because it is required for hybrid build
 
 namespace PdfSharpCore.Drawing
@@ -61,33 +41,6 @@ namespace PdfSharpCore.Drawing
     {
         //internal XLinearGradientBrush();
 
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
-        /// </summary>
-        public XLinearGradientBrush(System.Drawing.Point point1, System.Drawing.Point point2, XColor color1, XColor color2)
-            : this(new XPoint(point1), new XPoint(point2), color1, color2)
-        { }
-#endif
-
-#if WPF
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
-        /// </summary>
-        public XLinearGradientBrush(SysPoint point1, SysPoint point2, XColor color1, XColor color2)
-            : this(new XPoint(point1), new XPoint(point2), color1, color2)
-        { }
-#endif
-
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
-        /// </summary>
-        public XLinearGradientBrush(PointF point1, PointF point2, XColor color1, XColor color2)
-            : this(new XPoint(point1), new XPoint(point2), color1, color2)
-        { }
-#endif
-
         /// <summary>
         /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
         /// </summary>
@@ -97,30 +50,6 @@ namespace PdfSharpCore.Drawing
             _point2 = point2;
         }
 
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
-        /// </summary>
-        public XLinearGradientBrush(Rectangle rect, XColor color1, XColor color2, XLinearGradientMode linearGradientMode)
-            : this(new XRect(rect), color1, color2, linearGradientMode)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
-        /// </summary>
-        public XLinearGradientBrush(RectangleF rect, XColor color1, XColor color2, XLinearGradientMode linearGradientMode)
-            : this(new XRect(rect), color1, color2, linearGradientMode)
-        { }
-#endif
-
-#if WPF
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
-        /// </summary>
-        public XLinearGradientBrush(Rect rect, XColor color1, XColor color2, XLinearGradientMode linearGradientMode)
-            : this(new XRect(rect), color1, color2, linearGradientMode)
-        { }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XLinearGradientBrush"/> class.
@@ -144,137 +73,6 @@ namespace PdfSharpCore.Drawing
         //public XLinearGradientBrush(Rectangle rect, XColor color1, XColor color2, double angle, bool isAngleScaleable);
         //public XLinearGradientBrush(RectangleF rect, XColor color1, XColor color2, double angle, bool isAngleScaleable);
         //public XLinearGradientBrush(RectangleF rect, XColor color1, XColor color2, double angle, bool isAngleScaleable);
-
-
-#if GDI
-        internal override System.Drawing.Brush RealizeGdiBrush()
-        {
-            //if (dirty)
-            //{
-            //  if (brush == null)
-            //    brush = new SolidBrush(color.ToGdiColor());
-            //  else
-            //  {
-            //    brush.Color = color.ToGdiColor();
-            //  }
-            //  dirty = false;
-            //}
-
-            // TODO: use dirty to optimize code
-            GdiLinearGradientBrush brush;
-            try
-            {
-                Lock.EnterGdiPlus();
-                if (_useRect)
-                {
-                    brush = new GdiLinearGradientBrush(_rect.ToRectangleF(),
-                        _color1.ToGdiColor(), _color2.ToGdiColor(), (LinearGradientMode)_linearGradientMode);
-                }
-                else
-                {
-                    brush = new GdiLinearGradientBrush(
-                        _point1.ToPointF(), _point2.ToPointF(),
-                        _color1.ToGdiColor(), _color2.ToGdiColor());
-                }
-                if (!_matrix.IsIdentity)
-                    brush.Transform = _matrix.ToGdiMatrix();
-                //brush.WrapMode = WrapMode.Clamp;
-            }
-            finally { Lock.ExitGdiPlus(); }
-            return brush;
-        }
-#endif
-
-#if WPF
-        internal override WpfBrush RealizeWpfBrush()
-        {
-            //if (dirty)
-            //{
-            //  if (brush == null)
-            //    brush = new SolidBrush(color.ToGdiColor());
-            //  else
-            //  {
-            //    brush.Color = color.ToGdiColor();
-            //  }
-            //  dirty = false;
-            //}
-
-            System.Windows.Media.LinearGradientBrush brush;
-            if (_useRect)
-            {
-#if !SILVERLIGHT
-                brush = new System.Windows.Media.LinearGradientBrush(_color1.ToWpfColor(), _color2.ToWpfColor(), new SysPoint(0, 0), new SysPoint(1, 1));// rect.TopLeft, this.rect.BottomRight);
-                //brush = new System.Drawing.Drawing2D.LinearGradientBrush(rect.ToRectangleF(),
-                //  color1.ToGdiColor(), color2.ToGdiColor(), (LinearGradientMode)linearGradientMode);
-#else
-                GradientStop gs1 = new GradientStop();
-                gs1.Color = _color1.ToWpfColor();
-                gs1.Offset = 0;
-
-                GradientStop gs2 = new GradientStop();
-                gs2.Color = _color2.ToWpfColor();
-                gs2.Offset = 1;
-
-                GradientStopCollection gsc = new GradientStopCollection();
-                gsc.Add(gs1);
-                gsc.Add(gs2);
-
-                brush = new LinearGradientBrush(gsc, 0);
-                brush.StartPoint = new Point(0, 0);
-                brush.EndPoint = new Point(1, 1);
-#endif
-
-            }
-            else
-            {
-#if !SILVERLIGHT
-                brush = new System.Windows.Media.LinearGradientBrush(_color1.ToWpfColor(), _color2.ToWpfColor(), _point1, _point2);
-                //brush = new System.Drawing.Drawing2D.LinearGradientBrush(
-                //  point1.ToPointF(), point2.ToPointF(),
-                //  color1.ToGdiColor(), color2.ToGdiColor());
-#else
-                GradientStop gs1 = new GradientStop();
-                gs1.Color = _color1.ToWpfColor();
-                gs1.Offset = 0;
-
-                GradientStop gs2 = new GradientStop();
-                gs2.Color = _color2.ToWpfColor();
-                gs2.Offset = 1;
-
-                GradientStopCollection gsc = new GradientStopCollection();
-                gsc.Add(gs1);
-                gsc.Add(gs2);
-
-                brush = new LinearGradientBrush(gsc, 0);
-                brush.StartPoint = _point1;
-                brush.EndPoint = _point2;
-#endif
-            }
-            if (!_matrix.IsIdentity)
-            {
-#if !SILVERLIGHT
-                brush.Transform = new MatrixTransform(_matrix.ToWpfMatrix());
-#else
-                MatrixTransform transform = new MatrixTransform();
-                transform.Matrix = _matrix.ToWpfMatrix();
-                brush.Transform = transform;
-#endif
-            }
-            return brush;
-        }
-#endif
-
-#if UWP
-        internal override ICanvasBrush RealizeCanvasBrush()
-        {
-            ICanvasBrush brush;
-
-            brush = new CanvasSolidColorBrush(CanvasDevice.GetSharedDevice(), Colors.RoyalBlue);
-
-            return brush;
-        }
-#endif
-
 
         internal bool _useRect;
         internal XPoint _point1, _point2;
