@@ -5,6 +5,10 @@ using FluentAssertions;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Test.Helpers;
+using PdfSharpCore.Utils;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using Xunit;
 
 namespace PdfSharpCore.Test
@@ -44,6 +48,32 @@ namespace PdfSharpCore.Test
             var renderer = XGraphics.FromPdfPage(pageNewRenderer);
 
             renderer.DrawImage(XImage.FromFile(PathHelper.GetInstance().GetAssetPath("lenna.png")), new XPoint(0, 0));
+
+            document.Save(stream);
+            stream.Position = 0;
+            Assert.True(stream.Length > 1);
+            ReadStreamAndVerifyPdfHeaderSignature(stream);
+        }
+
+        [Fact]
+        public void CreateTestPdfWithImageViaImageSharp()
+        {
+            using var stream = new MemoryStream();
+            var document = new PdfDocument();
+
+            var pageNewRenderer = document.AddPage();
+
+            var renderer = XGraphics.FromPdfPage(pageNewRenderer);
+
+            // Load image for ImageSharp and apply a simple mutation:
+            var image = Image.Load<Rgb24>(PathHelper.GetInstance().GetAssetPath("lenna.png"), out var format);
+            image.Mutate(ctx => ctx.Grayscale());
+
+            // create XImage from that same ImageSharp image:
+            var source = ImageSharpImageSource<Rgb24>.FromImageSharpImage(image, format);
+            var img = XImage.FromImageSource(source);
+
+            renderer.DrawImage(img, new XPoint(0, 0));
 
             document.Save(stream);
             stream.Position = 0;
