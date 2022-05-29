@@ -98,6 +98,8 @@ namespace PdfSharpCore.Pdf.Filters
             msOutput.Flush();
             if (msOutput.Length >= 0)
             {
+                if (parms.DecodeParms != null)
+                    return StreamDecoder.Decode(msOutput.ToArray(), parms.DecodeParms);
                 return msOutput.ToArray();
             }
             return null;
