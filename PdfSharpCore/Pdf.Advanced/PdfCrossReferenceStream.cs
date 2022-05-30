@@ -47,9 +47,10 @@ namespace PdfSharpCore.Pdf.Advanced
 
         public readonly List<CrossReferenceStreamEntry> Entries = new List<CrossReferenceStreamEntry>();
 
+        [DebuggerDisplay("{Type} {Field2} {Field3}")]
         public struct CrossReferenceStreamEntry
         {
-            // Reference: TABLE 3.16  Entries in a cross-refernece stream / Page 109
+            // Reference: TABLE 3.16  Entries in a cross-reference stream / Page 109
 
             public uint Type;  // 0, 1, or 2.
 

@@ -1529,59 +1529,6 @@ namespace PdfSharpCore.Pdf
             }
 
             /// <summary>
-            /// Gets a value indicating whether this stream has decode parameters.
-            /// </summary>
-            internal bool HasDecodeParams
-            {
-                //  TODO: Move to Stream.Internals
-                get
-                {
-                    // TODO: DecodeParams can be an array.
-                    PdfDictionary dictionary = _ownerDictionary.Elements.GetDictionary(Keys.DecodeParms);
-                    if (dictionary != null)
-                    {
-                        // More to do here?
-                        return true;
-                    }
-                    return false;
-                }
-            }
-
-            /// <summary>
-            /// Gets the decode predictor for LZW- or FlateDecode.
-            /// Returns 0 if no such value exists.
-            /// </summary>
-            internal int DecodePredictor  // Reference: TABLE 3.8  Predictor values / Page 76
-            {
-                get
-                {
-                    PdfDictionary dictionary = _ownerDictionary.Elements.GetDictionary(Keys.DecodeParms);
-                    if (dictionary != null)
-                    {
-                        return dictionary.Elements.GetInteger("/Predictor");
-                    }
-                    return 0;
-                }
-            }
-
-            /// <summary>
-            /// Gets the decode Columns for LZW- or FlateDecode.
-            /// Returns 0 if no such value exists.
-            /// </summary>
-            internal int DecodeColumns  // Reference: TABLE 3.8  Predictor values / Page 76
-            {
-                get
-                {
-                    PdfDictionary dictionary = _ownerDictionary.Elements.GetDictionary(Keys.DecodeParms);
-                    if (dictionary != null)
-                    {
-                        return dictionary.Elements.GetInteger("/Columns");
-                    }
-                    return 0;
-                }
-            }
-
-            /// <summary>
             /// Get or sets the bytes of the stream as they are, i.e. if one or more filters exist the bytes are
             /// not unfiltered.
             /// </summary>
@@ -1608,10 +1555,11 @@ namespace PdfSharpCore.Pdf
                     byte[] bytes = null;
                     if (_value != null)
                     {
-                        PdfItem filter = _ownerDictionary.Elements["/Filter"];
+                        PdfItem filter = _ownerDictionary.Elements[Keys.Filter];
                         if (filter != null)
                         {
-                            bytes = Filtering.Decode(_value, filter);
+                            var decodeParms = _ownerDictionary.Elements[Keys.DecodeParms];
+                            bytes = Filtering.Decode(_value, filter, decodeParms);
                             if (bytes == null)
                             {
                                 string message = String.Format("«Cannot decode filter '{0}'»", filter);
@@ -1634,18 +1582,20 @@ namespace PdfSharpCore.Pdf
             /// Otherwise the content remains untouched and the function returns false.
             /// The function is useful for analyzing existing PDF files.
             /// </summary>
-            public bool TryUnfilter()  // TODO: Take DecodeParams into account.
+            public bool TryUnfilter()
             {
                 if (_value != null)
                 {
-                    PdfItem filter = _ownerDictionary.Elements["/Filter"];
+                    PdfItem filter = _ownerDictionary.Elements[Keys.Filter];
                     if (filter != null)
                     {
+                        var decodeParms = _ownerDictionary.Elements[Keys.DecodeParms];
                         // PDFsharp can only uncompress streams that are compressed with the ZIP or LZH algorithm.
-                        byte[] bytes = Filtering.Decode(_value, filter);
+                        byte[] bytes = Filtering.Decode(_value, filter, decodeParms);
                         if (bytes != null)
                         {
                             _ownerDictionary.Elements.Remove(Keys.Filter);
+                            _ownerDictionary.Elements.Remove(Keys.DecodeParms);
                             Value = bytes;
                         }
                         else
@@ -1664,11 +1614,11 @@ namespace PdfSharpCore.Pdf
                 if (_value == null)
                     return;
 
-                if (!_ownerDictionary.Elements.ContainsKey("/Filter"))
+                if (!_ownerDictionary.Elements.ContainsKey(Keys.Filter))
                 {
                     _value = Filtering.FlateDecode.Encode(_value, _ownerDictionary._document.Options.FlateEncodeMode);
-                    _ownerDictionary.Elements["/Filter"] = new PdfName("/FlateDecode");
-                    _ownerDictionary.Elements["/Length"] = new PdfInteger(_value.Length);
+                    _ownerDictionary.Elements[Keys.Filter] = new PdfName("/FlateDecode");
+                    _ownerDictionary.Elements[Keys.Length] = new PdfInteger(_value.Length);
                 }
             }
 
@@ -1681,11 +1631,12 @@ namespace PdfSharpCore.Pdf
                     return "«null»";
 
                 string stream;
-                PdfItem filter = _ownerDictionary.Elements["/Filter"];
+                PdfItem filter = _ownerDictionary.Elements[Keys.Filter];
                 if (filter != null)
                 {
 #if true
-                    byte[] bytes = Filtering.Decode(_value, filter);
+                    var decodeParms = _ownerDictionary.Elements[Keys.DecodeParms];
+                    byte[] bytes = Filtering.Decode(_value, filter, decodeParms);
                     if (bytes != null)
                         stream = PdfEncoders.RawEncoding.GetString(bytes, 0, bytes.Length);
 #else

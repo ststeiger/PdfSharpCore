@@ -101,6 +101,8 @@ namespace PdfSharpCore.Pdf.Filters
 
             if (outputStream.Length >= 0)
             {
+                if (parms.DecodeParms != null)
+                    return StreamDecoder.Decode(outputStream.ToArray(), parms.DecodeParms);
                 return outputStream.ToArray();
             }
             return null;

@@ -35,13 +35,12 @@ using System.Linq;
 using PdfSharpCore.Exceptions;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf.Advanced;
-using PdfSharpCore.Pdf.Internal;
 using PdfSharpCore.Pdf.IO.enums;
 
 namespace PdfSharpCore.Pdf.IO
 {
     /*
-       Direct and indireckt objects
+       Direct and indirect objects
 
        * If a simple object (boolean, integer, number, date, string, rectangle etc.) is referenced indirect,
          the parser reads this objects immediatly and consumes the indirection.
@@ -52,7 +51,7 @@ namespace PdfSharpCore.Pdf.IO
        * If a composite object is a direct object, no PdfReference is created and the object is
          parsed immediatly.
 
-       * A refernece to a non existing object is specified as legal, therefore null is returned.
+       * A reference to a non existing object is specified as legal, therefore null is returned.
     */
 
     /// <summary>
@@ -1256,16 +1255,7 @@ namespace PdfSharpCore.Pdf.IO
             Debug.Assert(xrefStream.Stream != null);
             //string sValue = new RawEncoding().GetString(xrefStream.Stream.UnfilteredValue,);
             //sValue.GetType();
-            byte[] bytesRaw = xrefStream.Stream.UnfilteredValue;
-            byte[] bytes = bytesRaw;
-
-            // HACK: Should be done in UnfilteredValue.
-            if (xrefStream.Stream.HasDecodeParams)
-            {
-                int predictor = xrefStream.Stream.DecodePredictor;
-                int columns = xrefStream.Stream.DecodeColumns;
-                bytes = DecodeCrossReferenceStream(bytesRaw, columns, predictor);
-            }
+            var bytes = xrefStream.Stream.UnfilteredValue;
 
 #if DEBUG_
             for (int idx = 0; idx < bytes.Length; idx++)
@@ -1351,7 +1341,7 @@ namespace PdfSharpCore.Pdf.IO
                             //// (PDF Reference Implementation Notes 15).
 
                             int position = (int)item.Field2;
-                            objectID = ReadObjectNumber(position);
+                                objectID = ReadObjectNumber(position);
 #if DEBUG
                             if (objectID.ObjectNumber == 1074)
                                 GetType();
@@ -1364,7 +1354,7 @@ namespace PdfSharpCore.Pdf.IO
 #if DEBUG
                                 GetType();
 #endif
-                                // Add iref for all uncrompressed objects.
+                                // Add iref for all uncompressed objects.
                                 xrefTable.Add(new PdfReference(objectID, position));
 
                             }
@@ -1771,44 +1761,6 @@ namespace PdfSharpCore.Pdf.IO
             public Symbol Symbol;
         }
 
-        private byte[] DecodeCrossReferenceStream(byte[] bytes, int columns, int predictor)
-        {
-            int size = bytes.Length;
-            if (predictor < 10 || predictor > 15)
-                throw new ArgumentException("Invalid predictor.", "predictor");
-
-            int rowSizeRaw = columns + 1;
-
-            if (size % rowSizeRaw != 0)
-                throw new ArgumentException("Columns and size of array do not match.");
-
-            int rows = size / rowSizeRaw;
-
-            byte[] result = new byte[rows * columns];
-#if DEBUG
-            for (int i = 0; i < result.Length; ++i)
-                result[i] = 88;
-#endif
-
-            for (int row = 0; row < rows; ++row)
-            {
-                if (bytes[row * rowSizeRaw] != 2)
-                    throw new ArgumentException("Invalid predictor in array.");
-
-                for (int col = 0; col < columns; ++col)
-                {
-                    // Copy data for first row.
-                    if (row == 0)
-                        result[row * columns + col] = bytes[row * rowSizeRaw + col + 1];
-                    else
-                    {
-                        // For other rows, add previous row.
-                        result[row * columns + col] = (byte)(result[row * columns - columns + col] + bytes[row * rowSizeRaw + col + 1]);
-                    }
-                }
-            }
-            return result;
-        }
 
         private readonly PdfDocument _document;
         private readonly Lexer _lexer;

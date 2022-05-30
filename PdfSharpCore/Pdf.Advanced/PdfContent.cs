@@ -78,13 +78,13 @@ namespace PdfSharpCore.Pdf.Advanced
             {
                 if (value)
                 {
-                    PdfItem filter = Elements["/Filter"];
+                    PdfItem filter = Elements[PdfStream.Keys.Filter];
                     if (filter == null)
                     {
                         byte[] bytes = Filtering.FlateDecode.Encode(Stream.Value, _document.Options.FlateEncodeMode);
                         Stream.Value = bytes;
-                        Elements.SetInteger("/Length", Stream.Length);
-                        Elements.SetName("/Filter", "/FlateDecode");
+                        Elements.SetInteger(PdfStream.Keys.Length, Stream.Length);
+                        Elements.SetName(PdfStream.Keys.Filter, "/FlateDecode");
                     }
                 }
             }
@@ -97,15 +97,17 @@ namespace PdfSharpCore.Pdf.Advanced
         {
             if (Stream != null && Stream.Value != null)
             {
-                PdfItem item = Elements["/Filter"];
+                PdfItem item = Elements[PdfStream.Keys.Filter];
                 if (item != null)
                 {
-                    byte[] bytes = Filtering.Decode(Stream.Value, item);
+                    var decodeParms = Elements[PdfStream.Keys.DecodeParms];
+                    byte[] bytes = Filtering.Decode(Stream.Value, item, decodeParms);
                     if (bytes != null)
                     {
                         Stream.Value = bytes;
-                        Elements.Remove("/Filter");
-                        Elements.SetInteger("/Length", Stream.Length);
+                        Elements.Remove(PdfStream.Keys.Filter);
+                        Elements.Remove(PdfStream.Keys.DecodeParms);
+                        Elements.SetInteger(PdfStream.Keys.Length, Stream.Length);
                     }
                 }
             }
