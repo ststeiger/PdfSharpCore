@@ -199,7 +199,7 @@ namespace PdfSharpCore.Pdf.IO
             PdfStringEncoding encoding = (PdfStringEncoding)(value.Flags & PdfStringFlags.EncodingMask);
             string pdf = (value.Flags & PdfStringFlags.HexLiteral) == 0 ?
                 PdfEncoders.ToStringLiteral(value.Value, encoding, SecurityHandler) :
-                PdfEncoders.ToHexStringLiteral(value.Value, encoding, SecurityHandler);
+                PdfEncoders.ToHexStringLiteral(value.Value, encoding, SecurityHandler, value.PaddingLeft);
             WriteRaw(pdf);
 
             _lastCat = CharCat.Delimiter;
