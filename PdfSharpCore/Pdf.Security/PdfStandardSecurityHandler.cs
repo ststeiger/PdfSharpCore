@@ -30,7 +30,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using PdfSharpCore.Pdf;
+using System.Security.Cryptography;
 using PdfSharpCore.Pdf.IO;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Internal;
@@ -355,7 +355,6 @@ namespace PdfSharpCore.Pdf.Security
         /// </summary>
         void InitEncryptionKey(byte[] documentID, byte[] userPad, byte[] ownerKey, int permissions, bool strongEncryption)
         {
-            //#if !SILVERLIGHT
             _ownerKey = ownerKey;
             _encryptionKey = new byte[strongEncryption ? 16 : 5];
 
@@ -385,7 +384,6 @@ namespace PdfSharpCore.Pdf.Security
                 }
             }
             Array.Copy(digest, 0, _encryptionKey, 0, _encryptionKey.Length);
-            //#endif
        }
 
         /// <summary>
@@ -467,9 +465,8 @@ namespace PdfSharpCore.Pdf.Security
         /// <summary>
         /// Encrypts the data.
         /// </summary>
-        // ReSharper disable InconsistentNaming
+        // ReSharper disable once InconsistentNaming
         void EncryptRC4(byte[] data, int offset, int length)
-        // ReSharper restore InconsistentNaming
         {
             EncryptRC4(data, offset, length, data);
         }
@@ -477,6 +474,7 @@ namespace PdfSharpCore.Pdf.Security
         /// <summary>
         /// Encrypts the data.
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         void EncryptRC4(byte[] inputData, byte[] outputData)
         {
             EncryptRC4(inputData, 0, inputData.Length, outputData);
@@ -485,6 +483,7 @@ namespace PdfSharpCore.Pdf.Security
         /// <summary>
         /// Encrypts the data.
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         void EncryptRC4(byte[] inputData, int offset, int length, byte[] outputData)
         {
             length += offset;
@@ -602,7 +601,7 @@ namespace PdfSharpCore.Pdf.Security
         /// </summary>
         byte[] _encryptionKey;
 
-        readonly MD5Managed _md5 = new MD5Managed();
+        readonly MD5 _md5 = MD5.Create();
         /// <summary>
         /// Bytes used for RC4 encryption.
         /// </summary>
