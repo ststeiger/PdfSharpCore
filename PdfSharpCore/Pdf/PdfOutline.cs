@@ -240,7 +240,7 @@ namespace PdfSharpCore.Pdf
             get { return _zoom; }
             set { _zoom = value; }
         }
-        double _zoom; // PDF teats 0 and null equally.
+        double _zoom = double.NaN; // PDF teats 0 and null equally.
 
         /// <summary>
         /// Gets or sets whether the outline item is opened (or expanded).
