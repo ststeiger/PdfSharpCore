@@ -488,7 +488,7 @@ namespace PdfSharpCore.Pdf
             }
 
             /// <summary>
-            /// Converts the specified value to String.
+            /// Converts the specified value to string.
             /// If the value does not exist, the function returns the empty string.
             /// </summary>
             public string GetString(string key, bool create)
@@ -525,7 +525,7 @@ namespace PdfSharpCore.Pdf
             }
 
             /// <summary>
-            /// Converts the specified value to String.
+            /// Converts the specified value to string.
             /// If the value does not exist, the function returns the empty string.
             /// </summary>
             public string GetString(string key)
@@ -597,7 +597,7 @@ namespace PdfSharpCore.Pdf
                 {
                     //if (create)
                     //  this[key] = new Pdf();
-                    return String.Empty;
+                    return string.Empty;
                 }
 
                 PdfReference reference = obj as PdfReference;
@@ -1299,7 +1299,7 @@ namespace PdfSharpCore.Pdf
             /// </summary>
             public void Add(string key, PdfItem value)
             {
-                if (String.IsNullOrEmpty(key))
+                if (string.IsNullOrEmpty(key))
                     throw new ArgumentNullException("key");
 
                 if (key[0] != '/')
@@ -1562,7 +1562,7 @@ namespace PdfSharpCore.Pdf
                             bytes = Filtering.Decode(_value, filter, decodeParms);
                             if (bytes == null)
                             {
-                                string message = String.Format("«Cannot decode filter '{0}'»", filter);
+                                string message = string.Format("«Cannot decode filter '{0}'»", filter);
                                 bytes = PdfEncoders.RawEncoding.GetBytes(message);
                             }
                         }
@@ -1755,12 +1755,12 @@ namespace PdfSharpCore.Pdf
             get
             {
 #if true
-                return String.Format(CultureInfo.InvariantCulture, "dictionary({0},[{1}])={2}", 
+                return string.Format(CultureInfo.InvariantCulture, "dictionary({0},[{1}])={2}", 
                     ObjectID.DebuggerDisplay, 
                     Elements.Count,
                     _elements.DebuggerDisplay);
 #else
-                return String.Format(CultureInfo.InvariantCulture, "dictionary({0},[{1}])=", ObjectID.DebuggerDisplay, _elements.DebuggerDisplay);
+                return string.Format(CultureInfo.InvariantCulture, "dictionary({0},[{1}])=", ObjectID.DebuggerDisplay, _elements.DebuggerDisplay);
 #endif
             }
         }

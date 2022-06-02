@@ -93,13 +93,13 @@ namespace PdfSharpCore.Pdf.Advanced
             wrt.Write(prefix);
 
             wrt.WriteLine("1 begincodespacerange");
-            wrt.WriteLine(String.Format("<{0:X4}><{1:X4}>", lowIndex, hiIndex));
+            wrt.WriteLine(string.Format("<{0:X4}><{1:X4}>", lowIndex, hiIndex));
             wrt.WriteLine("endcodespacerange");
 
             // Sorting seems not necessary. The limit is 100 entries, we will see.
-            wrt.WriteLine(String.Format("{0} beginbfrange", glyphIndexToCharacter.Count));
+            wrt.WriteLine(string.Format("{0} beginbfrange", glyphIndexToCharacter.Count));
             foreach (KeyValuePair<int, char> entry in glyphIndexToCharacter)
-                wrt.WriteLine(String.Format("<{0:X4}><{0:X4}><{1:X4}>", entry.Key, (int)entry.Value));
+                wrt.WriteLine(string.Format("<{0:X4}><{0:X4}><{1:X4}>", entry.Key, (int)entry.Value));
             wrt.WriteLine("endbfrange");
 
             wrt.Write(suffix);

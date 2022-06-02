@@ -180,16 +180,16 @@ namespace MigraDocCore.DocumentObjectModel
           throw new ArgumentException(AppResources.EmptyBaseStyle);
 
         // Self assignment is allowed
-        if (String.Compare(baseStyle.Value, value, true) == 0)
+        if (string.Compare(baseStyle.Value, value, true) == 0)
         {
           baseStyle.Value = value;  // character case may change...
           return;
         }
 
-        if (String.Compare(this.name.Value, Style.DefaultParagraphName, true) == 0 ||
-            String.Compare(this.name.Value, Style.DefaultParagraphFontName, true) == 0)
+        if (string.Compare(this.name.Value, Style.DefaultParagraphName, true) == 0 ||
+            string.Compare(this.name.Value, Style.DefaultParagraphFontName, true) == 0)
         {
-          string msg = String.Format("Style '{0}' has no base style and that cannot be altered.", this.name);
+          string msg = string.Format("Style '{0}' has no base style and that cannot be altered.", this.name);
           throw new ArgumentException(msg);
         }
 
@@ -198,7 +198,7 @@ namespace MigraDocCore.DocumentObjectModel
         int idxBaseStyle = styles.GetIndex(value);
         if (idxBaseStyle == -1)
         {
-          string msg = String.Format("Base style '{0}' does not exist.", value);
+          string msg = string.Format("Base style '{0}' does not exist.", value);
           throw new ArgumentException(msg);
         }
         if (idxBaseStyle > 1)
@@ -209,7 +209,7 @@ namespace MigraDocCore.DocumentObjectModel
           {
             if (style == this)
             {
-              string msg = String.Format("Base style '{0}' leads to a circular dependency.", value);
+              string msg = string.Format("Base style '{0}' leads to a circular dependency.", value);
               throw new ArgumentException(msg);
             }
             style = styles[style.BaseStyle];
@@ -233,7 +233,7 @@ namespace MigraDocCore.DocumentObjectModel
         //old
         //if (IsNull("Type"))
         //{
-        //  if (String.Compare (this.baseStyle.Value, DefaultParagraphFontName, true) == 0)
+        //  if (string.Compare (this.baseStyle.Value, DefaultParagraphFontName, true) == 0)
         //    SetValue("Type", StyleType.Character);
         //  else
         //  {
@@ -248,7 +248,7 @@ namespace MigraDocCore.DocumentObjectModel
 
         if (this.styleType.IsNull)
         {
-          if (String.Compare(this.baseStyle.Value, DefaultParagraphFontName, true) == 0)
+          if (string.Compare(this.baseStyle.Value, DefaultParagraphFontName, true) == 0)
             this.styleType.Value = (int)StyleType.Character;
           else
           {
@@ -272,8 +272,8 @@ namespace MigraDocCore.DocumentObjectModel
     {
       get
       {
-        return String.Compare(this.Name, DefaultParagraphFontName, true) == 0 ||
-               String.Compare(this.Name, DefaultParagraphName, true) == 0;
+        return string.Compare(this.Name, DefaultParagraphFontName, true) == 0 ||
+               string.Compare(this.Name, DefaultParagraphName, true) == 0;
       }
     }
 
@@ -358,7 +358,7 @@ namespace MigraDocCore.DocumentObjectModel
         if (this.BaseStyle == "")
         {
           // case: style is "Normal"
-          if (String.Compare(this.name.Value, Style.DefaultParagraphName, true) != 0)
+          if (string.Compare(this.name.Value, Style.DefaultParagraphName, true) != 0)
             throw new ArgumentException("Internal Error: BaseStyle not set.");
 
           refStyle = buildInStyles[buildInStyles.GetIndex(this.Name)];
@@ -373,7 +373,7 @@ namespace MigraDocCore.DocumentObjectModel
           refStyle = buildInStyles[buildInStyles.GetIndex(this.Name)];
           refFormat = refStyle.ParagraphFormat;
           refFont = refFormat.Font;
-          if (String.Compare(this.BaseStyle, refStyle.BaseStyle, true) == 0)
+          if (string.Compare(this.BaseStyle, refStyle.BaseStyle, true) == 0)
           {
             // case: build-in style with unmodified base style name
             string name = DdlEncoder.QuoteIfNameContainsBlanks(this.Name);

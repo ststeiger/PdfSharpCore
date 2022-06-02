@@ -92,7 +92,7 @@ namespace MigraDocCore.DocumentObjectModel.IO
     /// </summary>
     public override string ToString()
     {
-      return String.Format("[{0}({1},{2}):] {3} DDL{4}: {5}",
+      return string.Format("[{0}({1},{2}):] {3} DDL{4}: {5}",
         SourceFile, SourceLine, SourceColumn, "xxx", ErrorNumber, ErrorMessage);
     }
 

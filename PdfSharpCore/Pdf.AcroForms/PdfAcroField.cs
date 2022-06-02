@@ -125,7 +125,7 @@ namespace PdfSharpCore.Pdf.AcroForms
         /// </summary>
         protected virtual PdfAcroField GetValue(string name)
         {
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
                 return this;
             if (HasKids)
                 return Fields.GetValue(name);
@@ -253,7 +253,7 @@ namespace PdfSharpCore.Pdf.AcroForms
                 Debug.Assert(t != "");
                 if (t.Length > 0)
                 {
-                    if (!String.IsNullOrEmpty(partialName))
+                    if (!string.IsNullOrEmpty(partialName))
                         partialName += "." + t;
                     else
                         partialName = t;
@@ -266,7 +266,7 @@ namespace PdfSharpCore.Pdf.AcroForms
                 Debug.Assert(t != "");
                 if (t.Length > 0)
                 {
-                    if (!String.IsNullOrEmpty(partialName))
+                    if (!string.IsNullOrEmpty(partialName))
                         names.Add(partialName + "." + t);
                     else
                         names.Add(t);
@@ -377,7 +377,7 @@ namespace PdfSharpCore.Pdf.AcroForms
 
             internal PdfAcroField GetValue(string name)
             {
-                if (String.IsNullOrEmpty(name))
+                if (string.IsNullOrEmpty(name))
                     return null;
 
                 int dot = name.IndexOf('.');

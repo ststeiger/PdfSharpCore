@@ -130,16 +130,16 @@ namespace MigraDocCore.DocumentObjectModel
       serializer.WriteComment(this.comment.Value);
       int pos = serializer.BeginContent("Info");
 
-      if (this.Title != String.Empty)
+      if (this.Title != string.Empty)
         serializer.WriteSimpleAttribute("Title", this.Title);
 
-      if (this.Subject != String.Empty)
+      if (this.Subject != string.Empty)
         serializer.WriteSimpleAttribute("Subject", this.Subject);
 
-      if (this.Author != String.Empty)
+      if (this.Author != string.Empty)
         serializer.WriteSimpleAttribute("Author", this.Author);
 
-      if (this.Keywords != String.Empty)
+      if (this.Keywords != string.Empty)
         serializer.WriteSimpleAttribute("Keywords", this.Keywords);
 
       serializer.EndContent(pos);

@@ -148,7 +148,7 @@ namespace PdfSharpCore.Pdf.IO
                 // Object 84, 85, 86, and 87 maps to the same dictionary, but all PDF readers I tested
                 // ignores this mismatch! The following assertion failed about 50 times with this file.
 #if true_
-                string message = String.Format("xref entry {0} {1} maps to object {2} {3}.",
+                string message = string.Format("xref entry {0} {1} maps to object {2} {3}.",
                     objectID.ObjectNumber, objectID.GenerationNumber, objectNumber, generationNumber);
                 Debug.Assert(false, message);
 #endif
@@ -158,7 +158,7 @@ namespace PdfSharpCore.Pdf.IO
             objectNumber = objectID.ObjectNumber;
             generationNumber = objectID.GenerationNumber;
 #if true_
-            Debug.WriteLine(String.Format("obj: {0} {1}", objectNumber, generationNumber));
+            Debug.WriteLine(string.Format("obj: {0} {1}", objectNumber, generationNumber));
 #endif
             if (!fromObjecStream)
                 ReadSymbol(Symbol.Obj);
@@ -203,7 +203,7 @@ namespace PdfSharpCore.Pdf.IO
                     return pdfObject;
 
                 case Symbol.Boolean:
-                    pdfObject = new PdfBooleanObject(_document, String.Compare(_lexer.Token, Boolean.TrueString, StringComparison.OrdinalIgnoreCase) == 0);
+                    pdfObject = new PdfBooleanObject(_document, string.Compare(_lexer.Token, Boolean.TrueString, StringComparison.OrdinalIgnoreCase) == 0);
                     pdfObject.SetObjectID(objectNumber, generationNumber);
                     if (!fromObjecStream)
                         ReadSymbol(Symbol.EndObj);

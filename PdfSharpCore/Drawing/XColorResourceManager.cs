@@ -135,7 +135,7 @@ namespace PdfSharpCore.Drawing
             if (color.IsKnownColor)
                 name = ToColorName(XKnownColorTable.GetKnownColor(color.Argb));
             else
-                name = String.Format("{0}, {1}, {2}, {3}", (int)(255 * color.A), color.R, color.G, color.B);
+                name = string.Format("{0}, {1}, {2}, {3}", (int)(255 * color.A), color.R, color.G, color.B);
             return name;
         }
 

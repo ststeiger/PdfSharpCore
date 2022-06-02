@@ -135,7 +135,7 @@ namespace MigraDocCore.DocumentObjectModel
     /// </summary>
     internal override void Serialize(Serializer serializer)
     {
-      string text = String.Empty;
+      string text = string.Empty;
       if (count == 1)
       {
         if ((SymbolName)symbolName.Value == SymbolName.Tab)

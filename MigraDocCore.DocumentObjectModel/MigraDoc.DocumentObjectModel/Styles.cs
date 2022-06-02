@@ -84,7 +84,7 @@ namespace MigraDocCore.DocumentObjectModel
                 for (int index = 1; index < count; ++index)
                 {
                     Style style = (Style)this[index];
-                    if (String.Compare(style.Name, styleName, true) == 0)
+                    if (string.Compare(style.Name, styleName, true) == 0)
                         return style;
                 }
                 return null;
@@ -113,7 +113,7 @@ namespace MigraDocCore.DocumentObjectModel
             for (int index = 0; index < count; ++index)
             {
                 Style style = (Style)this[index];
-                if (String.Compare(style.Name, styleName, true) == 0)
+                if (string.Compare(style.Name, styleName, true) == 0)
                     return index;
             }
             return -1;
@@ -381,7 +381,7 @@ namespace MigraDocCore.DocumentObjectModel
             // correctly. But before we proof that, we check it here.
             if (fSerializePending[index])
             {
-                string message = String.Format("Circular dependency detected according to style '{0}'.", style.Name);
+                string message = string.Format("Circular dependency detected according to style '{0}'.", style.Name);
                 throw new Exception(message);
             }
 

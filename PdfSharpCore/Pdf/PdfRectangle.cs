@@ -348,7 +348,7 @@ namespace PdfSharpCore.Pdf
             get
             {
                 const string format = Config.SignificantFigures10;
-                return String.Format(CultureInfo.InvariantCulture,
+                return string.Format(CultureInfo.InvariantCulture,
                     "X1={0:" + format + "}, X2={1:" + format + "}, Y1={2:" + format + "}, Y2={3:" + format + "}", _x1, _y1, X2, _y2);
             }
         }

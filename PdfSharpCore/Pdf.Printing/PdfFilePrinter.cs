@@ -133,13 +133,13 @@ namespace PdfSharpCore.Pdf.Printing
         /// <param name="milliseconds">The number of milliseconds to wait for completing the print job.</param>
         public void Print(int milliseconds)
         {
-            if (String.IsNullOrEmpty(_printerName))
+            if (string.IsNullOrEmpty(_printerName))
                 _printerName = _defaultPrinterName;
 
-            if (String.IsNullOrEmpty(_adobeReaderPath))
+            if (string.IsNullOrEmpty(_adobeReaderPath))
                 throw new InvalidOperationException("No full qualified path to AcroRd32.exe or Acrobat.exe is set.");
 
-            if (String.IsNullOrEmpty(_printerName))
+            if (string.IsNullOrEmpty(_printerName))
                 throw new InvalidOperationException("No printer name set.");
 
             // Check whether file exists.
@@ -149,7 +149,7 @@ namespace PdfSharpCore.Pdf.Printing
             else
                 fqName = Path.Combine(Directory.GetCurrentDirectory(), _pdfFileName);
             if (!File.Exists(fqName))
-                throw new InvalidOperationException(String.Format("The file {0} does not exist.", fqName));
+                throw new InvalidOperationException(string.Format("The file {0} does not exist.", fqName));
 
             // TODO: Check whether printer exists.
 
@@ -161,13 +161,13 @@ namespace PdfSharpCore.Pdf.Printing
                 //acrord32.exe /h /p       <- some swear by this version
                 ProcessStartInfo startInfo = new ProcessStartInfo();
                 startInfo.FileName = _adobeReaderPath;
-                string args = String.Format("/t \"{0}\" \"{1}\"", _pdfFileName, _printerName);
+                string args = string.Format("/t \"{0}\" \"{1}\"", _pdfFileName, _printerName);
                 //Debug.WriteLine(args);
                 startInfo.Arguments = args;
                 startInfo.CreateNoWindow = true;
                 startInfo.ErrorDialog = false;
                 startInfo.UseShellExecute = false;
-                if (!String.IsNullOrEmpty(_workingDirectory))
+                if (!string.IsNullOrEmpty(_workingDirectory))
                     startInfo.WorkingDirectory = _workingDirectory;
 
                 Process process = Process.Start(startInfo);
@@ -209,7 +209,7 @@ namespace PdfSharpCore.Pdf.Printing
                     Process process = processes[idx];
                     ProcessModule module = process.MainModule;
 
-                    if (String.Compare(Path.GetFileName(module.FileName), Path.GetFileName(_adobeReaderPath), StringComparison.OrdinalIgnoreCase) == 0)
+                    if (string.Compare(Path.GetFileName(module.FileName), Path.GetFileName(_adobeReaderPath), StringComparison.OrdinalIgnoreCase) == 0)
                     {
                         // Yes: Fine, we can print.
                         _runningAcro = process;

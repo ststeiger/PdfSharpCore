@@ -160,8 +160,8 @@ namespace PdfSharpCore.Pdf
             PdfReference[] irefs = AllReferences;
 
             int count = irefs.Length;
-            writer.WriteRaw(String.Format("0 {0}\n", count + 1));
-            writer.WriteRaw(String.Format("{0:0000000000} {1:00000} {2} \n", 0, 65535, "f"));
+            writer.WriteRaw(string.Format("0 {0}\n", count + 1));
+            writer.WriteRaw(string.Format("{0:0000000000} {1:00000} {2} \n", 0, 65535, "f"));
             //PdfEncoders.WriteAnsi(stream, text);
 
             for (int idx = 0; idx < count; idx++)
@@ -169,7 +169,7 @@ namespace PdfSharpCore.Pdf
                 PdfReference iref = irefs[idx];
 
                 // Acrobat is very pedantic; it must be exactly 20 bytes per line.
-                writer.WriteRaw(String.Format("{0:0000000000} {1:00000} {2} \n", iref.Position, iref.GenerationNumber, "n"));
+                writer.WriteRaw(string.Format("{0:0000000000} {1:00000} {2} \n", iref.Position, iref.GenerationNumber, "n"));
             }
         }
 
@@ -486,7 +486,7 @@ namespace PdfSharpCore.Pdf
                             if (!ReferenceEquals(iref.Document, _document))
                             {
                                 GetType();
-                                Debug.WriteLine(String.Format("Bad iref: {0}", iref.ObjectID.ToString()));
+                                Debug.WriteLine(string.Format("Bad iref: {0}", iref.ObjectID.ToString()));
                             }
                             Debug.Assert(ReferenceEquals(iref.Document, _document) || iref.Document == null, "External object detected!");
 #if DEBUG_
@@ -509,7 +509,7 @@ namespace PdfSharpCore.Pdf
                                     }
                                     Debug.Assert(ReferenceEquals(iref.Document, _document));
                                     objects.Add(iref, null);
-                                    //Debug.WriteLine(String.Format("objects.Add('{0}', null);", iref.ObjectID.ToString()));
+                                    //Debug.WriteLine(string.Format("objects.Add('{0}', null);", iref.ObjectID.ToString()));
                                     if (value is PdfArray || value is PdfDictionary)
                                         TransitiveClosureImplementation(objects, value /*, ref depth*/);
                                 }

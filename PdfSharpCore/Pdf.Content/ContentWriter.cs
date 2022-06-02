@@ -94,7 +94,7 @@ namespace PdfSharpCore.Pdf.Content
 
         public void WriteRaw(string rawString)
         {
-            if (String.IsNullOrEmpty(rawString))
+            if (string.IsNullOrEmpty(rawString))
                 return;
             //AppendBlank(rawString[0]);
             byte[] bytes = PdfEncoders.RawEncoding.GetBytes(rawString);
@@ -104,7 +104,7 @@ namespace PdfSharpCore.Pdf.Content
 
         public void WriteLineRaw(string rawString)
         {
-            if (String.IsNullOrEmpty(rawString))
+            if (string.IsNullOrEmpty(rawString))
                 return;
             //AppendBlank(rawString[0]);
             byte[] bytes = PdfEncoders.RawEncoding.GetBytes(rawString);

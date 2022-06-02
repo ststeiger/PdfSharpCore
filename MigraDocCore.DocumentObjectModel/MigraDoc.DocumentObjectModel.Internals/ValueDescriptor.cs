@@ -88,10 +88,10 @@ namespace MigraDocCore.DocumentObjectModel.Internals
                 return new NullableDescriptor(name, typeof(Double), type, memberInfo, flags);
 
             if (type == typeof(NString))
-                return new NullableDescriptor(name, typeof(String), type, memberInfo, flags);
+                return new NullableDescriptor(name, typeof(string), type, memberInfo, flags);
 
-            if (type == typeof(String))
-                return new ValueTypeDescriptor(name, typeof(String), type, memberInfo, flags);
+            if (type == typeof(string))
+                return new ValueTypeDescriptor(name, typeof(string), type, memberInfo, flags);
 
             if (type == typeof(NEnum))
             {

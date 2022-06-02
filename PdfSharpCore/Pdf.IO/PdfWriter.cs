@@ -426,7 +426,7 @@ namespace PdfSharpCore.Pdf.IO
 
         public void WriteRaw(string rawString)
         {
-            if (String.IsNullOrEmpty(rawString))
+            if (string.IsNullOrEmpty(rawString))
                 return;
 
             byte[] bytes = PdfEncoders.RawEncoding.GetBytes(rawString);
@@ -454,11 +454,11 @@ namespace PdfSharpCore.Pdf.IO
         void WriteObjectAddress(PdfObject value)
         {
             if (_layout == PdfWriterLayout.Verbose)
-                WriteRaw(String.Format("{0} {1} obj   % {2}\n",
+                WriteRaw(string.Format("{0} {1} obj   % {2}\n",
                     value.ObjectID.ObjectNumber, value.ObjectID.GenerationNumber,
                     value.GetType().FullName));
             else
-                WriteRaw(String.Format("{0} {1} obj\n", value.ObjectID.ObjectNumber, value.ObjectID.GenerationNumber));
+                WriteRaw(string.Format("{0} {1} obj\n", value.ObjectID.ObjectNumber, value.ObjectID.GenerationNumber));
         }
 
         public void WriteFileHeader(PdfDocument document)
@@ -471,7 +471,7 @@ namespace PdfSharpCore.Pdf.IO
 
             if (_layout == PdfWriterLayout.Verbose)
             {
-                WriteRaw(String.Format("% PDFsharp Version {0} (verbose mode)\n", VersionInfo.Version));
+                WriteRaw(string.Format("% PDFsharp Version {0} (verbose mode)\n", VersionInfo.Version));
                 // Keep some space for later fix-up.
                 _commentPosition = (int)_stream.Position + 2;
                 WriteRaw("%                                                \n");

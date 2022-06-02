@@ -136,7 +136,7 @@ namespace MigraDocCore.DocumentObjectModel
     /// </summary>
     internal static bool IsDdeIdentifier(string name)
     {
-      if (name == null || name == String.Empty)
+      if (name == null || name == string.Empty)
         return false;
 
       int len = name.Length;

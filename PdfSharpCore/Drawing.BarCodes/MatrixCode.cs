@@ -44,8 +44,8 @@ namespace PdfSharpCore.Drawing.BarCodes
             : base(text, size, CodeDirection.LeftToRight)
         {
             _encoding = encoding;
-            if (String.IsNullOrEmpty(_encoding))
-                _encoding = new String('a', Text.Length);
+            if (string.IsNullOrEmpty(_encoding))
+                _encoding = new string('a', Text.Length);
 
             if (columns < rows)
             {

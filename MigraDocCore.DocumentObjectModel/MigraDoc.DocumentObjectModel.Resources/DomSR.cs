@@ -28,7 +28,7 @@ namespace MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Resource
                         //TODO too many placeholders or too less args...
                     }
 #endif
-                    message = String.Format(message, args);
+                    message = string.Format(message, args);
                 }
                 else
                     message = "<<<error: message not found>>>";

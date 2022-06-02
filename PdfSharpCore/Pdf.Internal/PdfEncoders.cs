@@ -201,7 +201,7 @@ namespace PdfSharpCore.Pdf.Internal
         /// </summary>
         public static string ToStringLiteral(string text, PdfStringEncoding encoding, PdfStandardSecurityHandler securityHandler)
         {
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return "()";
 
             byte[] bytes;
@@ -247,7 +247,7 @@ namespace PdfSharpCore.Pdf.Internal
         /// </summary>
         public static string ToHexStringLiteral(string text, PdfStringEncoding encoding, PdfStandardSecurityHandler securityHandler)
         {
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return "<>";
 
             byte[] bytes;
@@ -571,7 +571,7 @@ namespace PdfSharpCore.Pdf.Internal
         /// </summary>
         public static string Format(string format, params object[] args)
         {
-            return String.Format(CultureInfo.InvariantCulture, format, args);
+            return string.Format(CultureInfo.InvariantCulture, format, args);
         }
 
         /// <summary>
@@ -596,15 +596,15 @@ namespace PdfSharpCore.Pdf.Internal
             switch (colorMode)
             {
                 case PdfColorMode.Cmyk:
-                    return String.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "}",
+                    return string.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "}",
                       color.C, color.M, color.Y, color.K);
 
                 default:
                     {
                         if (withAlpha)
-                            return String.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "}", color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A);
+                            return string.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "}", color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A);
                         else
-                            return String.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "}", color.R / 255.0, color.G / 255.0, color.B / 255.0);
+                            return string.Format(CultureInfo.InvariantCulture, "{0:" + format + "} {1:" + format + "} {2:" + format + "}", color.R / 255.0, color.G / 255.0, color.B / 255.0);
 
                     }
             }
@@ -616,7 +616,7 @@ namespace PdfSharpCore.Pdf.Internal
         public static string ToString(XMatrix matrix)
         {
             const string format = Config.SignificantFigures4;
-            return String.Format(CultureInfo.InvariantCulture,
+            return string.Format(CultureInfo.InvariantCulture,
                 "{0:" + format + "} {1:" + format + "} {2:" + format + "} {3:" + format + "} {4:" + format + "} {5:" + format + "}",
                 matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.OffsetX, matrix.OffsetY);
         }

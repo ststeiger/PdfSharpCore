@@ -379,8 +379,8 @@ namespace MigraDocCore.DocumentObjectModel
 
                 // Don't write null values if font is null.
                 // Do write null values if font is not null!
-                if ((!name.IsNull && Name != String.Empty && font == null) ||
-                    (font != null && !name.IsNull && Name != String.Empty && Name != font.Name))
+                if ((!name.IsNull && Name != string.Empty && font == null) ||
+                    (font != null && !name.IsNull && Name != string.Empty && Name != font.Name))
                     serializer.WriteSimpleAttribute("Name", Name);
 
                 // Test

@@ -1723,7 +1723,7 @@ namespace MigraDocCore.Rendering
             string[] enumNames = Enum.GetNames(typeof(InfoFieldType));
             foreach (string enumName in enumNames)
             {
-                if (String.Compare(name, enumName, true) == 0)
+                if (string.Compare(name, enumName, true) == 0)
                 {
                     docInfoValue = paragraph.Document.Info.GetValue(enumName).ToString();
                     break;

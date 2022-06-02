@@ -91,7 +91,7 @@ namespace MigraDocCore.DocumentObjectModel.Fields
     {
       foreach (string validName in validNames)
       {
-        if (String.Compare(validName, name, true) == 0)
+        if (string.Compare(validName, name, true) == 0)
           return true;
       }
       return false;

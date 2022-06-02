@@ -91,7 +91,7 @@ namespace PdfSharpCore.Pdf.Security
         {
             if (_documentSecurityLevel != PdfDocumentSecurityLevel.None)
             {
-                if (String.IsNullOrEmpty(SecurityHandler._userPassword) && String.IsNullOrEmpty(SecurityHandler._ownerPassword))
+                if (string.IsNullOrEmpty(SecurityHandler._userPassword) && string.IsNullOrEmpty(SecurityHandler._ownerPassword))
                 {
                     message = PSSR.UserOrOwnerPasswordRequired;
                     return false;

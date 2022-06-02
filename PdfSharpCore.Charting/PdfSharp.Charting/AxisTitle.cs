@@ -82,7 +82,7 @@ namespace PdfSharpCore.Charting
       get {return this.caption;}
       set {this.caption = value;}
     }
-    internal string caption = String.Empty;
+    internal string caption = string.Empty;
 
     /// <summary>
     /// Gets the font of the title.

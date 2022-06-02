@@ -132,7 +132,7 @@ namespace PdfSharpCore.Charting
       get {return this.name;}
       set {this.name = value;}
     }
-    internal string name = String.Empty;
+    internal string name = string.Empty;
 
     /// <summary>
     /// Gets the line format of the border of each data.

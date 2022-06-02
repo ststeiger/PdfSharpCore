@@ -86,7 +86,7 @@ namespace PdfSharpCore.Drawing
             //if (FontFamilyCache.GetFamilyByName(name) != null)
             //{
             //    // User must rename its font face to resolve naming confilict.
-            //    throw new InvalidOperationException(String.Format("Font face name {0} clashs with existing family name.", name));
+            //    throw new InvalidOperationException(string.Format("Font face name {0} clashs with existing family name.", name));
             //}
 
             //// Create font family and save it in cache. Do not try to create platform objects.

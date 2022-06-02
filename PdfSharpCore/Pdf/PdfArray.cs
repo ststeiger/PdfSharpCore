@@ -300,7 +300,7 @@ namespace PdfSharpCore.Pdf
 
                 object obj = this[index];
                 if (obj == null || obj is PdfNull)
-                    return String.Empty;
+                    return string.Empty;
 
                 PdfString str = obj as PdfString;
                 if (str != null)
@@ -326,7 +326,7 @@ namespace PdfSharpCore.Pdf
 
                 object obj = this[index];
                 if (obj == null || obj is PdfNull)
-                    return String.Empty;
+                    return string.Empty;
 
                 PdfName name = obj as PdfName;
                 if (name != null)
@@ -561,7 +561,7 @@ namespace PdfSharpCore.Pdf
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "array({0},[{1}])", ObjectID.DebuggerDisplay, _elements == null ? 0 : _elements.Count);
+                return string.Format(CultureInfo.InvariantCulture, "array({0},[{1}])", ObjectID.DebuggerDisplay, _elements == null ? 0 : _elements.Count);
 
             }
         }

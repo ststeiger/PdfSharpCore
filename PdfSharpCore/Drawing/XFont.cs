@@ -381,7 +381,7 @@ namespace PdfSharpCore.Drawing
         string DebuggerDisplay
         // ReSharper restore UnusedMember.Local
         {
-            get { return String.Format(CultureInfo.InvariantCulture, "font=('{0}' {1:0.##})", Name, Size); }
+            get { return string.Format(CultureInfo.InvariantCulture, "font=('{0}' {1:0.##})", Name, Size); }
         }
     }
 }

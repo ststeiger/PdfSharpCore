@@ -96,7 +96,7 @@ namespace PdfSharpCore.Pdf.Advanced
             // PDFsharp does not yet support PDF 1.5 object streams.
 
             // Each line must be exactly 20 bytes long, otherwise Acrobat repairs the file.
-            string text = String.Format("{0:0000000000} {1:00000} n\n",
+            string text = string.Format("{0:0000000000} {1:00000} n\n",
               _position, _objectID.GenerationNumber); // InUse ? 'n' : 'f');
             writer.WriteRaw(text);
         }

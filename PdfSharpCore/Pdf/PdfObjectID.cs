@@ -67,7 +67,7 @@ namespace PdfSharpCore.Pdf
 #if DEBUG_
             // iText creates generation numbers with a value of 65536... 
             if (generationNumber > 65535)
-                Debug.WriteLine(String.Format("Generation number: {0}", generationNumber));
+                Debug.WriteLine(string.Format("Generation number: {0}", generationNumber));
 #endif
             _objectNumber = objectNumber;
             _generationNumber = (ushort)generationNumber;
@@ -173,7 +173,7 @@ namespace PdfSharpCore.Pdf
         /// </summary>
         internal string DebuggerDisplay
         {
-            get { return String.Format("id=({0})", ToString()); }
+            get { return string.Format("id=({0})", ToString()); }
         }
     }
 }

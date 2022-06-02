@@ -61,7 +61,7 @@ namespace MigraDocCore.DocumentObjectModel.Internals
     /// </summary>
     void INullableValue.SetValue(object value)
     {
-      this.val = (String)value;
+      this.val = (string)value;
     }
 
     /// <summary>

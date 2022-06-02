@@ -330,7 +330,7 @@ namespace PdfSharpCore.Drawing
             get
             {
                 const string format = Config.SignificantFigures10;
-                return String.Format(CultureInfo.InvariantCulture, "point=({0:" + format + "}, {1:" + format + "})", _x, _y);
+                return string.Format(CultureInfo.InvariantCulture, "point=({0:" + format + "}, {1:" + format + "})", _x, _y);
             }
         }
     }

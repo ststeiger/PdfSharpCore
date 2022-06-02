@@ -413,7 +413,7 @@ namespace PdfSharpCore.Drawing
             catch (Exception ex)
             {
                 unit._value = 1;
-                string message = String.Format("String '{0}' is not a valid value for structure 'XUnit'.", value);
+                string message = string.Format("String '{0}' is not a valid value for structure 'XUnit'.", value);
                 throw new ArgumentException(message, ex);
             }
 
@@ -586,7 +586,7 @@ namespace PdfSharpCore.Drawing
             get
             {
                 const string format = Config.SignificantFigures10;
-                return String.Format(CultureInfo.InvariantCulture, "unit=({0:" + format + "} {1})", _value, GetSuffix());
+                return string.Format(CultureInfo.InvariantCulture, "unit=({0:" + format + "} {1})", _value, GetSuffix());
             }
         }
     }

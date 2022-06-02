@@ -726,7 +726,7 @@ namespace PdfSharpCore.Drawing
             get
             {
                 const string format = Config.SignificantFigures10;
-                return String.Format(CultureInfo.InvariantCulture,
+                return string.Format(CultureInfo.InvariantCulture,
                     "rect=({0:" + format + "}, {1:" + format + "}, {2:" + format + "}, {3:" + format + "})",
                     _x, _y, _width, _height);
             }

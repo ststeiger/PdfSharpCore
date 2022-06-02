@@ -454,7 +454,7 @@ namespace MigraDocCore.DocumentObjectModel.Tables
 
       int pos = serializer.BeginAttributes();
 
-      if (this.style.Value != String.Empty)
+      if (this.style.Value != string.Empty)
         serializer.WriteSimpleAttribute("Style", this.Style);
 
       if (!this.IsNull("Format"))

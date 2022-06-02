@@ -60,12 +60,12 @@ namespace PdfSharpCore
         #region Helper functions
         /// <summary>
         /// Loads the message from the resource associated with the enum type and formats it
-        /// using 'String.Format'. Because this function is intended to be used during error
+        /// using 'string.Format'. Because this function is intended to be used during error
         /// handling it never raises an exception.
         /// </summary>
         /// <param name="id">The type of the parameter identifies the resource
         /// and the name of the enum identifies the message in the resource.</param>
-        /// <param name="args">Parameters passed through 'String.Format'.</param>
+        /// <param name="args">Parameters passed through 'string.Format'.</param>
         /// <returns>The formatted message.</returns>
         public static string Format(PSMsgID id, params object[] args)
         {
@@ -78,7 +78,7 @@ namespace PdfSharpCore
             }
             catch (Exception ex)
             {
-                message = String.Format("UNEXPECTED ERROR while formatting message with ID {0}: {1}", id.ToString(), ex.ToString());
+                message = string.Format("UNEXPECTED ERROR while formatting message with ID {0}: {1}", id.ToString(), ex.ToString());
             }
             return message;
         }
@@ -91,11 +91,11 @@ namespace PdfSharpCore
             string message;
             try
             {
-                message = String.Format(format, args);
+                message = string.Format(format, args);
             }
             catch (Exception ex)
             {
-                message = String.Format("UNEXPECTED ERROR while formatting message '{0}': {1}", format, ex);
+                message = string.Format("UNEXPECTED ERROR while formatting message '{0}': {1}", format, ex);
             }
             return message;
         }
@@ -191,17 +191,17 @@ namespace PdfSharpCore
 
         public static string CannotChangeImmutableObject(string typename)
         {
-            return String.Format("You cannot change this immutable {0} object.", typename);
+            return string.Format("You cannot change this immutable {0} object.", typename);
         }
 
         public static string FontAlreadyAdded(string fontname)
         {
-            return String.Format("Fontface with the name '{0}' already added to font collection.", fontname);
+            return string.Format("Fontface with the name '{0}' already added to font collection.", fontname);
         }
 
         public static string NotImplementedForFontsRetrievedWithFontResolver(string name)
         {
-            return String.Format("Not implemented for font '{0}', because it was retrieved with font resolver.", name);
+            return string.Format("Not implemented for font '{0}', because it was retrieved with font resolver.", name);
         }
 
         #endregion
@@ -259,7 +259,7 @@ namespace PdfSharpCore
 
         public static string ImportPageNumberOutOfRange(int pageNumber, int maxPage, string path)
         {
-            return String.Format("The page cannot be imported from document '{2}', because the page number is out of range. " +
+            return string.Format("The page cannot be imported from document '{2}', because the page number is out of range. " +
               "The specified page number is {0}, but it must be in the range from 1 to {1}.", pageNumber, maxPage, path);
         }
 
@@ -310,7 +310,7 @@ namespace PdfSharpCore
                     space = "(undefined)";
                     break;
             }
-            return String.Format("The document requires color mode {0}, but a color is defined using {1}. " +
+            return string.Format("The document requires color mode {0}, but a color is defined using {1}. " +
               "Use only colors that match the color mode of the PDF document", mode, space);
         }
 

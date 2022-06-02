@@ -61,8 +61,8 @@ namespace PdfSharpCore.Pdf.AcroForms
                 if (!HasKids)
                 {
                     string value = Elements.GetString(Keys.V);
-                    //return !String.IsNullOrEmpty(value) && value != UncheckedValue;
-                    return !String.IsNullOrEmpty(value) && value == CheckedName;
+                    //return !string.IsNullOrEmpty(value) && value != UncheckedValue;
+                    return !string.IsNullOrEmpty(value) && value == CheckedName;
                 }
 
                 if (Fields.Elements.Items.Length == 2)
@@ -138,7 +138,7 @@ namespace PdfSharpCore.Pdf.AcroForms
                                     }
                                 }
                             }
-                            if (!String.IsNullOrEmpty(name1))
+                            if (!string.IsNullOrEmpty(name1))
                             {
                                 ((PdfDictionary)(((PdfReference)(Fields.Elements.Items[1])).Value)).Elements.SetName(Keys.V, name1);
                                 ((PdfDictionary)(((PdfReference)(Fields.Elements.Items[1])).Value)).Elements.SetName(PdfAnnotation.Keys.AS, name1);

@@ -1365,7 +1365,7 @@ namespace PdfSharpCore.Drawing
                 // Calculate the angle in degrees.
                 XPoint point = new XMatrix(_m11, _m12, _m21, _m22, 0, 0).Transform(new XPoint(1, 0));
                 double φ = Math.Atan2(point.Y, point.X) / Const.Deg2Rad;
-                return String.Format(CultureInfo.InvariantCulture,
+                return string.Format(CultureInfo.InvariantCulture,
                     "matrix=({0:" + format + "}, {1:" + format + "}, {2:" + format + "}, {3:" + format + "}, {4:" + format + "}, {5:" + format + "}), φ={6:0.0#########}°",
                     _m11, _m12, _m21, _m22, _offsetX, _offsetY, φ);
             }

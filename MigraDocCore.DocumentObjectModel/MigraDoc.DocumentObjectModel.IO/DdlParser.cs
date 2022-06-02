@@ -1917,7 +1917,7 @@ namespace MigraDocCore.DocumentObjectModel.IO
                         // Hard-coded for TabStops only...
                         if (!(doc is ParagraphFormat))
                             ThrowParserException(DomMsgID.SymbolNotAllowed, scanner.Token);
-                        if (String.Compare(valueName, "TabStops", true) != 0)
+                        if (string.Compare(valueName, "TabStops", true) != 0)
                             ThrowParserException(DomMsgID.InvalidValueForOperation, valueName, scanner.Token);
 
                         ParagraphFormat paragraphFormat = (ParagraphFormat)doc;

@@ -95,7 +95,7 @@ namespace PdfSharpCore.Fonts
         /// </param>
         internal FontResolverInfo(string faceName, bool mustSimulateBold, bool mustSimulateItalic, int collectionNumber)
         {
-            if (String.IsNullOrEmpty(faceName))
+            if (string.IsNullOrEmpty(faceName))
                 throw new ArgumentNullException("faceName");
             if (collectionNumber != 0)
                 throw new NotImplementedException("collectionNumber is not yet implemented and must be 0.");

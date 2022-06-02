@@ -83,7 +83,7 @@ namespace PdfSharpCore.Charting
       get {return this.format;}
       set {this.format = value;}
     }
-    internal string format = String.Empty;
+    internal string format = string.Empty;
 
     /// <summary>
     /// Gets the Font for the DataLabel.

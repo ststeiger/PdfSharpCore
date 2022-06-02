@@ -187,7 +187,7 @@ namespace MigraDocCore.DocumentObjectModel.Shapes
 
             try
             {
-                if (!String.IsNullOrEmpty(workingDir))
+                if (!string.IsNullOrEmpty(workingDir))
                     filePath = workingDir;
                 else
                     filePath = Directory.GetCurrentDirectory() + "\\";

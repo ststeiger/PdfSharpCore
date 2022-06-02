@@ -84,7 +84,7 @@ namespace PdfSharpCore.Pdf.AcroForms
             Debug.Assert(t != "");
             if (t.Length > 0)
             {
-                if (!String.IsNullOrEmpty(partialName))
+                if (!string.IsNullOrEmpty(partialName))
                     names.Add(partialName + "." + t);
                 else
                     names.Add(t);

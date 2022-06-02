@@ -156,7 +156,7 @@ namespace PdfSharpCore.Pdf
                 if (l != null)
                 {
                     if (r != null)
-                        return String.Compare(l._value, r._value, StringComparison.Ordinal);
+                        return string.Compare(l._value, r._value, StringComparison.Ordinal);
                     return -1;
                 }
                 if (r != null)

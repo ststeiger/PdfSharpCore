@@ -78,7 +78,7 @@ namespace MigraDocCore.Rendering
             get { return this.language; }
             set { this.language = value; }
         }
-        string language = String.Empty;
+        string language = string.Empty;
 
         /// <summary>
         /// Set the MigraDoc document to be rendered by this printer.
