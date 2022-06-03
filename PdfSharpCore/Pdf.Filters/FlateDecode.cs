@@ -30,8 +30,8 @@
 using System;
 using System.IO;
 using PdfSharpCore.Internal;
-using PdfSharpCore.SharpZipLib.Zip.Compression;
-using PdfSharpCore.SharpZipLib.Zip.Compression.Streams;
+using ICSharpCode.SharpZipLib.Zip.Compression;
+using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 namespace PdfSharpCore.Pdf.Filters
 {
