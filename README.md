@@ -1,7 +1,6 @@
 # PdfSharpCore
 
-[![codecov.io](https://codecov.io/github/ststeiger/PdfSharpCore/coverage.svg?branch=master)]
-(https://codecov.io/github/ststeiger/PdfSharpCore?branch=master)
+[![codecov.io](https://codecov.io/github/ststeiger/PdfSharpCore/coverage.svg?branch=master)](https://codecov.io/github/ststeiger/PdfSharpCore?branch=master)
 
 **PdfSharpCore** is a partial port of [PdfSharp.Xamarin](https://github.com/roceh/PdfSharp.Xamarin/) for .NET Standard
 Additionally MigraDoc has been ported as well (from version 1.32).
