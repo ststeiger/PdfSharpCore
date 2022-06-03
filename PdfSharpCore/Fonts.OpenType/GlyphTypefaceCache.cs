@@ -63,7 +63,6 @@ namespace PdfSharpCore.Fonts.OpenType
             {
                 Lock.EnterFontFactory();
                 GlyphTypefaceCache cache = Singleton;
-                Debug.Assert(!cache._glyphTypefacesByKey.ContainsKey(glyphTypeface.Key));
                 cache._glyphTypefacesByKey.TryAdd(glyphTypeface.Key, glyphTypeface);
             }
             finally { Lock.ExitFontFactory(); }
