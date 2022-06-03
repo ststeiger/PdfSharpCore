@@ -1,5 +1,8 @@
 # PdfSharpCore
 
+[![codecov.io](https://codecov.io/github/ststeiger/PdfSharpCore/coverage.svg?branch=master)]
+(https://codecov.io/github/ststeiger/PdfSharpCore?branch=master)
+
 **PdfSharpCore** is a partial port of [PdfSharp.Xamarin](https://github.com/roceh/PdfSharp.Xamarin/) for .NET Standard
 Additionally MigraDoc has been ported as well (from version 1.32).
 Images have been implemented with [ImageSharp](https://github.com/JimBobSquarePants/ImageSharp/), which is still in Alpha. They State on their readme that it is still in Alpha status and shouldn't be used in productive environments. Since I didn't find any good alternatives it's still used.
@@ -9,15 +12,14 @@ ImageSharp being Alpha isn't a big issue either since this code isn't by far don
 ###### Example project 
 
 There was an example project here. <br />
-I've removed it from this project, and put it into a separate solution. 
+I've removed it from this project, and put it into a separate solution.
 You can find it [here](https://github.com/ststeiger/Stammbaum).<br />
 There's a default font-resolver in [FontResolver.cs](https://github.com/ststeiger/PdfSharpCore/blob/master/PdfSharpCore/Utils/FontResolver.cs).<br />
 It should work on Windows, Linux, OSX and Azure. <br />
 Some limitations apply. <br />
-See open issues. 
+See open issues.
 
-
-## Example usage 
+## Example usage
 
 ```cs
 //See the "Example" Project for a MigraDoc example

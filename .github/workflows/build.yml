@@ -22,4 +22,6 @@ jobs:
         shell: pwsh
         run: ./ci-build.ps1 "${{matrix.options.framework}}"
       - name: Test
-        run: dotnet test --no-restore --verbosity normal
+        run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+      - name: Codecov
+        uses: codecov/codecov-action@v1
