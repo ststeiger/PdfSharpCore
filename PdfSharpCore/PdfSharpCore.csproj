@@ -20,6 +20,11 @@ PdfSharpCore is a partial port of PdfSharp.Xamarin for .NET Core Additionally Mi
     <DefineConstants>TRACE;DEBUG;</DefineConstants>
   </PropertyGroup>
 
+	<PropertyGroup>
+        <!--skip warning due to skiplabours.fonts being beta -->
+		<NoWarn>NU5104</NoWarn>
+	</PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;RELEASE;</DefineConstants>
   </PropertyGroup>
