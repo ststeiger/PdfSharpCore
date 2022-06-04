@@ -1372,6 +1372,16 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Parses a PDF date string.
         /// </summary>
+        /// <remarks>
+        ///  Format is
+        /// YYYY Year MM month DD day (01-31)  HH hour (00-23)  mm minute (00-59) ss second (00.59)
+        /// O is the relationship of local time to Universal Time (UT), denoted by one of the characters +, -, or Z (see below)
+        /// HH followed by ' is the absolute value of the offset from UT in hours (00-23)
+        /// mm followed by ' is the absolute value of the offset from UT in minutes (00-59)
+        /// For example, December 23, 1998, at 7:52 PM, U.S.Pacific Standard Time, is represented by the string,
+        /// D:19981223195200-08'00'
+        /// </remarks>
+
         internal static DateTime ParseDateTime(string date, DateTime errorValue)  // TODO: TryParseDateTime
         {
             DateTime datetime = errorValue;
@@ -1379,7 +1389,6 @@ namespace PdfSharpCore.Pdf.IO
             {
                 if (date.StartsWith("D:"))
                 {
-                    // Format is
                     // D:YYYYMMDDHHmmSSOHH'mm'
                     //   ^2      ^10   ^16 ^20
                     int length = date.Length;
@@ -1387,20 +1396,20 @@ namespace PdfSharpCore.Pdf.IO
                     char o = 'Z';
                     if (length >= 10)
                     {
-                        year = Int32.Parse(date.Substring(2, 4));
-                        month = Int32.Parse(date.Substring(6, 2));
-                        day = Int32.Parse(date.Substring(8, 2));
+                        year = int.Parse(date.Substring(2, 4));
+                        month = int.Parse(date.Substring(6, 2));
+                        day = int.Parse(date.Substring(8, 2));
                         if (length >= 16)
                         {
-                            hour = Int32.Parse(date.Substring(10, 2));
-                            minute = Int32.Parse(date.Substring(12, 2));
-                            second = Int32.Parse(date.Substring(14, 2));
+                            hour = int.Parse(date.Substring(10, 2));
+                            minute = int.Parse(date.Substring(12, 2));
+                            second = int.Parse(date.Substring(14, 2));
                             if (length >= 23)
                             {
                                 if ((o = date[16]) != 'Z')
                                 {
-                                    hh = Int32.Parse(date.Substring(17, 2));
-                                    mm = Int32.Parse(date.Substring(20, 2));
+                                    hh = int.Parse(date.Substring(17, 2));
+                                    mm = int.Parse(date.Substring(20, 2));
                                 }
                             }
                         }
@@ -1417,7 +1426,7 @@ namespace PdfSharpCore.Pdf.IO
                             datetime = datetime.Subtract(ts);
                     }
                     // Now that we converted datetime to UTC, mark it as UTC.
-                    DateTime.SpecifyKind(datetime, DateTimeKind.Utc);
+                    datetime = DateTime.SpecifyKind(datetime, DateTimeKind.Utc);
                 }
                 else
                 {
