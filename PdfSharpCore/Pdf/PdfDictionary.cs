@@ -825,26 +825,9 @@ namespace PdfSharpCore.Pdf
                 {
                     if (options != VCF.None)
                     {
-#if NETFX_CORE && DEBUG_
-                        if (key == "/Resources")
-                            Debug-Break.Break();
-#endif
                         Type type = GetValueType(key);
                         if (type != null)
                         {
-#if !NETFX_CORE && !PORTABLE
-                            Debug.Assert(typeof(PdfItem).IsAssignableFrom(type), "Type not allowed.");
-                            if (typeof(PdfDictionary).IsAssignableFrom(type))
-                            {
-                                value = obj = CreateDictionary(type, null);
-                            }
-                            else if (typeof(PdfArray).IsAssignableFrom(type))
-                            {
-                                value = obj = CreateArray(type, null);
-                            }
-                            else
-                                throw new NotImplementedException("Type other than array or dictionary.");
-#else
                             // Rewritten WinRT style.
                             TypeInfo typeInfo = type.GetTypeInfo();
                             Debug.Assert(typeof(PdfItem).GetTypeInfo().IsAssignableFrom(typeInfo), "Type not allowed.");
@@ -858,7 +841,6 @@ namespace PdfSharpCore.Pdf
                             }
                             else
                                 throw new NotImplementedException("Type other than array or dictionary.");
-#endif
                             if (options == VCF.CreateIndirect)
                             {
                                 _ownerDictionary.Owner._irefTable.Add(obj);
@@ -890,23 +872,6 @@ namespace PdfSharpCore.Pdf
                             Type type = GetValueType(key);
                             Debug.Assert(type != null, "No value type specified in meta information. Please send this file to PDFsharp support.");
 
-#if !NETFX_CORE && !PORTABLE
-                            if (type != null && type != value.GetType())
-                            {
-                                if (typeof(PdfDictionary).IsAssignableFrom(type))
-                                {
-                                    Debug.Assert(value is PdfDictionary, "Bug in PdfSharpCore. Please send this file to PDFsharp support.");
-                                    value = CreateDictionary(type, (PdfDictionary)value);
-                                }
-                                else if (typeof(PdfArray).IsAssignableFrom(type))
-                                {
-                                    Debug.Assert(value is PdfArray, "Bug in PdfSharpCore. Please send this file to PDFsharp support.");
-                                    value = CreateArray(type, (PdfArray)value);
-                                }
-                                else
-                                    throw new NotImplementedException("Type other than array or dictionary.");
-                            }
-#else
                             // Rewritten WinRT style.
                             TypeInfo typeInfo = type.GetTypeInfo();
                             if (type != null && type != value.GetType())
@@ -924,7 +889,6 @@ namespace PdfSharpCore.Pdf
                                 else
                                     throw new NotImplementedException("Type other than array or dictionary.");
                             }
-#endif
                         }
                         return value;
                     }
@@ -990,27 +954,6 @@ namespace PdfSharpCore.Pdf
 
             PdfArray CreateArray(Type type, PdfArray oldArray)
             {
-#if !NETFX_CORE && !UWP && !PORTABLE
-                ConstructorInfo ctorInfo;
-                PdfArray array;
-                if (oldArray == null)
-                {
-                    // Use contstructor with signature 'Ctor(PdfDocument owner)'.
-                    ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                        null, new Type[] { typeof(PdfDocument) }, null);
-                    Debug.Assert(ctorInfo != null, "No appropriate constructor found for type: " + type.Name);
-                    array = ctorInfo.Invoke(new object[] { _ownerDictionary.Owner }) as PdfArray;
-                }
-                else
-                {
-                    // Use contstructor with signature 'Ctor(PdfDictionary dict)'.
-                    ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                        null, new Type[] { typeof(PdfArray) }, null);
-                    Debug.Assert(ctorInfo != null, "No appropriate constructor found for type: " + type.Name);
-                    array = ctorInfo.Invoke(new object[] { oldArray }) as PdfArray;
-                }
-                return array;
-#else
                 // Rewritten WinRT style.
                 PdfArray array = null;
                 if (oldArray == null)
@@ -1046,32 +989,10 @@ namespace PdfSharpCore.Pdf
                     Debug.Assert(array != null, "No appropriate constructor found for type: " + type.Name);
                 }
                 return array;
-#endif
             }
 
             PdfDictionary CreateDictionary(Type type, PdfDictionary oldDictionary)
             {
-#if !NETFX_CORE && !UWP && !PORTABLE
-                ConstructorInfo ctorInfo;
-                PdfDictionary dict;
-                if (oldDictionary == null)
-                {
-                    // Use contstructor with signature 'Ctor(PdfDocument owner)'.
-                    ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                        null, new Type[] { typeof(PdfDocument) }, null);
-                    Debug.Assert(ctorInfo != null, "No appropriate constructor found for type: " + type.Name);
-                    dict = ctorInfo.Invoke(new object[] { _ownerDictionary.Owner }) as PdfDictionary;
-                }
-                else
-                {
-                    // Use contstructor with signature 'Ctor(PdfDictionary dict)'.
-                    ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                      null, new Type[] { typeof(PdfDictionary) }, null);
-                    Debug.Assert(ctorInfo != null, "No appropriate constructor found for type: " + type.Name);
-                    dict = ctorInfo.Invoke(new object[] { oldDictionary }) as PdfDictionary;
-                }
-                return dict;
-#else
                 // Rewritten WinRT style.
                 PdfDictionary dict = null;
                 if (oldDictionary == null)
@@ -1105,27 +1026,11 @@ namespace PdfSharpCore.Pdf
                     Debug.Assert(dict != null, "No appropriate constructor found for type: " + type.Name);
                 }
                 return dict;
-#endif
             }
 
             PdfItem CreateValue(Type type, PdfDictionary oldValue)
             {
-#if !NETFX_CORE && !UWP && !PORTABLE
-                ConstructorInfo ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                    null, new Type[] { typeof(PdfDocument) }, null);
-                PdfObject obj = ctorInfo.Invoke(new object[] { _ownerDictionary.Owner }) as PdfObject;
-                if (oldValue != null)
-                {
-                    obj.Reference = oldValue.Reference;
-                    obj.Reference.Value = obj;
-                    if (obj is PdfDictionary)
-                    {
-                        PdfDictionary dict = (PdfDictionary)obj;
-                        dict._elements = oldValue._elements;
-                    }
-                }
-                return obj;
-#else
+
                 // Rewritten WinRT style.
                 PdfObject obj = null;
                 var ctorInfos = type.GetTypeInfo().DeclaredConstructors; // GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[] { typeof(PdfDocument) }, null);
@@ -1150,7 +1055,6 @@ namespace PdfSharpCore.Pdf
                     }
                 }
                 return obj;
-#endif
             }
 
             /// <summary>
@@ -1625,59 +1529,6 @@ namespace PdfSharpCore.Pdf
             }
 
             /// <summary>
-            /// Gets a value indicating whether this stream has decode parameters.
-            /// </summary>
-            internal bool HasDecodeParams
-            {
-                //  TODO: Move to Stream.Internals
-                get
-                {
-                    // TODO: DecodeParams can be an array.
-                    PdfDictionary dictionary = _ownerDictionary.Elements.GetDictionary(Keys.DecodeParms);
-                    if (dictionary != null)
-                    {
-                        // More to do here?
-                        return true;
-                    }
-                    return false;
-                }
-            }
-
-            /// <summary>
-            /// Gets the decode predictor for LZW- or FlateDecode.
-            /// Returns 0 if no such value exists.
-            /// </summary>
-            internal int DecodePredictor  // Reference: TABLE 3.8  Predictor values / Page 76
-            {
-                get
-                {
-                    PdfDictionary dictionary = _ownerDictionary.Elements.GetDictionary(Keys.DecodeParms);
-                    if (dictionary != null)
-                    {
-                        return dictionary.Elements.GetInteger("/Predictor");
-                    }
-                    return 0;
-                }
-            }
-
-            /// <summary>
-            /// Gets the decode Columns for LZW- or FlateDecode.
-            /// Returns 0 if no such value exists.
-            /// </summary>
-            internal int DecodeColumns  // Reference: TABLE 3.8  Predictor values / Page 76
-            {
-                get
-                {
-                    PdfDictionary dictionary = _ownerDictionary.Elements.GetDictionary(Keys.DecodeParms);
-                    if (dictionary != null)
-                    {
-                        return dictionary.Elements.GetInteger("/Columns");
-                    }
-                    return 0;
-                }
-            }
-
-            /// <summary>
             /// Get or sets the bytes of the stream as they are, i.e. if one or more filters exist the bytes are
             /// not unfiltered.
             /// </summary>
@@ -1704,10 +1555,11 @@ namespace PdfSharpCore.Pdf
                     byte[] bytes = null;
                     if (_value != null)
                     {
-                        PdfItem filter = _ownerDictionary.Elements["/Filter"];
+                        PdfItem filter = _ownerDictionary.Elements[Keys.Filter];
                         if (filter != null)
                         {
-                            bytes = Filtering.Decode(_value, filter);
+                            var decodeParms = _ownerDictionary.Elements[Keys.DecodeParms];
+                            bytes = Filtering.Decode(_value, filter, decodeParms);
                             if (bytes == null)
                             {
                                 string message = String.Format("«Cannot decode filter '{0}'»", filter);
@@ -1730,18 +1582,20 @@ namespace PdfSharpCore.Pdf
             /// Otherwise the content remains untouched and the function returns false.
             /// The function is useful for analyzing existing PDF files.
             /// </summary>
-            public bool TryUnfilter()  // TODO: Take DecodeParams into account.
+            public bool TryUnfilter()
             {
                 if (_value != null)
                 {
-                    PdfItem filter = _ownerDictionary.Elements["/Filter"];
+                    PdfItem filter = _ownerDictionary.Elements[Keys.Filter];
                     if (filter != null)
                     {
+                        var decodeParms = _ownerDictionary.Elements[Keys.DecodeParms];
                         // PDFsharp can only uncompress streams that are compressed with the ZIP or LZH algorithm.
-                        byte[] bytes = Filtering.Decode(_value, filter);
+                        byte[] bytes = Filtering.Decode(_value, filter, decodeParms);
                         if (bytes != null)
                         {
                             _ownerDictionary.Elements.Remove(Keys.Filter);
+                            _ownerDictionary.Elements.Remove(Keys.DecodeParms);
                             Value = bytes;
                         }
                         else
@@ -1760,11 +1614,11 @@ namespace PdfSharpCore.Pdf
                 if (_value == null)
                     return;
 
-                if (!_ownerDictionary.Elements.ContainsKey("/Filter"))
+                if (!_ownerDictionary.Elements.ContainsKey(Keys.Filter))
                 {
                     _value = Filtering.FlateDecode.Encode(_value, _ownerDictionary._document.Options.FlateEncodeMode);
-                    _ownerDictionary.Elements["/Filter"] = new PdfName("/FlateDecode");
-                    _ownerDictionary.Elements["/Length"] = new PdfInteger(_value.Length);
+                    _ownerDictionary.Elements[Keys.Filter] = new PdfName("/FlateDecode");
+                    _ownerDictionary.Elements[Keys.Length] = new PdfInteger(_value.Length);
                 }
             }
 
@@ -1777,11 +1631,12 @@ namespace PdfSharpCore.Pdf
                     return "«null»";
 
                 string stream;
-                PdfItem filter = _ownerDictionary.Elements["/Filter"];
+                PdfItem filter = _ownerDictionary.Elements[Keys.Filter];
                 if (filter != null)
                 {
 #if true
-                    byte[] bytes = Filtering.Decode(_value, filter);
+                    var decodeParms = _ownerDictionary.Elements[Keys.DecodeParms];
+                    byte[] bytes = Filtering.Decode(_value, filter, decodeParms);
                     if (bytes != null)
                         stream = PdfEncoders.RawEncoding.GetString(bytes, 0, bytes.Length);
 #else

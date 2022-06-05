@@ -31,24 +31,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-#if GDI
-using System.Drawing;
-#endif
-#if WPF
-using System.Windows;
-using SysPoint = System.Windows.Point;
-using SysSize = System.Windows.Size;
-#endif
-#if NETFX_CORE
-using Windows.UI.Xaml.Media;
-using SysPoint = Windows.Foundation.Point;
-using SysSize = Windows.Foundation.Size;
-#endif
-#if !EDF_CORE
 using PdfSharpCore.Internal;
-#else
-using PdfSharpCore.Internal;
-#endif
 
 namespace PdfSharpCore.Drawing
 {
@@ -145,16 +128,6 @@ namespace PdfSharpCore.Drawing
             return empty;
         }
 
-#if GDI
-        /// <summary>
-        /// Converts this XSize to a PointF.
-        /// </summary>
-        public PointF ToPointF()
-        {
-            return new PointF((float)_width, (float)_height);
-        }
-#endif
-
         /// <summary>
         /// Converts this XSize to an XPoint.
         /// </summary>
@@ -170,65 +143,6 @@ namespace PdfSharpCore.Drawing
         {
             return new XVector(_width, _height);
         }
-
-#if GDI
-        /// <summary>
-        /// Converts this XSize to a SizeF.
-        /// </summary>
-        public SizeF ToSizeF()
-        {
-            return new SizeF((float)_width, (float)_height);
-        }
-#endif
-
-#if WPF || NETFX_CORE
-        /// <summary>
-        /// Converts this XSize to a System.Windows.Size.
-        /// </summary>
-        public SysSize ToSize()
-        {
-            return new SysSize(_width, _height);
-        }
-#endif
-
-#if GDI
-        /// <summary>
-        /// Creates an XSize from a System.Drawing.Size.
-        /// </summary>
-        public static XSize FromSize(System.Drawing.Size size)
-        {
-            return new XSize(size.Width, size.Height);
-        }
-
-        /// <summary>
-        /// Implicit conversion from XSize to System.Drawing.Size. The conversion must be implicit because the
-        /// WinForms designer uses it.
-        /// </summary>
-        public static implicit operator XSize(System.Drawing.Size size)
-        {
-            return new XSize(size.Width, size.Height);
-        }
-#endif
-
-#if WPF || NETFX_CORE
-        /// <summary>
-        /// Creates an XSize from a System.Drawing.Size.
-        /// </summary>
-        public static XSize FromSize(SysSize size)
-        {
-            return new XSize(size.Width, size.Height);
-        }
-#endif
-
-#if GDI
-        /// <summary>
-        /// Creates an XSize from a System.Drawing.Size.
-        /// </summary>
-        public static XSize FromSizeF(SizeF size)
-        {
-            return new XSize(size.Width, size.Height);
-        }
-#endif
 
         /// <summary>
         /// Converts this XSize to a human readable string.
@@ -332,16 +246,6 @@ namespace PdfSharpCore.Drawing
         {
             return new XPoint(size._width, size._height);
         }
-
-#if WPF || NETFX_CORE
-        /// <summary>
-        /// Performs an explicit conversion from Size to XSize.
-        /// </summary>
-        public static explicit operator XSize(SysSize size)
-        {
-            return new XSize(size.Width, size.Height);
-        }
-#endif
 
         private static XSize CreateEmptySize()
         {

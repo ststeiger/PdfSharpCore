@@ -32,20 +32,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using PdfSharpCore.Internal;
-#if GDI
-using System.Drawing;
-#endif
-#if WPF
-using System.Windows.Media;
-#endif
-
-#pragma warning disable 1591
-
-#if !EDF_CORE
 namespace PdfSharpCore.Drawing
-#else
-namespace Edf.Drawing
-#endif
 {
     /// <summary>
     /// Represents a two-dimensional vector specified by x- and y-coordinates.

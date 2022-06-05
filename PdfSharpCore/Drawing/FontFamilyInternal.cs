@@ -30,15 +30,6 @@
 using System.Diagnostics;
 using System.Globalization;
 using PdfSharpCore.Internal;
-#if CORE || GDI
-using System.Drawing;
-using GdiFontFamily = System.Drawing.FontFamily;
-#endif
-#if WPF
-using System.Windows.Media;
-using System.Windows.Markup;
-using WpfFontFamily = System.Windows.Media.FontFamily;
-#endif
 
 namespace PdfSharpCore.Drawing
 {
@@ -60,55 +51,7 @@ namespace PdfSharpCore.Drawing
         FontFamilyInternal(string familyName, bool createPlatformObjects)
         {
             _sourceName = _name = familyName;
-#if CORE || GDI
-            if (createPlatformObjects)
-            {
-                _gdiFontFamily = new GdiFontFamily(familyName);
-                _name = _gdiFontFamily.Name;
-            }
-#endif
-#if WPF && !SILVERLIGHT
-            if (createPlatformObjects)
-            {
-                _wpfFontFamily = new WpfFontFamily(familyName);
-                _name = _wpfFontFamily.FamilyNames[FontHelper.XmlLanguageEnUs];
-            }
-#endif
-#if SILVERLIGHT
-            _wpfFontFamily = new WpfFontFamily(_name);
-            _name = _wpfFontFamily.Source;  // Not expected to change _name.
-#endif
         }
-
-#if CORE || GDI
-        FontFamilyInternal(GdiFontFamily gdiFontFamily)
-        {
-            _sourceName = _name = gdiFontFamily.Name;
-            _gdiFontFamily = gdiFontFamily;
-#if WPF
-            // Hybrid build only.
-            _wpfFontFamily = new WpfFontFamily(gdiFontFamily.Name);
-#endif
-        }
-#endif
-
-#if WPF
-        FontFamilyInternal(WpfFontFamily wpfFontFamily)
-        {
-#if !SILVERLIGHT
-            _sourceName = wpfFontFamily.Source;
-            _name = wpfFontFamily.FamilyNames[FontHelper.XmlLanguageEnUs];
-            _wpfFontFamily = wpfFontFamily;
-#else
-            _sourceName = _name = wpfFontFamily.Source;
-            _wpfFontFamily = wpfFontFamily;
-#endif
-#if GDI
-            // Hybrid build only.
-            _gdiFontFamily = new GdiFontFamily(_sourceName);
-#endif
-        }
-#endif
 
         internal static FontFamilyInternal GetOrCreateFromName(string familyName, bool createPlatformObject)
         {
@@ -125,29 +68,6 @@ namespace PdfSharpCore.Drawing
             }
             finally { Lock.ExitFontFactory(); }
         }
-
-#if CORE || GDI
-        internal static FontFamilyInternal GetOrCreateFromGdi(GdiFontFamily gdiFontFamily)
-        {
-            try
-            {
-                Lock.EnterFontFactory();
-                FontFamilyInternal fontFamily = new FontFamilyInternal(gdiFontFamily);
-                fontFamily = FontFamilyCache.CacheOrGetFontFamily(fontFamily);
-                return fontFamily;
-            }
-            finally { Lock.ExitFontFactory(); }
-        }
-#endif
-
-#if WPF
-        internal static FontFamilyInternal GetOrCreateFromWpf(WpfFontFamily wpfFontFamily)
-        {
-            FontFamilyInternal fontFamily = new FontFamilyInternal(wpfFontFamily);
-            fontFamily = FontFamilyCache.CacheOrGetFontFamily(fontFamily);
-            return fontFamily;
-        }
-#endif
 
         /// <summary>
         /// Gets the family name this family was originally created with.
@@ -167,30 +87,6 @@ namespace PdfSharpCore.Drawing
             get { return _name; }
         }
         readonly string _name;
-
-#if CORE || GDI
-        /// <summary>
-        /// Gets the underlying GDI+ font family object.
-        /// Is null if the font was created by a font resolver.
-        /// </summary>
-        public GdiFontFamily GdiFamily
-        {
-            get { return _gdiFontFamily; }
-        }
-        readonly GdiFontFamily _gdiFontFamily;
-#endif
-
-#if WPF
-        /// <summary>
-        /// Gets the underlying WPF font family object.
-        /// Is null if the font was created by a font resolver.
-        /// </summary>
-        public WpfFontFamily WpfFamily
-        {
-            get { return _wpfFontFamily; }
-        }
-        readonly WpfFontFamily _wpfFontFamily;
-#endif
 
         /// <summary>
         /// Gets the DebuggerDisplayAttribute text.

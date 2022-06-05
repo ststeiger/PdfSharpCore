@@ -30,9 +30,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-#if NETFX_CORE
-using System.Threading.Tasks;
-#endif
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Internal;
 using PdfSharpCore.Pdf.IO;
@@ -93,11 +90,7 @@ namespace PdfSharpCore.Pdf
             Info.CreationDate = _creation;
 
             // TODO 4STLA: encapsulate the whole c'tor with #if !NETFX_CORE?
-#if !NETFX_CORE && !PORTABLE
-            _outStream = new FileStream(filename, FileMode.Create);
-#else
             throw new NotImplementedException();
-#endif
         }
 
         /// <summary>
@@ -243,7 +236,6 @@ namespace PdfSharpCore.Pdf
             }
         }
 
-#if true //!NETFX_CORE
         /// <summary>
         /// Saves the document to the specified path. If a file already exists, it will be overwritten.
         /// </summary>
@@ -252,58 +244,12 @@ namespace PdfSharpCore.Pdf
             if (!CanModify)
                 throw new InvalidOperationException(PSSR.CannotModify);
 
-#if !NETFX_CORE && !PORTABLE
+
             using (Stream stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 Save(stream);
             }
-#elif PORTABLE
-            using (Stream stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                Save(stream);
-            }
-#else
-            var task = SaveAsync(path, true);
-
-            ////var file = await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFileAsync("MyWav.wav", Windows.Storage.CreationCollisionOption.ReplaceExisting);
-            ////var stream = file.OpenStreamForWriteAsync();
-            ////var writer = new StreamWriter(stream);
-            ////Save(stream);
-
-            //var ms = new MemoryStream();
-            //Save(ms, false);
-            //byte[] pdf = ms.ToArray();
-            //ms.Close();
-#endif
         }
-#endif
-
-#if NETFX_CORE
-        /// <summary>
-        /// Saves the document to the specified path. If a file already exists, it will be overwritten.
-        /// </summary>
-        public async Task SaveAsync(string path, bool closeStream)
-        {
-            if (!CanModify)
-                throw new InvalidOperationException(PSSR.CannotModify);
-
-            // Just march through...
-
-            var file = await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFileAsync("My1st.pdf", Windows.Storage.CreationCollisionOption.ReplaceExisting);
-            var stream = await file.OpenStreamForWriteAsync();
-            using (var writer = new StreamWriter(stream))
-            {
-                Save(stream, false);
-            }
-
-            //var ms = new MemoryStream();
-            //Save(ms, false);
-            //byte[] pdf = ms.ToArray();
-            //ms.Close();
-            //await stream.WriteAsync(pdf, 0, pdf.Length);
-            //stream.Close();
-        }
-#endif
 
         /// <summary>
         /// Saves the document to the specified stream.
@@ -334,11 +280,7 @@ namespace PdfSharpCore.Pdf
                 if (stream != null)
                 {
                     if (closeStream)
-#if UWP || PORTABLE
                         stream.Dispose();
-#else
-                        stream.Close();
-#endif
                     else
                         stream.Position = 0; // Reset the stream position if the stream is kept open.
                 }
@@ -414,7 +356,7 @@ namespace PdfSharpCore.Pdf
                     iref.Position = writer.Position;
                     iref.Value.WriteObject(writer);
                 }
-                int startxref = writer.Position;
+                var startxref = writer.Position;
                 _irefTable.WriteObject(writer);
                 writer.WriteRaw("trailer\n");
                 _trailer.Elements.SetInteger("/Size", count + 1);

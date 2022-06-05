@@ -30,12 +30,6 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
-#if GDI
-using System.Drawing;
-#endif
-#if WPF
-using System.Windows.Media;
-#endif
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.IO;
@@ -71,20 +65,6 @@ namespace PdfSharpCore.Pdf
             _y2 = y2;
         }
 
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the PdfRectangle class with two points specifying
-        /// two diagonally opposite corners.
-        /// </summary>
-        public PdfRectangle(PointF pt1, PointF pt2)
-        {
-            _x1 = pt1.X;
-            _y1 = pt1.Y;
-            _x2 = pt2.X;
-            _y2 = pt2.Y;
-        }
-#endif
-
         /// <summary>
         /// Initializes a new instance of the PdfRectangle class with two points specifying
         /// two diagonally opposite corners.
@@ -96,19 +76,6 @@ namespace PdfSharpCore.Pdf
             _x2 = pt2.X;
             _y2 = pt2.Y;
         }
-
-#if GDI
-        /// <summary>
-        /// Initializes a new instance of the PdfRectangle class with the specified location and size.
-        /// </summary>
-        public PdfRectangle(PointF pt, SizeF size)
-        {
-            _x1 = pt.X;
-            _y1 = pt.Y;
-            _x2 = pt.X + size.Width;
-            _y2 = pt.Y + size.Height;
-        }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the PdfRectangle class with the specified location and size.
@@ -327,17 +294,6 @@ namespace PdfSharpCore.Pdf
             // Treat rectangle inclusive/inclusive.
             return _x1 <= x && x <= _x2 && _y1 <= y && y <= _y2;
         }
-
-#if GDI
-        /// <summary>
-        /// Determines if the rectangular region represented by rect is entirely contained within this PdfRectangle.
-        /// </summary>
-        public bool Contains(RectangleF rect)
-        {
-            return _x1 <= rect.X && (rect.X + rect.Width) <= _x2 &&
-              _y1 <= rect.Y && (rect.Y + rect.Height) <= _y2;
-        }
-#endif
 
         /// <summary>
         /// Determines if the rectangular region represented by rect is entirely contained within this PdfRectangle.

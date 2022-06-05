@@ -139,20 +139,7 @@ namespace MigraDocCore.Rendering
         /// </summary>
         public void RenderDocument()
         {
-#if true
             PrepareRenderPages();
-#else
-      if (this.documentRenderer == null)
-        PrepareDocumentRenderer();
-
-      if (this.pdfDocument == null)
-      {
-        this.pdfDocument = new PdfDocument();
-        this.pdfDocument.Info.Creator = VersionInfo.Creator;
-      }
-
-      WriteDocumentInformation();
-#endif
             RenderPages(1, this.documentRenderer.FormattedDocument.PageCount);
         }
 

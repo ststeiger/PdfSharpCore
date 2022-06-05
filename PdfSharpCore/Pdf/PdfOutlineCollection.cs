@@ -39,7 +39,7 @@ namespace PdfSharpCore.Pdf
     /// <summary>
     /// Represents a collection of outlines.
     /// </summary>
-    public class PdfOutlineCollection : PdfObject, ICollection<PdfOutline>, IList<PdfOutline>
+    public class PdfOutlineCollection : PdfObject, IList<PdfOutline>
     {
         /// <summary>
         /// Can only be created as part of PdfOutline.
@@ -66,18 +66,12 @@ namespace PdfSharpCore.Pdf
         /// <summary>
         /// Gets the number of entries in this collection.
         /// </summary>
-        public int Count
-        {
-            get { return _outlines.Count; }
-        }
+        public int Count => _outlines.Count;
 
         /// <summary>
         /// Returns false.
         /// </summary>
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         /// <summary>
         /// Adds the specified outline.
@@ -85,7 +79,7 @@ namespace PdfSharpCore.Pdf
         public void Add(PdfOutline outline)
         {
             if (outline == null)
-                throw new ArgumentNullException("outline");
+                throw new ArgumentNullException(nameof(outline));
 
             // DestinationPage is optional. PDFsharp does not yet support outlines with action ("/A") instead of destination page ("/DEST")
             if (outline.DestinationPage != null && !ReferenceEquals(Owner, outline.DestinationPage.Owner))
@@ -209,9 +203,9 @@ namespace PdfSharpCore.Pdf
         public void Insert(int index, PdfOutline outline)
         {
             if (outline == null)
-                throw new ArgumentNullException("outline");
+                throw new ArgumentNullException(nameof(outline));
             if (index < 0 || index >= _outlines.Count)
-                throw new ArgumentOutOfRangeException("index", index, PSSR.OutlineIndexOutOfRange);
+                throw new ArgumentOutOfRangeException(nameof(index), index, PSSR.OutlineIndexOutOfRange);
 
             AddToOutlinesTree(outline);
             _outlines.Insert(index, outline);
@@ -235,15 +229,15 @@ namespace PdfSharpCore.Pdf
             get
             {
                 if (index < 0 || index >= _outlines.Count)
-                    throw new ArgumentOutOfRangeException("index", index, PSSR.OutlineIndexOutOfRange);
+                    throw new ArgumentOutOfRangeException(nameof(index), index, PSSR.OutlineIndexOutOfRange);
                 return _outlines[index];
             }
             set
             {
                 if (index < 0 || index >= _outlines.Count)
-                    throw new ArgumentOutOfRangeException("index", index, PSSR.OutlineIndexOutOfRange);
+                    throw new ArgumentOutOfRangeException(nameof(index), index, PSSR.OutlineIndexOutOfRange);
                 if (value == null)
-                    throw new ArgumentOutOfRangeException("value", null, PSSR.SetValueMustNotBeNull);
+                    throw new ArgumentOutOfRangeException(nameof(value), null, PSSR.SetValueMustNotBeNull);
 
                 AddToOutlinesTree(value);
                 _outlines[index] = value;
@@ -274,7 +268,7 @@ namespace PdfSharpCore.Pdf
         void AddToOutlinesTree(PdfOutline outline)
         {
             if (outline == null)
-                throw new ArgumentNullException("outline");
+                throw new ArgumentNullException(nameof(outline));
 
             // DestinationPage is optional. PDFsharp does not yet support outlines with action ("/A") instead of destination page ("/DEST")
             if (outline.DestinationPage != null && !ReferenceEquals(Owner, outline.DestinationPage.Owner))
@@ -287,10 +281,10 @@ namespace PdfSharpCore.Pdf
             //_outlines.Add(outline);
             if (!Owner._irefTable.Contains(outline.ObjectID))
                 Owner._irefTable.Add(outline);
-            else
-            {
-                outline.GetType();
-            }
+            // else
+            // {
+            //     outline.GetType();
+            // }
 
             //if (outline.Opened)
             //{
@@ -306,7 +300,7 @@ namespace PdfSharpCore.Pdf
         void RemoveFromOutlinesTree(PdfOutline outline)
         {
             if (outline == null)
-                throw new ArgumentNullException("outline");
+                throw new ArgumentNullException(nameof(outline));
 
             // TODO check the parent problems...
             //outline.Document = Owner;
@@ -316,7 +310,7 @@ namespace PdfSharpCore.Pdf
         }
 
         /// <summary>
-        /// The parent outine of this collection.
+        /// The parent outline of this collection.
         /// </summary>
         readonly PdfOutline _parent;
 

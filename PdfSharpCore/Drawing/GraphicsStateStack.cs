@@ -29,13 +29,6 @@
 
 using System;
 using System.Collections.Generic;
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-#endif
-#if WPF
-using System.Windows.Media;
-#endif
 
 namespace PdfSharpCore.Drawing
 {

@@ -36,49 +36,6 @@ namespace PdfSharpCore.Pdf.Internal
     /// </summary>
     public sealed class AnsiEncoding : Encoding
     {
-#if DEBUG_ && !(SILVERLIGHT || NETFX_CORE)
-        public static void ProofImplementation()
-        {
-            // Implementation was verified with .NET Ansi encoding.
-            Encoding dotnetImplementation = Encoding.GetEncoding(1252);
-            Encoding thisImplementation = new AnsiEncoding();
-
-            // Check ANSI chars.
-            for (int i = 0; i <= 255; i++)
-            {
-                byte[] b = { (byte) i };
-                char[] ch1 = dotnetImplementation.GetChars(b, 0, 1);
-                char[] ch2 = thisImplementation.GetChars(b, 0, 1);
-                if (ch1[0] != ch2[0])
-                    Debug.Print("Error");
-                byte[] b1 = dotnetImplementation.GetBytes(ch1, 0, 1);
-                byte[] b2 = thisImplementation.GetBytes(ch1, 0, 1);
-                if (b1.Length != b2.Length || b1.Length > 1 || b1[0] != b2[0])
-                    Debug.Print("Error");
-            }
-
-            // Check Unicode chars.
-            for (int i = 0; i <= 65535; i++)
-            {
-                if (i >= 256)
-                    break;
-                if (i == 0x80)
-                    Debug.Print("");
-                char[] ch = new char[] { (char)i };
-                byte[] b1 = dotnetImplementation.GetBytes(ch, 0, 1);
-                byte[] b2 = thisImplementation.GetBytes(ch, 0, 1);
-                if (b1.Length != b2.Length || b1.Length > 1 || b1[0] != b2[0])
-                    Debug.Print("Error");
-                //byte[] b = new byte[] { (byte)i };
-                //char ch = (char)i;
-                char[] ch1 = dotnetImplementation.GetChars(b1, 0, 1);
-                char[] ch2 = thisImplementation.GetChars(b2, 0, 1);
-                if (ch1[0] != ch2[0])
-                    Debug.Print("Error");
-            }
-        }
-#endif
-
         /// <summary>
         /// Gets the byte count.
         /// </summary>

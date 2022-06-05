@@ -37,7 +37,15 @@ namespace PdfSharpCore.Pdf.Filters
     /// </summary>
     public class FilterParms
     {
-        // not yet used
+        /// <summary>
+        /// Gets the decoding-parameters for a filter. May be null
+        /// </summary>
+        public PdfDictionary DecodeParms { get; private set; }
+
+        public FilterParms(PdfDictionary decodeParms)
+        {
+            DecodeParms = decodeParms;
+        }
     }
 
     /// <summary>
@@ -68,9 +76,9 @@ namespace PdfSharpCore.Pdf.Filters
         /// <summary>
         /// Decodes the specified data.
         /// </summary>
-        public byte[] Decode(byte[] data)
+        public byte[] Decode(byte[] data, PdfDictionary decodeParms)
         {
-            return Decode(data, null);
+            return Decode(data, new FilterParms(decodeParms));
         }
 
         /// <summary>

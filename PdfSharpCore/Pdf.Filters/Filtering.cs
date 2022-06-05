@@ -191,27 +191,34 @@ namespace PdfSharpCore.Pdf.Filters
         {
             Filter filter = GetFilter(filterName);
             if (filter != null)
-                return filter.Decode(data, null);
+                return filter.Decode(data, (PdfDictionary)null);
             return null;
         }
 
         /// <summary>
         /// Decodes the data with the specified filter.
         /// </summary>
-        public static byte[] Decode(byte[] data, PdfItem filterItem)
+        public static byte[] Decode(byte[] data, PdfItem filterItem, PdfItem decodeParms)
         {
             byte[] result = null;
-            if (filterItem is PdfName)
+            if (filterItem is PdfName && (decodeParms == null || decodeParms is PdfDictionary))
             {
                 Filter filter = GetFilter(filterItem.ToString());
                 if (filter != null)
-                    result = filter.Decode(data);
+                    result = filter.Decode(data, decodeParms as PdfDictionary);
             }
-            else if (filterItem is PdfArray)
+            else if (filterItem is PdfArray itemArray && (decodeParms == null || decodeParms is PdfArray))
             {
-                PdfArray array = (PdfArray)filterItem;
-                foreach (PdfItem item in array)
-                    data = Decode(data, item);
+                var decodeArray = decodeParms as PdfArray;
+                // array length of filter and decode parms should match. if they dont, return data unmodified
+                if (decodeArray != null && decodeArray.Elements.Count != itemArray.Elements.Count)
+                    return data;
+                for (var i = 0; i < itemArray.Elements.Count; i++)
+                {
+                    var item = itemArray.Elements[i];
+                    var parms = decodeArray != null ? decodeArray.Elements[i] : null;
+                    data = Decode(data, item, parms);
+                }
                 result = data;
             }
             return result;

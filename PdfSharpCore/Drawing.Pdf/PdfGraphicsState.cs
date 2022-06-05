@@ -31,13 +31,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-#if GDI
-using System.Drawing;
-using System.Drawing.Drawing2D;
-#endif
-#if WPF
-#endif
-using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Internal;
@@ -515,36 +508,9 @@ namespace PdfSharpCore.Drawing.Pdf
 
         void RealizeClipPath(XGraphicsPath clipPath)
         {
-#if CORE
-            DiagnosticsHelper.HandleNotImplemented("RealizeClipPath");
-#endif
-#if GDI
-            // Do not render an empty path.
-            if (clipPath._gdipPath.PointCount < 0)
-                return;
-#endif
-#if WPF
-            // Do not render an empty path.
-            if (clipPath._pathGeometry.Bounds.IsEmpty)
-                return;
-#endif
             _renderer.BeginGraphicMode();
             RealizeCtm();
-#if CORE || __IOS__ || __ANDROID__ || PORTABLE
             _renderer.AppendPath(clipPath._corePath);
-#endif
-#if GDI && !WPF
-            _renderer.AppendPath(clipPath._gdipPath);
-#endif
-#if WPF && !GDI
-            _renderer.AppendPath(clipPath._pathGeometry);
-#endif
-#if WPF && GDI
-            if (_renderer.Gfx.TargetContext == XGraphicTargetContext.GDI)
-                _renderer.AppendPath(clipPath._gdipPath);
-            else
-                _renderer.AppendPath(clipPath._pathGeometry);
-#endif
             _renderer.Append(clipPath.FillMode == XFillMode.Winding ? "W n\n" : "W* n\n");
         }
 

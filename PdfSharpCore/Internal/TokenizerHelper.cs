@@ -30,11 +30,7 @@
 using System;
 using System.Globalization;
 
-#if !EDF_CORE
 namespace PdfSharpCore.Internal
-#else
-namespace Edf.Internal
-#endif
 {
     // Reflected from WPF to ensure compatibility
     // Use netmassdownloader -d "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.0" -output g:\cachetest -v

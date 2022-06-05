@@ -57,11 +57,7 @@ namespace PdfSharpCore.Pdf.IO
         public void Close(bool closeUnderlyingStream)
         {
             if (_stream != null && closeUnderlyingStream)
-#if UWP || PORTABLE
             _stream.Dispose();
-#else
-            _stream.Close();
-#endif
             _stream = null;
         }
 
@@ -70,9 +66,9 @@ namespace PdfSharpCore.Pdf.IO
             Close(true);
         }
 
-        public int Position
+        public long Position
         {
-            get { return (int)_stream.Position; }
+            get { return _stream.Position; }
         }
 
         /// <summary>
@@ -127,6 +123,16 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Writes the specified value to the PDF stream.
         /// </summary>
+        public void Write(long value)
+        {
+            WriteSeparator(CharCat.Character);
+            WriteRaw(value.ToString(CultureInfo.InvariantCulture));
+            _lastCat = CharCat.Character;
+        }
+
+        /// <summary>
+        /// Writes the specified value to the PDF stream.
+        /// </summary>
         public void Write(uint value)
         {
             WriteSeparator(CharCat.Character);
@@ -138,6 +144,16 @@ namespace PdfSharpCore.Pdf.IO
         /// Writes the specified value to the PDF stream.
         /// </summary>
         public void Write(PdfInteger value)
+        {
+            WriteSeparator(CharCat.Character);
+            _lastCat = CharCat.Character;
+            WriteRaw(value.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        /// <summary>
+        /// Writes the specified value to the PDF stream.
+        /// </summary>
+        public void Write(PdfLong value)
         {
             WriteSeparator(CharCat.Character);
             _lastCat = CharCat.Character;
@@ -180,40 +196,12 @@ namespace PdfSharpCore.Pdf.IO
         public void Write(PdfString value)
         {
             WriteSeparator(CharCat.Delimiter);
-#if true
             PdfStringEncoding encoding = (PdfStringEncoding)(value.Flags & PdfStringFlags.EncodingMask);
             string pdf = (value.Flags & PdfStringFlags.HexLiteral) == 0 ?
                 PdfEncoders.ToStringLiteral(value.Value, encoding, SecurityHandler) :
                 PdfEncoders.ToHexStringLiteral(value.Value, encoding, SecurityHandler);
             WriteRaw(pdf);
-#else
-            switch (value.Flags & PdfStringFlags.EncodingMask)
-            {
-                case PdfStringFlags.Undefined:
-                case PdfStringFlags.PDFDocEncoding:
-                    if ((value.Flags & PdfStringFlags.HexLiteral) == 0)
-                        WriteRaw(PdfEncoders.DocEncode(value.Value, false));
-                    else
-                        WriteRaw(PdfEncoders.DocEncodeHex(value.Value, false));
-                    break;
 
-                case PdfStringFlags.WinAnsiEncoding:
-                    throw new NotImplementedException("Unexpected encoding: WinAnsiEncoding");
-
-                case PdfStringFlags.Unicode:
-                    if ((value.Flags & PdfStringFlags.HexLiteral) == 0)
-                        WriteRaw(PdfEncoders.DocEncode(value.Value, true));
-                    else
-                        WriteRaw(PdfEncoders.DocEncodeHex(value.Value, true));
-                    break;
-
-                case PdfStringFlags.StandardEncoding:
-                case PdfStringFlags.MacRomanEncoding:
-                case PdfStringFlags.MacExpertEncoding:
-                default:
-                    throw new NotImplementedException("Unexpected encoding");
-            }
-#endif
             _lastCat = CharCat.Delimiter;
         }
 
@@ -495,12 +483,12 @@ namespace PdfSharpCore.Pdf.IO
             }
         }
 
-        public void WriteEof(PdfDocument document, int startxref)
+        public void WriteEof(PdfDocument document, long startxref)
         {
             WriteRaw("startxref\n");
             WriteRaw(startxref.ToString(CultureInfo.InvariantCulture));
             WriteRaw("\n%%EOF\n");
-            int fileSize = (int)_stream.Position;
+            var fileSize = _stream.Position;
             if (_layout == PdfWriterLayout.Verbose)
             {
                 TimeSpan duration = DateTime.Now - document._creation;

@@ -1,4 +1,4 @@
-#region PDFsharp - A .NET library for processing PDF
+﻿#region PDFsharp - A .NET library for processing PDF
 //
 // Authors:
 //   Stefan Lange
@@ -213,7 +213,7 @@ namespace PdfSharpCore.Pdf
                     throw new ArgumentOutOfRangeException("index", index, PSSR.IndexOutOfRange);
 
                 object obj = this[index];
-                if (obj == null)
+                if (obj == null || obj is PdfNull)
                     return false;
 
                 PdfBoolean boolean = obj as PdfBoolean;
@@ -239,7 +239,7 @@ namespace PdfSharpCore.Pdf
                     throw new ArgumentOutOfRangeException("index", index, PSSR.IndexOutOfRange);
 
                 object obj = this[index];
-                if (obj == null)
+                if (obj == null || obj is PdfNull)
                     return 0;
 
                 PdfInteger integer = obj as PdfInteger;
@@ -265,7 +265,7 @@ namespace PdfSharpCore.Pdf
                     throw new ArgumentOutOfRangeException("index", index, PSSR.IndexOutOfRange);
 
                 object obj = this[index];
-                if (obj == null)
+                if (obj == null || obj is PdfNull)
                     return 0;
 
                 PdfReal real = obj as PdfReal;
@@ -299,7 +299,7 @@ namespace PdfSharpCore.Pdf
                     throw new ArgumentOutOfRangeException("index", index, PSSR.IndexOutOfRange);
 
                 object obj = this[index];
-                if (obj == null)
+                if (obj == null || obj is PdfNull)
                     return String.Empty;
 
                 PdfString str = obj as PdfString;
@@ -325,7 +325,7 @@ namespace PdfSharpCore.Pdf
                     throw new ArgumentOutOfRangeException("index", index, PSSR.IndexOutOfRange);
 
                 object obj = this[index];
-                if (obj == null)
+                if (obj == null || obj is PdfNull)
                     return String.Empty;
 
                 PdfName name = obj as PdfName;
@@ -561,11 +561,8 @@ namespace PdfSharpCore.Pdf
         {
             get
             {
-#if true
                 return String.Format(CultureInfo.InvariantCulture, "array({0},[{1}])", ObjectID.DebuggerDisplay, _elements == null ? 0 : _elements.Count);
-#else
-                return String.Format(CultureInfo.InvariantCulture, "array({0},[{1}])", ObjectID.DebuggerDisplay, _elements == null ? 0 : _elements.Count);
-#endif
+
             }
         }
     }

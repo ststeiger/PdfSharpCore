@@ -101,12 +101,9 @@ namespace PdfSharpCore.Pdf.Filters
 
             if (outputStream.Length >= 0)
             {
-#if !NETFX_CORE && !UWP && !PORTABLE
-                outputStream.Capacity = (int)outputStream.Length;
-                return outputStream.GetBuffer();
-#else
+                if (parms.DecodeParms != null)
+                    return StreamDecoder.Decode(outputStream.ToArray(), parms.DecodeParms);
                 return outputStream.ToArray();
-#endif
             }
             return null;
         }

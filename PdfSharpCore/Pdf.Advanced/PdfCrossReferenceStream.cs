@@ -43,19 +43,14 @@ namespace PdfSharpCore.Pdf.Advanced
         public PdfCrossReferenceStream(PdfDocument document)
             : base(document)
         {
-#if DEBUG && CORE
-            if (Internal.PdfDiagnostics.TraceXrefStreams)
-            {
-                Debug.WriteLine("PdfCrossReferenceStream created.");
-            }
-#endif
         }
 
         public readonly List<CrossReferenceStreamEntry> Entries = new List<CrossReferenceStreamEntry>();
 
+        [DebuggerDisplay("{Type} {Field2} {Field3}")]
         public struct CrossReferenceStreamEntry
         {
-            // Reference: TABLE 3.16  Entries in a cross-refernece stream / Page 109
+            // Reference: TABLE 3.16  Entries in a cross-reference stream / Page 109
 
             public uint Type;  // 0, 1, or 2.
 

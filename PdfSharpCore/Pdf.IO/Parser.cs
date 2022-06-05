@@ -35,13 +35,12 @@ using System.Linq;
 using PdfSharpCore.Exceptions;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf.Advanced;
-using PdfSharpCore.Pdf.Internal;
 using PdfSharpCore.Pdf.IO.enums;
 
 namespace PdfSharpCore.Pdf.IO
 {
     /*
-       Direct and indireckt objects
+       Direct and indirect objects
 
        * If a simple object (boolean, integer, number, date, string, rectangle etc.) is referenced indirect,
          the parser reads this objects immediatly and consumes the indirection.
@@ -52,7 +51,7 @@ namespace PdfSharpCore.Pdf.IO
        * If a composite object is a direct object, no PdfReference is created and the object is
          parsed immediatly.
 
-       * A refernece to a non existing object is specified as legal, therefore null is returned.
+       * A reference to a non existing object is specified as legal, therefore null is returned.
     */
 
     /// <summary>
@@ -77,9 +76,9 @@ namespace PdfSharpCore.Pdf.IO
         /// <summary>
         /// Sets PDF input stream position to the specified object.
         /// </summary>
-        public int MoveToObject(PdfObjectID objectID)
+        public long MoveToObject(PdfObjectID objectID)
         {
-            int position = _document._irefTable[objectID].Position;
+            var position = _document._irefTable[objectID].Position;
 
             if (position < 0)
                 throw new PositionNotFoundException(objectID);
@@ -97,10 +96,6 @@ namespace PdfSharpCore.Pdf.IO
             _lexer.Position = position;
             int objectNumber = ReadInteger();
             int generationNumber = ReadInteger();
-#if DEBUG && CORE
-            if (objectNumber == 1074)
-                GetType();
-#endif
             return new PdfObjectID(objectNumber, generationNumber);
         }
 
@@ -223,6 +218,13 @@ namespace PdfSharpCore.Pdf.IO
 
                 case Symbol.UInteger:
                     pdfObject = new PdfUIntegerObject(_document, _lexer.TokenToUInteger);
+                    pdfObject.SetObjectID(objectNumber, generationNumber);
+                    if (!fromObjecStream)
+                        ReadSymbol(Symbol.EndObj);
+                    return pdfObject;
+
+                case Symbol.Long:
+                    pdfObject = new PdfLongObject(_document, _lexer.TokenToLong);
                     pdfObject.SetObjectID(objectNumber, generationNumber);
                     if (!fromObjecStream)
                         ReadSymbol(Symbol.EndObj);
@@ -752,7 +754,7 @@ namespace PdfSharpCore.Pdf.IO
 
             if (symbol == Symbol.R)
             {
-                int position = _lexer.Position;
+                var position = _lexer.Position;
                 //        MoveToObject(lexer.Token);
                 ReadObjectID(null);
                 int n = ReadInteger();
@@ -767,6 +769,36 @@ namespace PdfSharpCore.Pdf.IO
         private int ReadInteger()
         {
             return ReadInteger(false);
+        }
+
+        private long ReadLong()
+        {
+            return ReadLong(false);
+        }
+
+        /// <summary>
+        /// Reads an integer value directly from the PDF data stream.
+        /// </summary>
+        private long ReadLong(bool canBeIndirect)
+        {
+            Symbol symbol = _lexer.ScanNextToken();
+            if (symbol == Symbol.Long)
+                return _lexer.TokenToLong;
+
+            if (symbol == Symbol.Integer)
+                return _lexer.TokenToLong;
+
+            if (symbol == Symbol.R)
+            {
+                var position = _lexer.Position;
+                ReadObjectID(null);
+                int n = ReadInteger();
+                ReadSymbol(Symbol.EndObj);
+                _lexer.Position = position;
+                return n;
+            }
+            ParserDiagnostics.HandleUnexpectedToken(_lexer.Token);
+            return 0;
         }
 
         //    /// <summary>
@@ -1007,7 +1039,7 @@ namespace PdfSharpCore.Pdf.IO
         /// </summary>
         internal PdfTrailer ReadTrailer(PdfReadAccuracy accuracy)
         {
-            int length = _lexer.PdfLength;
+            var length = _lexer.PdfLength;
 
             // Implementation note 18 Appendix  H:
             // Acrobat viewers require only that the %%EOF marker appear somewhere within the last 1024 bytes of the file.
@@ -1031,7 +1063,10 @@ namespace PdfSharpCore.Pdf.IO
             if (idx == -1)
             {
                 // If "startxref" was still not found yet, read the file completely.
-                string trail = _lexer.ReadRawString(0, length);
+                if (length > int.MaxValue)
+                    //TODO: Implement chunking to read long files.
+                    throw new NotImplementedException("Reading >2GB files with a 'startxref' in the middle not implemented.");
+                var trail = _lexer.ReadRawString(0, (int)length);
                 idx = trail.LastIndexOf("startxref", StringComparison.Ordinal);
                 _lexer.Position = idx;
             }
@@ -1039,7 +1074,7 @@ namespace PdfSharpCore.Pdf.IO
                 throw new Exception("The StartXRef table could not be found, the file cannot be opened.");
 
             ReadSymbol(Symbol.StartXRef);
-            _lexer.Position = ReadInteger();
+            _lexer.Position = ReadLong();
 
             // Read all trailers.
             while (true)
@@ -1082,7 +1117,7 @@ namespace PdfSharpCore.Pdf.IO
                         int length = ReadInteger();
                         for (int id = start; id < start + length; id++)
                         {
-                            int position = ReadInteger();
+                            var position = ReadLong();
                             int generation = ReadInteger();
                             ReadSymbol(Symbol.Keyword);
                             string token = _lexer.Token;
@@ -1154,9 +1189,9 @@ namespace PdfSharpCore.Pdf.IO
         /// <param name="idChecked">The identifier found in the PDF file.</param>
         /// <param name="generationChecked">The generation found in the PDF file.</param>
         /// <returns></returns>
-        private bool CheckXRefTableEntry(int position, int id, int generation, out int idChecked, out int generationChecked)
+        private bool CheckXRefTableEntry(long position, int id, int generation, out int idChecked, out int generationChecked)
         {
-            int origin = _lexer.Position;
+            var origin = _lexer.Position;
             idChecked = -1;
             generationChecked = -1;
             try
@@ -1220,16 +1255,7 @@ namespace PdfSharpCore.Pdf.IO
             Debug.Assert(xrefStream.Stream != null);
             //string sValue = new RawEncoding().GetString(xrefStream.Stream.UnfilteredValue,);
             //sValue.GetType();
-            byte[] bytesRaw = xrefStream.Stream.UnfilteredValue;
-            byte[] bytes = bytesRaw;
-
-            // HACK: Should be done in UnfilteredValue.
-            if (xrefStream.Stream.HasDecodeParams)
-            {
-                int predictor = xrefStream.Stream.DecodePredictor;
-                int columns = xrefStream.Stream.DecodeColumns;
-                bytes = DecodeCrossReferenceStream(bytesRaw, columns, predictor);
-            }
+            var bytes = xrefStream.Stream.UnfilteredValue;
 
 #if DEBUG_
             for (int idx = 0; idx < bytes.Length; idx++)
@@ -1286,37 +1312,6 @@ namespace PdfSharpCore.Pdf.IO
             Debug.Assert(wsum * subsectionEntryCount == bytes.Length, "Check implementation here.");
             int testcount = subsections[0][1];
             int[] currentSubsection = subsections[0];
-#if DEBUG && CORE
-            if (PdfDiagnostics.TraceXrefStreams)
-            {
-                for (int idx = 0; idx < testcount; idx++)
-                {
-                    uint field1 = StreamHelper.ReadBytes(bytes, idx * wsum, wsize[0]);
-                    uint field2 = StreamHelper.ReadBytes(bytes, idx * wsum + wsize[0], wsize[1]);
-                    uint field3 = StreamHelper.ReadBytes(bytes, idx * wsum + wsize[0] + wsize[1], wsize[2]);
-                    string res = String.Format("{0,2:00}: {1} {2,5} {3}  // ", idx, field1, field2, field3);
-                    switch (field1)
-                    {
-                        case 0:
-                            res += "Fee list: object number, generation number";
-                            break;
-
-                        case 1:
-                            res += "Not compresed: offset, generation number";
-                            break;
-
-                        case 2:
-                            res += "Compressed: object stream object number, index in stream";
-                            break;
-
-                        default:
-                            res += "??? Type undefined";
-                            break;
-                    }
-                    Debug.WriteLine(res);
-                }
-            }
-#endif
 
             int index2 = -1;
             for (int ssc = 0; ssc < subsectionCount; ssc++)
@@ -1346,7 +1341,7 @@ namespace PdfSharpCore.Pdf.IO
                             //// (PDF Reference Implementation Notes 15).
 
                             int position = (int)item.Field2;
-                            objectID = ReadObjectNumber(position);
+                                objectID = ReadObjectNumber(position);
 #if DEBUG
                             if (objectID.ObjectNumber == 1074)
                                 GetType();
@@ -1359,7 +1354,7 @@ namespace PdfSharpCore.Pdf.IO
 #if DEBUG
                                 GetType();
 #endif
-                                // Add iref for all uncrompressed objects.
+                                // Add iref for all uncompressed objects.
                                 xrefTable.Add(new PdfReference(objectID, position));
 
                             }
@@ -1747,10 +1742,11 @@ namespace PdfSharpCore.Pdf.IO
 
         private ParserState SaveState()
         {
-            ParserState state = new ParserState();
-            state.Position = _lexer.Position;
-            state.Symbol = _lexer.Symbol;
-            return state;
+            return new ParserState
+            {
+                Position = _lexer.Position,
+                Symbol = _lexer.Symbol
+            };
         }
 
         private void RestoreState(ParserState state)
@@ -1761,48 +1757,10 @@ namespace PdfSharpCore.Pdf.IO
 
         private class ParserState
         {
-            public int Position;
+            public long Position;
             public Symbol Symbol;
         }
 
-        private byte[] DecodeCrossReferenceStream(byte[] bytes, int columns, int predictor)
-        {
-            int size = bytes.Length;
-            if (predictor < 10 || predictor > 15)
-                throw new ArgumentException("Invalid predictor.", "predictor");
-
-            int rowSizeRaw = columns + 1;
-
-            if (size % rowSizeRaw != 0)
-                throw new ArgumentException("Columns and size of array do not match.");
-
-            int rows = size / rowSizeRaw;
-
-            byte[] result = new byte[rows * columns];
-#if DEBUG
-            for (int i = 0; i < result.Length; ++i)
-                result[i] = 88;
-#endif
-
-            for (int row = 0; row < rows; ++row)
-            {
-                if (bytes[row * rowSizeRaw] != 2)
-                    throw new ArgumentException("Invalid predictor in array.");
-
-                for (int col = 0; col < columns; ++col)
-                {
-                    // Copy data for first row.
-                    if (row == 0)
-                        result[row * columns + col] = bytes[row * rowSizeRaw + col + 1];
-                    else
-                    {
-                        // For other rows, add previous row.
-                        result[row * columns + col] = (byte)(result[row * columns - columns + col] + bytes[row * rowSizeRaw + col + 1]);
-                    }
-                }
-            }
-            return result;
-        }
 
         private readonly PdfDocument _document;
         private readonly Lexer _lexer;

@@ -72,21 +72,6 @@ namespace PdfSharpCore.Drawing.Internal
             return null;
         }
 
-#if GDI || WPF || CORE
-        /// <summary>
-        /// Imports the image.
-        /// </summary>
-        public ImportedImage ImportImage(string filename, PdfDocument document)
-        {
-            ImportedImage ii;
-            using (Stream fs = File.OpenRead(filename))
-            {
-                ii = ImportImage(fs, document);
-            }
-            return ii;
-        }
-#endif
-
         private readonly List<IImageImporter> _importers = new List<IImageImporter>();
     }
 }

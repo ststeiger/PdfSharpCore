@@ -79,7 +79,7 @@ namespace PdfSharpCore.Pdf.Advanced
         /// <summary>
         /// Initializes a new PdfReference instance from the specified object identifier and file position.
         /// </summary>
-        public PdfReference(PdfObjectID objectID, int position)
+        public PdfReference(PdfObjectID objectID, long position)
         {
             _objectID = objectID;
             _position = position;
@@ -152,12 +152,12 @@ namespace PdfSharpCore.Pdf.Advanced
         /// <summary>
         /// Gets or sets the file position of the related PdfObject.
         /// </summary>
-        public int Position
+        public long Position
         {
             get { return _position; }
             set { _position = value; }
         }
-        int _position;  // I know it should be long, but I have never seen a 2GB PDF file.
+        long _position;
 
         //public bool InUse
         //{

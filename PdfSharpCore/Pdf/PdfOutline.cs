@@ -1,4 +1,4 @@
-#region PDFsharp - A .NET library for processing PDF
+ï»¿#region PDFsharp - A .NET library for processing PDF
 //
 // Authors:
 //   Stefan Lange
@@ -240,7 +240,7 @@ namespace PdfSharpCore.Pdf
             get { return _zoom; }
             set { _zoom = value; }
         }
-        double _zoom; // PDF teats 0 and null equally.
+        double _zoom = double.NaN; // PDF teats 0 and null equally.
 
         /// <summary>
         /// Gets or sets whether the outline item is opened (or expanded).
@@ -248,28 +248,7 @@ namespace PdfSharpCore.Pdf
         public bool Opened
         {
             get { return _opened; }
-#if true
             set { _opened = value; }
-#else
-            // TODO: adjust openCount of ascendant...
-            set
-            {
-                if (_opened != value)
-                {
-                    _opened = value;
-                    int sign = value ? 1 : -1;
-                    PdfOutline parent = _parent;
-                    if (_opened)
-                    {
-                        while (parent != null)
-                            parent.openCount += 1 + _openCount;
-                    }
-                    else
-                    {
-                    }
-                }
-            }
-#endif
         }
         bool _opened;
 
@@ -354,11 +333,9 @@ namespace PdfSharpCore.Pdf
             PdfItem a = Elements.GetValue(Keys.A);
             Debug.Assert(dest == null || a == null, "Either destination or goto action.");
 
-            PdfArray destArray = null;
             if (dest != null)
             {
-                destArray = dest as PdfArray;
-                if (destArray != null)
+                if (dest is PdfArray destArray)
                 {
                     SplitDestinationPage(destArray);
                 }
@@ -374,13 +351,19 @@ namespace PdfSharpCore.Pdf
                 if (action != null && action.Elements.GetName(PdfAction.Keys.S) == "/GoTo")
                 {
                     dest = action.Elements[PdfGoToAction.Keys.D];
-                    destArray = dest as PdfArray;
-                    if (destArray != null)
+                    if (dest is PdfArray destArray)
                     {
                         // Replace Action with /Dest entry.
                         Elements.Remove(Keys.A);
                         Elements.Add(Keys.Dest, destArray);
                         SplitDestinationPage(destArray);
+                    }
+                    else if (dest is PdfReference detRef)
+                    {
+                      // Replace Action with /Dest entry.
+                      Elements.Remove(Keys.A);
+                      Elements.Add(Keys.Dest, detRef.Value);
+                      SplitDestinationPage((PdfArray)detRef.Value);
                     }
                     else
                     {
@@ -732,14 +715,14 @@ namespace PdfSharpCore.Pdf
 
             /// <summary>
             /// (Required if the item has any descendants; must be an indirect reference)
-            ///  The first of this item’s immediate children in the outline hierarchy.
+            ///  The first of this itemâ€™s immediate children in the outline hierarchy.
             /// </summary>
             [KeyInfo(KeyType.Dictionary | KeyType.Required)]
             public const string First = "/First";
 
             /// <summary>
             /// (Required if the item has any descendants; must be an indirect reference)
-            /// The last of this item’s immediate children in the outline hierarchy.
+            /// The last of this itemâ€™s immediate children in the outline hierarchy.
             /// </summary>
             [KeyInfo(KeyType.Dictionary | KeyType.Required)]
             public const string Last = "/Last";
@@ -780,7 +763,7 @@ namespace PdfSharpCore.Pdf
 
             /// <summary>
             /// (Optional; PDF 1.4) An array of three numbers in the range 0.0 to 1.0, representing the 
-            /// components in the DeviceRGB color space of the color to be used for the outline entry’s text.
+            /// components in the DeviceRGB color space of the color to be used for the outline entryâ€™s text.
             /// Default value: [0.0 0.0 0.0].
             /// </summary>
             [KeyInfo(KeyType.Array | KeyType.Optional)]
@@ -788,7 +771,7 @@ namespace PdfSharpCore.Pdf
 
             /// <summary>
             /// (Optional; PDF 1.4) A set of flags specifying style characteristics for displaying the outline
-            /// item’s text. Default value: 0.
+            /// itemâ€™s text. Default value: 0.
             /// </summary>
             [KeyInfo(KeyType.Integer | KeyType.Optional)]
             public const string F = "/F";

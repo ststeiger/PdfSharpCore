@@ -89,11 +89,7 @@ namespace PdfSharpCore.Pdf.Advanced
             }
 
             MemoryStream ms = new MemoryStream();
-#if !SILVERLIGHT && !NETFX_CORE && !PORTABLE
-            StreamWriter wrt = new StreamWriter(ms, Encoding.ASCII);
-#else
             StreamWriter wrt = new StreamWriter(ms, Encoding.UTF8);
-#endif
             wrt.Write(prefix);
 
             wrt.WriteLine("1 begincodespacerange");
@@ -107,19 +103,11 @@ namespace PdfSharpCore.Pdf.Advanced
             wrt.WriteLine("endbfrange");
 
             wrt.Write(suffix);
-#if !UWP && !PORTABLE
-            wrt.Close();
-#else
             wrt.Dispose();
-#endif
 
             // Compress like content streams
             byte[] bytes = ms.ToArray();
-#if !UWP && !PORTABLE
-            ms.Close();
-#else
             ms.Dispose();
-#endif
             if (Owner.Options.CompressContentStreams)
             {
                 Elements.SetName("/Filter", "/FlateDecode");
