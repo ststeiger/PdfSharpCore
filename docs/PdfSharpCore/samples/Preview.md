@@ -16,9 +16,9 @@ XFont fontItalic = new XFont("Times", 12, XFontStyle.BoldItalic);
 double ls = font.GetHeight(gfx);
  
 // Draw some text
-gfx.DrawString("Create PDF on the fly with PDFsharpCore",
+gfx.DrawString("Create PDF on the fly with PdfSharpCore",
 fontH1, XBrushes.Black, x, x);
-gfx.DrawString("With PDFsharpCore you can use the same code to draw graphic, " +
+gfx.DrawString("With PdfSharpCore you can use the same code to draw graphic, " +
 "text and images on different targets.", font, XBrushes.Black, x, y);
 y += ls;
 gfx.DrawString("The object used for drawing is the XGraphics object.",

@@ -1,6 +1,6 @@
-# PDFsharpCore > Samples
+# PdfSharpCore > Samples
 
-Samples for [PDFsharpCore](../index.md):
+Samples for [PdfSharpCore](../index.md):
 
 * [Hello World](HelloWorld.md)
 * [Graphics](Graphics.md)

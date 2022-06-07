@@ -12,7 +12,7 @@ void Page_Load(object sender, EventArgs e)
     // Create new PDF document
     PdfDocument document = new PdfDocument();
     this.time = document.Info.CreationDate;
-    document.Info.Title = "PDFsharpCore Clock Demo";
+    document.Info.Title = "PdfSharpCore Clock Demo";
     document.Info.Author = "Stefan Lange";
     document.Info.Subject = "Server time: " +
     this.time.ToString("F", CultureInfo.InvariantCulture);
@@ -80,7 +80,7 @@ static void DrawText(XGraphics gfx, XPen pen, XBrush brush)
 {
     XSize size = gfx.PageSize;
     XGraphicsPath path = new XGraphicsPath();
-    path.AddString("PDFsharpCore",
+    path.AddString("PdfSharpCore",
     new XFontFamily("Verdana"), XFontStyle.BoldItalic, 60,
     new XRect(0, size.Height / 3.5, size.Width, 0), XStringFormats.Center);
     gfx.DrawPath(new XPen(pen.Color, 3), brush, path);

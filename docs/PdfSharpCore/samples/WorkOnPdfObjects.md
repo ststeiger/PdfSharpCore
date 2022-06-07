@@ -1,8 +1,8 @@
 # Work on Pdf Objects
 
-This sample shows how to deal with PDF objects that are not (yet) covered by specialized PDFsharpCore classes (as an example it adds an OpenAction to an existing PDF file).
+This sample shows how to deal with PDF objects that are not (yet) covered by specialized PdfSharpCore classes (as an example it adds an OpenAction to an existing PDF file).
 
-PDF documents are based internally on objects like dictionaries, arrays, streams etc. This sample shows how to work directly on these underlying PDF objects. Use this functionality to achieve PDF features that are not yet implemented in PDFsharpCore.
+PDF documents are based internally on objects like dictionaries, arrays, streams etc. This sample shows how to work directly on these underlying PDF objects. Use this functionality to achieve PDF features that are not yet implemented in PdfSharpCore.
 
 
 ## Code
@@ -13,7 +13,7 @@ Here is the code that shows how to add an OpenAction:
 // Read document into memory for modification
 PdfDocument document = PdfReader.Open(filename);
  
-// The current version of PDFsharpCore doesn't support the concept of
+// The current version of PdfSharpCore doesn't support the concept of
 // 'actions'. Actions will come in a future version, but if you need them
 // now, you can have them 'handmade'.
 //
@@ -78,10 +78,10 @@ document.Internals.AddObject(dict);
 // the document's catalog as an indirect value.
 document.Internals.Catalog.Elements["/OpenAction"] = PdfInternals.GetReference(dict);
  
-// Using PDFsharpCore we never deal with object numbers. We simply put the
-// objects together and the PDFsharpCore framework does the rest.
+// Using PdfSharpCore we never deal with object numbers. We simply put the
+// objects together and the PdfSharpCore framework does the rest.
 ```
 
-Other objects not covered by PDFsharpCore can also be added this way.
+Other objects not covered by PdfSharpCore can also be added this way.
 
-Using PDFsharpCore we never deal with object numbers. We simply put the objects together and the PDFsharpCore framework does the rest.
+Using PdfSharpCore we never deal with object numbers. We simply put the objects together and the PdfSharpCore framework does the rest.

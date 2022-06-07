@@ -25,7 +25,7 @@ namespace HelloWorld
         {
             // Create a new PDF document
             PdfDocument document = new PdfDocument();
-            document.Info.Title = "Created with PDFsharpCore";
+            document.Info.Title = "Created with PdfSharpCore";
             
             // Create an empty page
             PdfPage page = document.AddPage();

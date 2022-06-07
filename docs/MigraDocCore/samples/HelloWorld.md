@@ -24,7 +24,7 @@ static void Main(string[] args)
     // This setting has no effect on the RTF renderer.
     // (The term 'font program' is used by Adobe for a file containing a font. Technically a 'font file'
     // is a collection of small programs and each program renders the glyph of a character when executed.
-    // Using a font in PDFsharpCore may lead to the embedding of one or more font programs, because each outline
+    // Using a font in PdfSharpCore may lead to the embedding of one or more font programs, because each outline
     // (regular, bold, italic, bold+italic, ...) has its own font program)
     const PdfFontEmbedding embedding = PdfFontEmbedding.Always;
     

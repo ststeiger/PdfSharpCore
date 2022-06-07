@@ -25,7 +25,7 @@ MigraDocCore will create PDF documents.
 
 ## First steps
 
-Both PDFsharpCore and MigraDocCore provide a lot of `AddXxx` functions.
+Both PdfSharpCore and MigraDocCore provide a lot of `AddXxx` functions.
 Typically these functions return the newly created objects. Once you’ve learned the basic principles it’s quite easy to work with.
 Intellisense helps a lot then.
 
