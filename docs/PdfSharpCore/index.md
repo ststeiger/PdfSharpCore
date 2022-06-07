@@ -1,10 +1,10 @@
-# PDFsharpCore
+# PdfSharpCore
 
-PDFsharpCore is a .NET library for processing PDF file.
+PdfSharpCore is a .NET library for processing PDF file.
 You create PDF pages using drawing routines known from GDI+.
-Almost anything that can be done with GDI+ will also work with PDFsharpCore.
+Almost anything that can be done with GDI+ will also work with PdfSharpCore.
 Keep in mind it does no longer depend on GDI+, as it was ported to make use of [ImageSharp](https://github.com/SixLabors/ImageSharp).
-Only basic text layout is supported by PDFsharpCore, and page breaks are not created automatically.
+Only basic text layout is supported by PdfSharpCore, and page breaks are not created automatically.
 The same drawing routines can be used for screen, PDF, or meta files.
 
 * [Features](#features)
@@ -26,7 +26,7 @@ The same drawing routines can be used for screen, PDF, or meta files.
 
 ## First steps
 
-Both PDFsharpCore and MigraDocCore provide a lot of `AddXxx` functions.
+Both PdfSharpCore and MigraDocCore provide a lot of `AddXxx` functions.
 Typically these functions return the newly created objects. Once you’ve learned the basic principles it’s quite easy to work with.
 Intellisense helps a lot then.
 

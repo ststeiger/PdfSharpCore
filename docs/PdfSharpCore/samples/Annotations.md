@@ -2,7 +2,7 @@
 
 This sample shows how to create PDF annotations.
 
-PDFsharpCore supports the creation of the following annotations:
+PdfSharpCore supports the creation of the following annotations:
 * [Text annotations](#text-annotations)
 * [Text annotations opened](#text-annotations-opened)
 * [Rubber stamp annotations](#rubber-stamp-annotations)

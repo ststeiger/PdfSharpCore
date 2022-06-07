@@ -8,7 +8,7 @@ Experience shows that users sometimes have difficulties to modify there code wit
 
 If you know right from the start that you will or may need more than one page, then take this into account right from the start and your program will be readable and easy to maintain.
 
-Note:  Consider using MigraDocCore instead of PDFsharpCore for large documents. You can use many attributes to format text and you get the line breaks and page breaks for free.
+Note:  Consider using MigraDocCore instead of PdfSharpCore for large documents. You can use many attributes to format text and you get the line breaks and page breaks for free.
 
 
 # Code
@@ -62,7 +62,7 @@ public class LayoutHelper
 
 And sample code that shows the LayoutHelper class at work. The sample uses short texts that will always fit into a single line. Adding line breaks to texts that do not fit into a single line is beyond the scope of this sample.
 
-I wrote it before: Consider using MigraDocCore instead of PDFsharpCore for large documents. You can use many attributes to format text and you get the line breaks and page breaks for free.
+I wrote it before: Consider using MigraDocCore instead of PdfSharpCore for large documents. You can use many attributes to format text and you get the line breaks and page breaks for free.
 
 ```cs
 PdfDocument document = new PdfDocument();

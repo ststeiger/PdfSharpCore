@@ -6,4 +6,4 @@ Samples for [MigraDocCore](../index.md):
 * [Hello MigraDocCore](HelloMigraDocCore.md) 	
 * [Images](Images.md)
 * [Invoice](Invoice.md)
-* [Mix MigraDocCore and PDFsharpCore](MixMigraDocCoreAndPDFsharpCore.md)
+* [Mix MigraDocCore and PdfSharpCore](MixMigraDocCoreAndPDFsharpCore.md)

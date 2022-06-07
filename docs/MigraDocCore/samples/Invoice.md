@@ -1,7 +1,7 @@
 # Invoice
 
 Shows how to create a simple invoice of a fictional book store.
-The invoice document is created with the MigraDocCore document object model and then rendered to PDF with PDFsharpCore.
+The invoice document is created with the MigraDocCore document object model and then rendered to PDF with PdfSharpCore.
 
 
 ## Creating the Document

@@ -1,6 +1,6 @@
-# Mix MigraDocCore and PDFsharpCore
+# Mix MigraDocCore and PdfSharpCore
 
-Demonstrates how to mix MigraDocCore and PDFsharpCore.
+Demonstrates how to mix MigraDocCore and PdfSharpCore.
 
 
 ## Creating the Document
@@ -14,10 +14,10 @@ static void Main()
     string filename = "MixMigraDocCoreAndPdfSharpCore.pdf";
     filename = Guid.NewGuid().ToString("D").ToUpper() + ".pdf";
     PdfDocument document = new PdfDocument();
-    document.Info.Title = "PDFsharpCore XGraphic Sample";
+    document.Info.Title = "PdfSharpCore XGraphic Sample";
     document.Info.Author = "Stefan Lange";
     document.Info.Subject = "Created with code snippets that show the use of graphical functions";
-    document.Info.Keywords = "PDFsharpCore, XGraphics";
+    document.Info.Keywords = "PdfSharpCore, XGraphics";
     
     SamplePage1(document);
     SamplePage2(document);

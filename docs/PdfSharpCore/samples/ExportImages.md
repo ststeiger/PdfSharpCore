@@ -2,11 +2,11 @@
 
 This sample shows how to export JPEG images from a PDF file.
 
-Note: This snippet shows how to export JPEG images from a PDF file. PDFsharpCore cannot convert PDF pages to JPEG files. This sample does not handle non-JPEG images. It does not (yet) handle JPEG images that have been flate-encoded.
+Note: This snippet shows how to export JPEG images from a PDF file. PdfSharpCore cannot convert PDF pages to JPEG files. This sample does not handle non-JPEG images. It does not (yet) handle JPEG images that have been flate-encoded.
 
 There are several different formats for non-JPEG images in PDF. Those are not supported by this simple sample and require several hours of coding, but this is left as an exercise to the reader.
 
-PDFsharpCore cannot render PDF pages - not to printers, not to bitmaps, not to JPEG files.
+PdfSharpCore cannot render PDF pages - not to printers, not to bitmaps, not to JPEG files.
 
 
 ## Code
@@ -97,6 +97,6 @@ static void ExportAsPngImage(PdfDictionary image, ref int count)
     // PdfSharpCore.Pdf.Advanced/PdfImage.cs to see how we create the PDF image formats.
     // We don't need that feature at the moment and therefore will not implement it.
     // If you write the code for exporting images I would be pleased to publish it in a future release
-    // of PDFsharpCore.
+    // of PdfSharpCore.
 }
 ```

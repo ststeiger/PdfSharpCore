@@ -20,10 +20,10 @@ static void Main()
     // Create a temporary file
     string filename = String.Format("{0}_tempfile.pdf", Guid.NewGuid().ToString("D").ToUpper());
     s_document = new PdfDocument();
-    s_document.Info.Title = "PDFsharpCore XGraphic Sample";
+    s_document.Info.Title = "PdfSharpCore XGraphic Sample";
     s_document.Info.Author = "Stefan Lange";
     s_document.Info.Subject = "Created with code snippets that show the use of graphical functions";
-    s_document.Info.Keywords = "PDFsharpCore, XGraphics";
+    s_document.Info.Keywords = "PdfSharpCore, XGraphics";
     
     // Create demonstration pages
     new LinesAndCurves().DrawPage(s_document.AddPage());

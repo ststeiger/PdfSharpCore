@@ -2,7 +2,7 @@
 
 This sample shows how to unprotect a document (if you know the password).
 
-Note: that we will not explain nor give any tips how to crack a protected document with PDFsharpCore.
+Note: that we will not explain nor give any tips how to crack a protected document with PdfSharpCore.
 
 ## Code
 
@@ -37,9 +37,9 @@ document = PdfReader.Open(filenameDest, PdfDocumentOpenMode.Modify, PasswordProv
 document = PdfReader.Open(filenameDest, "user", PdfDocumentOpenMode.ReadOnly);
  
 // Use the property HasOwnerPermissions to decide whether the used password
-// was the user or the owner password. In both cases PDFsharpCore provides full
-// access to the PDF document. It is up to the programmer who uses PDFsharpCore
-// to honor the access rights. PDFsharpCore doesn't try to protect the document
+// was the user or the owner password. In both cases PdfSharpCore provides full
+// access to the PDF document. It is up to the programmer who uses PdfSharpCore
+// to honor the access rights. PdfSharpCore doesn't try to protect the document
 // because this make little sense for an open source library.
 bool hasOwnerAccess = document.SecuritySettings.HasOwnerPermissions;
  

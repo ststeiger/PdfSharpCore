@@ -63,7 +63,7 @@ format.Alignment = XStringAlignment.Near;
 format.LineAlignment = XLineAlignment.Near;
  
 // Add the text to the path.
-// AddString is not implemented in PDFsharpCore Core.
+// AddString is not implemented in PdfSharpCore Core.
 path.AddString(watermark, font.FontFamily, XFontStyle.BoldItalic, 150,
 new XPoint((page.Width - size.Width) / 2, (page.Height - size.Height) / 2),
 format);
@@ -101,7 +101,7 @@ format.Alignment = XStringAlignment.Near;
 format.LineAlignment = XLineAlignment.Near;
  
 // Add the text to the path.
-// AddString is not implemented in PDFsharpCore Core.
+// AddString is not implemented in PdfSharpCore Core.
 path.AddString(watermark, font.FontFamily, XFontStyle.BoldItalic, 150,
 new XPoint((page.Width - si
 ```
