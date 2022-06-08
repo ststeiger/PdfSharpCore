@@ -1,28 +1,23 @@
 # PdfSharpCore
 
-[![codecov.io](https://codecov.io/github/ststeiger/PdfSharpCore/coverage.svg?branch=master)](https://codecov.io/github/ststeiger/PdfSharpCore?branch=master) ![Nuget](https://img.shields.io/nuget/v/PdfSharpCore)
-
-## About
+[![NuGet Version](https://img.shields.io/nuget/v/PdfSharpCore.svg)](https://www.nuget.org/packages/PdfSharpCore/)
+[![CI](https://github.com/ststeiger/PdfSharpCore/actions/workflows/build.yml/badge.svg)](https://github.com/ststeiger/PdfSharpCore/actions/workflows/build.yml)
+[![codecov.io](https://codecov.io/github/ststeiger/PdfSharpCore/coverage.svg?branch=master)](https://codecov.io/github/ststeiger/PdfSharpCore?branch=master)
 
 **PdfSharpCore** is a partial port of [PdfSharp.Xamarin](https://github.com/roceh/PdfSharp.Xamarin/) for .NET Standard.
-Additionally MigraDoc has been ported as well (from version 1.32).<br />
+Additionally MigraDoc has been ported as well (from version 1.32).
+Image support has been implemented with [SixLabors.ImageSharp](https://github.com/JimBobSquarePants/ImageSharp/) and Fonts support with [SixLabors.Fonts](https://github.com/SixLabors/Fonts).
 
-Support for images has been implemented with [ImageSharp](https://github.com/SixLabors/ImageSharp). 
 
-## Example project 
+## Table of Contents
 
-An example project is not included in this repository, but exists in the repository linked below.
+- [Documentation](docs/index.md)
+- [Example](#example)
+- [Contributing](#contributing)
+- [License](#license)
 
-[Go to the example project](https://github.com/ststeiger/Stammbaum)
 
-### Font resolving
-
-There's a default font-resolver in [`FontResolver.cs`](https://github.com/ststeiger/PdfSharpCore/blob/master/PdfSharpCore/Utils/FontResolver.cs).<br />
-It should work on Windows, Linux, OSX and Azure. <br />
-Some limitations apply. <br />
-See open issues.
-
-## Usage
+## Example
 
 The following code snippet creates a simple PDF-file with the text 'Hello World!'.
 The code is written for a .NET 6 console app with top level statements.
@@ -50,8 +45,11 @@ gfx.DrawString("Hello World!", font, textColor, layout, format);
 document.Save("helloworld.pdf");
 ```
 
-See the [example project](#example-project) for MigraDoc usage.
+## Contributing
+
+We appreciate feedback and contribution to this repo!
+
 
 ## License
 
-Distributed under the MIT License. See [`LICENSE.md`](LICENSE.md) for more information.
+This software is released under the MIT License. See the [LICENSE](LICENCE.md) file for more info.
