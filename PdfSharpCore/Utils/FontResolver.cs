@@ -12,11 +12,18 @@ namespace PdfSharpCore.Utils
 {
     public class FontResolver : IFontResolver
     {
-        private static readonly List<FontFamilyModel> installedFonts = new List<FontFamilyModel>();
-        private static readonly string[] installedFontFilePaths;
+        private static bool _isInitialized;
 
-        static FontResolver()
+        private static readonly List<FontFamilyModel> installedFonts = new List<FontFamilyModel>();
+        private static string[] installedFontFilePaths;
+
+        public FontResolver()
         {
+            if(_isInitialized)
+            {
+                return;
+            }
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 installedFontFilePaths = LoadWindowsFonts();
@@ -35,6 +42,8 @@ namespace PdfSharpCore.Utils
             }
 
             SetupFontFiles();
+
+            _isInitialized = true;
         }
 
         public string DefaultFontName => "Arial";
@@ -44,16 +53,16 @@ namespace PdfSharpCore.Utils
         {
             using (var ms = new MemoryStream())
             {
-                string ttfPathFile = "";
+                var fontFilepath = string.Empty;
                 try
                 {
-                    ttfPathFile = installedFontFilePaths
-                        .ToList()
-                        .First(x => x.ToLower().Contains(Path.GetFileName(faceName).ToLower()));
+                    var fontFileName = Path.GetFileName(faceName).ToLower();
+                    fontFilepath = installedFontFilePaths                       
+                        .First(x => x.ToLower().Contains(fontFileName));
 
-                    if (File.Exists(ttfPathFile))
+                    if (File.Exists(fontFilepath))
                     {
-                        using (var fileStream = File.OpenRead(ttfPathFile))
+                        using (var fileStream = File.OpenRead(fontFilepath))
                         {
                             fileStream.CopyTo(ms);
                             ms.Position = 0;
@@ -62,12 +71,12 @@ namespace PdfSharpCore.Utils
                     }
                     else
                     {
-                        throw new FileNotFoundException(ttfPathFile);
+                        throw new FileNotFoundException(fontFilepath);
                     }
                 }
                 catch (Exception)
                 {
-                    throw new Exception($"Font file with name {faceName} and path {ttfPathFile} not found.");
+                    throw new Exception($"Font file with name {faceName} and path {fontFilepath} not found.");
                 }
             }
         }
