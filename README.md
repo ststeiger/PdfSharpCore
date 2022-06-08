@@ -24,63 +24,33 @@ See open issues.
 
 ## Usage
 
+The following code snippet creates a simple PDF-file with the text 'Hello World!'.
+The code is written for a .NET 6 console app with top level statements.
+
 ```csharp
-// See the "Example" Project for a MigraDoc example
-static void Main(string[] args)
-{
-    GlobalFontSettings.FontResolver = new FontResolver();
-    
-    var document = new PdfDocument();
-    var page = document.AddPage();
-    var gfx = XGraphics.FromPdfPage(page);
-    var font = new XFont("OpenSans", 20, XFontStyle.Bold);
-            
-    gfx.DrawString("Hello World!", font, XBrushes.Black, new XRect(20, 20, page.Width, page.Height), XStringFormats.Center);
+using PdfSharpCore.Drawing;
+using PdfSharpCore.Fonts;
+using PdfSharpCore.Pdf;
+using PdfSharpCore.Utils;
 
-    document.Save("test.pdf");
-}
+GlobalFontSettings.FontResolver = new FontResolver();
 
-// This implementation is obviously not very good --> Though it should be enough for everyone to implement their own.
-public class FontResolver : IFontResolver
-{
-    public byte[] GetFont(string faceName)
-    {
-        using(var ms = new MemoryStream())
-        {
-            using(var fs = File.Open(faceName, FileMode.Open))
-            {
-                fs.CopyTo(ms);
-                ms.Position = 0;
-                return ms.ToArray();
-                }
-            }
-        }
-        public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
-        {
-            if (familyName.Equals("OpenSans", StringComparison.CurrentCultureIgnoreCase))
-            {
-                if (isBold && isItalic)
-                {
-                    return new FontResolverInfo("OpenSans-BoldItalic.ttf");
-                }
-                else if (isBold)
-                {
-                    return new FontResolverInfo("OpenSans-Bold.ttf");
-                }
-                else if (isItalic)
-                {
-                    return new FontResolverInfo("OpenSans-Italic.ttf");
-                }
-                else
-                {
-                    return new FontResolverInfo("OpenSans-Regular.ttf");
-                }
-            }
-            return null;
-        }
-    }
-}
+var document = new PdfDocument();
+var page = document.AddPage();
+
+var gfx = XGraphics.FromPdfPage(page);
+var font = new XFont("Arial", 20, XFontStyle.Bold);
+
+var textColor = XBrushes.Black;
+var layout = new XRect(20, 20, page.Width, page.Height);
+var format = XStringFormats.Center;
+
+gfx.DrawString("Hello World!", font, textColor, layout, format);
+
+document.Save("helloworld.pdf");
 ```
+
+See the [example project](#example-project) for MigraDoc usage.
 
 ## License
 
