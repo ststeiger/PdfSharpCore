@@ -2,7 +2,9 @@
 
 [![codecov.io](https://codecov.io/github/ststeiger/PdfSharpCore/coverage.svg?branch=master)](https://codecov.io/github/ststeiger/PdfSharpCore?branch=master) ![Nuget](https://img.shields.io/nuget/v/PdfSharpCore)
 
-**PdfSharpCore** is a partial port of [PdfSharp.Xamarin](https://github.com/roceh/PdfSharp.Xamarin/) for .NET Standard
+## About
+
+**PdfSharpCore** is a partial port of [PdfSharp.Xamarin](https://github.com/roceh/PdfSharp.Xamarin/) for .NET Standard.
 Additionally MigraDoc has been ported as well (from version 1.32).
 Images have been implemented with [ImageSharp](https://github.com/JimBobSquarePants/ImageSharp/), which is still in Alpha. They State on their readme that it is still in Alpha status and shouldn't be used in productive environments. Since I didn't find any good alternatives it's still used.
 
@@ -10,9 +12,9 @@ ImageSharp being Alpha isn't a big issue either since this code isn't by far don
 
 ## Example project 
 
-There was an example project here. <br />
-I've removed it from this project, and put it into a separate solution.
-You can find it [here](https://github.com/ststeiger/Stammbaum).<br />
+An example project is not included in this repository, but exists in the repository linked below.
+
+[Go to the example project](https://github.com/ststeiger/Stammbaum)
 
 ### Font resolving
 
@@ -23,7 +25,7 @@ See open issues.
 
 ## Usage
 
-```cs
+```csharp
 //See the "Example" Project for a MigraDoc example
 static void Main(string[] args)
 {
@@ -83,11 +85,4 @@ public class FontResolver : IFontResolver
 
 ## License
 
-Copyright (c) 2005-2007 empira Software GmbH, Cologne (Germany)  
-Modified work Copyright (c) 2016 David Dunscombe
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Distributed under the MIT License. See [`LICENSE.md`](LICENSE.md) for more information.
