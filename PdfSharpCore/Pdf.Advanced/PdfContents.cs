@@ -200,7 +200,7 @@ namespace PdfSharpCore.Pdf.Advanced
         {
             // Save two bytes in PDF stream...
             if (Elements.Count == 1)
-                Elements[0].WriteObject(writer);
+                Elements[0].Write(writer);
             else
                 base.WriteObject(writer);
         }
