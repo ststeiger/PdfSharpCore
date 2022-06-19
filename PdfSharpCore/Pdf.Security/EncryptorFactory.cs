@@ -11,16 +11,11 @@ namespace PdfSharpCore.Pdf.Security
             var filter = dict.Elements.GetName(PdfSecurityHandler.Keys.Filter);
             var v = dict.Elements.GetInteger(PdfSecurityHandler.Keys.V);
             var maxSupportedVersion = 5;
-#if NETSTANDARD1_3
-            // netstandard 1.3 is lacking advanced cryptography support
-            maxSupportedVersion = 3;
-#endif
             if (filter != "/Standard" || !(v >= 1 && v <= maxSupportedVersion))
                 throw new PdfReaderException(PSSR.UnknownEncryption);
             foreach (var keyName in new []{"/StrF", "/StmF"})
             {
                 IEncryptor encryptor = null;
-#if NETSTANDARD2_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
                 if (v >= 4)
                 {
                     var cf = dict.Elements.GetDictionary(PdfSecurityHandler.Keys.CF);
@@ -54,8 +49,7 @@ namespace PdfSharpCore.Pdf.Security
                         }
                     }
                 }
-#endif
-                // If CFM is "V2", use RC4 encryption
+                // default to RC4 encryption
                 if (encryptor == null)
                     encryptor = new RC4Encryptor();
                 encryptor.Initialize(doc, dict);

@@ -12,11 +12,11 @@ namespace PdfSharpCore.Pdf.Security
 
         /// <summary>
         /// Creates the encryption Key.
-        /// Based on algorithm #2 in the Pdf 1.7 reference (7.6.3.3)
+        /// Based on algorithm #2 (3.2 in Extension Level 3) in the Pdf 1.7 reference (7.6.3.3)
         /// </summary>
         public virtual void InitEncryptionKey(string password)
         {
-            var userPad = EncryptorBase.PadPassword(password);
+            var userPad = PadPassword(password);
             md5.Initialize();
             md5.TransformBlock(userPad, 0, userPad.Length, userPad, 0);
             md5.TransformBlock(ownerValue, 0, ownerValue.Length, ownerValue, 0);
@@ -62,12 +62,12 @@ namespace PdfSharpCore.Pdf.Security
         private void ValidateUserPassword(string password)
         {
             CreateUserKey(password);
-            PasswordValid = EncryptorBase.CompareArrays(computedUserValue, userValue, 16);
+            PasswordValid = CompareArrays(computedUserValue, userValue, 16);
         }
 
         private void ValidateOwnerPassword(string password)
         {
-            var pwdPad = EncryptorBase.PadPassword(password);
+            var pwdPad = PadPassword(password);
             md5.Initialize();
             var pwdKey = md5.ComputeHash(pwdPad);
             if (rValue >= 3)
@@ -110,7 +110,7 @@ namespace PdfSharpCore.Pdf.Security
         /// </summary>
         public void CreateOwnerKey(string password)
         {
-            var pwdPad = EncryptorBase.PadPassword(password);
+            var pwdPad = PadPassword(password);
             md5.Initialize();
             var pwdKey = md5.ComputeHash(pwdPad);
             if (rValue >= 3)

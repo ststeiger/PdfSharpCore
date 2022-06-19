@@ -650,22 +650,30 @@ namespace PdfSharpCore.Pdf.Security
             /// • 3 if the document is encrypted with a V value of 2 or 3, or has any "Revision 3 or 
             ///   greater" access permissions set.
             /// • 4 if the document is encrypted with a V value of 4
+            /// • 5 (ExtensionLevel 3) if the document is encrypted with a V value of 5
             /// </summary>
             [KeyInfo(KeyType.Integer | KeyType.Required)]
             public const string R = "/R";
 
             /// <summary>
-            /// (Required) A 32-byte string, based on both the owner and user passwords, that is
-            /// used in computing the encryption key and in determining whether a valid owner
-            /// password was entered.
+            ///  (Required) A string used in computing the encryption key. 
+            ///  The value of the string depends on the value of the
+            ///  revision number, the R entry described above.
+            ///  • The value of R is 4 or less: A 32-byte string, based on both the owner and user passwords, that is used in 
+            ///    computing the encryption key and in determining whether a valid owner password was entered.
+            ///  • The value for R is 5: (ExtensionLevel 3) A 48-byte string,  based on the owner and user passwords, that is used in 
+            ///    computing the encryption key and in determining whether a valid owner password was entered.
             /// </summary>
             [KeyInfo(KeyType.String | KeyType.Required)]
             public const string O = "/O";
 
             /// <summary>
-            /// (Required) A 32-byte string, based on the user password, that is used in determining
-            /// whether to prompt the user for a password and, if so, whether a valid user or owner 
-            /// password was entered.
+            /// (Required) A string based on the user password. The value 
+            /// of the string depends on the value of the revision number, the R entry described above.
+            /// • The value of R is 4 or less: A 32-byte string, based on the user password, that is used in determining
+            ///   whether to prompt the user for a password and, if so, whether a valid user or owner password was entered.
+            /// • The value for R is 5: (ExtensionLevel 3) A 48-byte string, based on the user password, that is used in 
+            ///   determining whether to prompt the user for a password and, if so, whether a valid user password was entered.
             /// </summary>
             [KeyInfo(KeyType.String | KeyType.Required)]
             public const string U = "/U";
@@ -699,7 +707,7 @@ namespace PdfSharpCore.Pdf.Security
             public const string Perms = "/Perms";
 
             /// <summary>
-            /// (Optional; meaningful only when the value of V is 4; PDF 1.5) Indicates whether
+            /// (Optional; meaningful only when the value of V is 4 or 5; PDF 1.5) Indicates whether
             /// the document-level metadata stream is to be encrypted. Applications should respect this value.
             /// Default value: true.
             /// </summary>

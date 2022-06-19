@@ -1,11 +1,12 @@
 ﻿using PdfSharpCore.Pdf.Internal;
 using System;
+using System.Security.Cryptography;
 
 namespace PdfSharpCore.Pdf.Security
 {
     internal abstract class EncryptorBase
     {
-        protected readonly MD5Managed md5 = new MD5Managed();
+        protected readonly MD5 md5 = MD5.Create();
 
         /// <summary>
         /// The encryption key for the owner.

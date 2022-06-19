@@ -4,8 +4,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-#if NETSTANDARD2_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-
 namespace PdfSharpCore.Pdf.Security
 {
     internal class AESEncryptor : RC4Encryptor
@@ -32,8 +30,9 @@ namespace PdfSharpCore.Pdf.Security
         /// <param name="password"></param>
         protected void InitVersion5(string password)
         {
-            if (password.Length > 127)
-                password = password.Substring(0, 127);
+            var pwdBytes = Encoding.UTF8.GetBytes(password);
+            if (pwdBytes.Length > 127)
+                pwdBytes = pwdBytes.Take(127).ToArray();
             // split O and U into their components
             var oHash = new byte[32];
             var oValidation = new byte[8];
@@ -49,35 +48,38 @@ namespace PdfSharpCore.Pdf.Security
             Array.Copy(userValue, 32, uValidation, 0, 8);
             Array.Copy(userValue, 40, uSalt, 0, 8);
 
-            var pwdBytes = Encoding.UTF8.GetBytes(password);
+            computedOwnerValue = new byte[32];
+            computedUserValue = new byte[32];
+
             var oKeyBytes = new byte[pwdBytes.Length + 8 + 48];
             Array.Copy(pwdBytes, oKeyBytes, pwdBytes.Length);
             Array.Copy(oValidation, 0, oKeyBytes, pwdBytes.Length, 8);
             Array.Copy(userValue, 0, oKeyBytes, pwdBytes.Length + 8, 48);
 
-            computedOwnerValue = new byte[32];
-            Array.Copy(oKeyBytes, computedOwnerValue, 32);
-
-            var haveOwnerPassword = PasswordMatchR5(oKeyBytes, ownerValue);
-            if (haveOwnerPassword)
-                CreateEncryptionKeyR5(pwdBytes, oSalt, userValue);
+            HaveOwnerPermission = PasswordMatchR5(oKeyBytes, ownerValue);
+            if (HaveOwnerPermission)
+            {
+                PasswordValid = true;
+                Array.Copy(ownerValue, computedOwnerValue, 32);
+                CreateEncryptionKeyR5(oeValue, pwdBytes, oSalt, userValue);
+            }
             else
             {
                 oKeyBytes = new byte[pwdBytes.Length + 8];
                 Array.Copy(pwdBytes, oKeyBytes, pwdBytes.Length);
                 Array.Copy(uValidation, 0, oKeyBytes, pwdBytes.Length, 8);
 
-                computedUserValue = new byte[32];
-                Array.Copy(oKeyBytes, computedUserValue, 32);
-
-                // if the result matches the first 32 bytes of ownerValue, we have the user password
-                var haveUserPassword = PasswordMatchR5(oKeyBytes, userValue);
-                if (haveUserPassword)
-                    CreateEncryptionKeyR5(pwdBytes, uSalt, null);
+                // if the result matches the first 32 bytes of userValue, we have the user password
+                PasswordValid = PasswordMatchR5(oKeyBytes, userValue);
+                if (PasswordValid)
+                {
+                    Array.Copy(userValue, computedUserValue, 32);
+                    CreateEncryptionKeyR5(ueValue, pwdBytes, uSalt, null);
+                }
             }
         }
 
-        private void CreateEncryptionKeyR5(byte[] password, byte[] salt, byte[] uservalue)
+        private void CreateEncryptionKeyR5(byte[] encryptedValue, byte[] password, byte[] salt, byte[] uservalue)
         {
             var sha = SHA256.Create();
             var aes256Cbc = Aes.Create();
@@ -91,9 +93,9 @@ namespace PdfSharpCore.Pdf.Security
             if (uservalue != null)
                 Array.Copy(uservalue, 0, buf, password.Length + salt.Length, 48);
             var shaKey = sha.ComputeHash(buf);
-            using (var decryptor = aes256Cbc.CreateDecryptor(shaKey, new byte[] { 0 }))
+            using (var decryptor = aes256Cbc.CreateDecryptor(shaKey, new byte[16]))
             {
-                using (var ms = new MemoryStream(ueValue))
+                using (var ms = new MemoryStream(encryptedValue))
                 {
                     using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
                     {
@@ -127,7 +129,7 @@ namespace PdfSharpCore.Pdf.Security
             byte[] keyToDecrypt = null;
             byte[] salt = null;
             byte[] hashKey = null;
-            if (EncryptorBase.CompareArrays(computedOwnerValue, ownerValue, 32))
+            if (CompareArrays(computedOwnerValue, ownerValue, 32))
             {
                 keyToDecrypt = oeValue;
                 salt = oKeySalt;
@@ -135,7 +137,7 @@ namespace PdfSharpCore.Pdf.Security
                 PasswordValid = true;
                 HaveOwnerPermission = true;
             }
-            else if (EncryptorBase.CompareArrays(computedUserValue, userValue, 32))
+            else if (CompareArrays(computedUserValue, userValue, 32))
             {
                 keyToDecrypt = ueValue;
                 salt = uKeySalt;
@@ -148,15 +150,16 @@ namespace PdfSharpCore.Pdf.Security
                 var hash = new byte[32];
                 var iv = new byte[16];
                 ValidateVersion6(password, salt, hashKey, hash);
-                var aes256 = Aes.Create();
-                aes256.KeySize = 256;
-                aes256.Mode = CipherMode.CBC;
-                aes256.Padding = PaddingMode.None;
-                using (var decryptor = aes256.CreateDecryptor(hash, iv))
+                using (var aes256 = Aes.Create())
                 {
-                    decryptor.TransformBlock(keyToDecrypt, 0, 32, encryptionKey, 0);
+                    aes256.KeySize = 256;
+                    aes256.Mode = CipherMode.CBC;
+                    aes256.Padding = PaddingMode.None;
+                    using (var decryptor = aes256.CreateDecryptor(hash, iv))
+                    {
+                        decryptor.TransformBlock(keyToDecrypt, 0, 32, encryptionKey, 0);
+                    }
                 }
-                aes256.Clear();
             }
         }
 
@@ -168,65 +171,65 @@ namespace PdfSharpCore.Pdf.Security
             var dataLen = 0;
             int i, j, sum;
 
-            var sha256 = SHA256.Create();
-            var aes128 = Aes.Create();
-            aes128.BlockSize = 16 * 8;
-            aes128.Mode = CipherMode.CBC;
-            var pwdBytes = Encoding.UTF8.GetBytes(password);
-            var iv = new byte[16];
-            var aesKey = new byte[16];
-
-            /* Step 1: calculate initial data block */
-            sha256.TransformBlock(pwdBytes, 0, pwdBytes.Length, pwdBytes, 0);
-            sha256.TransformBlock(salt, 0, salt.Length, salt, 0);
-            if (ownerKey != null)
-                sha256.TransformBlock(ownerKey, 0, ownerKey.Length, ownerKey, 0);
-            sha256.TransformFinalBlock(salt, 0, 0);
-            Array.Copy(sha256.Hash, block, sha256.HashSize / 8);
-            for (i = 0; i < 64 || i < data[dataLen * 64 - 1] + 32; i++)
+            using (var aes128 = Aes.Create())
             {
-                /* Step 2: repeat password and data block 64 times */
-                Array.Copy(pwdBytes, data, pwdBytes.Length);
-                Array.Copy(block, 0, data, pwdBytes.Length, blockSize);
-                if (ownerKey != null)
-                    Array.Copy(ownerKey, 0, data, pwdBytes.Length + blockSize, 48);
-                dataLen = pwdBytes.Length + blockSize + (ownerKey != null ? 48 : 0);
-                for (j = 1; j < 64; j++)
-                    Array.Copy(data, 0, data, j * dataLen, dataLen);
+                aes128.BlockSize = 16 * 8;
+                aes128.Mode = CipherMode.CBC;
+                var pwdBytes = Encoding.UTF8.GetBytes(password);
+                var iv = new byte[16];
+                var aesKey = new byte[16];
 
-                /* Step 3: encrypt data using data block as key and iv */
-                Array.Copy(block, 16, iv, 0, 16);
-                Array.Copy(block, 0, aesKey, 0, 16);
-                using (var aesEnc = aes128.CreateEncryptor(aesKey, iv))
+                /* Step 1: calculate initial data block */
+                using (var sha256 = SHA256.Create())
                 {
-                    aesEnc.TransformBlock(data, 0, dataLen * 64, data, 0);
+                    sha256.TransformBlock(pwdBytes, 0, pwdBytes.Length, pwdBytes, 0);
+                    sha256.TransformBlock(salt, 0, salt.Length, salt, 0);
+                    if (ownerKey != null)
+                        sha256.TransformBlock(ownerKey, 0, ownerKey.Length, ownerKey, 0);
+                    sha256.TransformFinalBlock(salt, 0, 0);
+                    Array.Copy(sha256.Hash, block, sha256.HashSize / 8);
+                }
+                for (i = 0; i < 64 || i < data[dataLen * 64 - 1] + 32; i++)
+                {
+                    /* Step 2: repeat password and data block 64 times */
+                    Array.Copy(pwdBytes, data, pwdBytes.Length);
+                    Array.Copy(block, 0, data, pwdBytes.Length, blockSize);
+                    if (ownerKey != null)
+                        Array.Copy(ownerKey, 0, data, pwdBytes.Length + blockSize, 48);
+                    dataLen = pwdBytes.Length + blockSize + (ownerKey != null ? 48 : 0);
+                    for (j = 1; j < 64; j++)
+                        Array.Copy(data, 0, data, j * dataLen, dataLen);
 
-                    /* Step 4: determine SHA-2 hash size for this round */
-                    for (j = 0, sum = 0; j < 16; j++)
-                        sum += data[j];
-
-                    /* Step 5: calculate data block for next round */
-                    blockSize = 32 + sum % 3 * 16;
-                    switch (blockSize)
+                    /* Step 3: encrypt data using data block as key and iv */
+                    Array.Copy(block, 16, iv, 0, 16);
+                    Array.Copy(block, 0, aesKey, 0, 16);
+                    using (var aesEnc = aes128.CreateEncryptor(aesKey, iv))
                     {
-                        case 32:
-                            sha256 = SHA256.Create();
-                            sha256.TransformBlock(data, 0, dataLen * 64, data, 0);
-                            sha256.TransformFinalBlock(data, 0, 0);
-                            Array.Copy(sha256.Hash, block, sha256.HashSize / 8);
-                            break;
-                        case 48:
-                            var sha384 = SHA384.Create();
-                            sha384.TransformBlock(data, 0, dataLen * 64, data, 0);
-                            sha384.TransformFinalBlock(data, 0, 0);
-                            Array.Copy(sha384.Hash, block, sha384.HashSize / 8);
-                            break;
-                        case 64:
-                            var sha512 = SHA512.Create();
-                            sha512.TransformBlock(data, 0, dataLen * 64, data, 0);
-                            sha512.TransformFinalBlock(data, 0, 0);
-                            Array.Copy(sha512.Hash, block, sha512.HashSize / 8);
-                            break;
+                        aesEnc.TransformBlock(data, 0, dataLen * 64, data, 0);
+
+                        /* Step 4: determine SHA-2 hash size for this round */
+                        for (j = 0, sum = 0; j < 16; j++)
+                            sum += data[j];
+
+                        /* Step 5: calculate data block for next round */
+                        blockSize = 32 + sum % 3 * 16;
+                        HashAlgorithm hashAlg = null;
+                        switch (blockSize)
+                        {
+                            case 32:
+                                hashAlg = SHA256.Create();
+                                break;
+                            case 48:
+                                hashAlg = SHA384.Create();
+                                break;
+                            case 64:
+                                hashAlg = SHA512.Create();
+                                break;
+                        }
+                        hashAlg.TransformBlock(data, 0, dataLen * 64, data, 0);
+                        hashAlg.TransformFinalBlock(data, 0, 0);
+                        Array.Copy(hashAlg.Hash, block, hashAlg.HashSize / 8);
+                        hashAlg.Dispose();
                     }
                 }
             }
@@ -253,7 +256,8 @@ namespace PdfSharpCore.Pdf.Security
         {
             if (rValue >= 5)
             {
-                key = new byte[encryptionKey.Length];
+                if (key == null || key.Length != encryptionKey.Length)
+                    key = new byte[encryptionKey.Length];
                 Array.Copy(encryptionKey, key, encryptionKey.Length);
                 return;
             }
@@ -277,8 +281,14 @@ namespace PdfSharpCore.Pdf.Security
                 keySize = 16;
         }
 
+        /// <summary>
+        /// Decrypts a block of data
+        /// </summary>
+        /// <param name="bytes">Bytes to decrypt</param>
+        /// <returns></returns>
         public override byte[] Encrypt(byte[] bytes)
         {
+            // first 16 bytes should be an initialization vector for the encryption
             if (bytes.Length <= 16)
                 return bytes;
 
@@ -311,5 +321,3 @@ namespace PdfSharpCore.Pdf.Security
         }
     }
 }
-
-#endif
