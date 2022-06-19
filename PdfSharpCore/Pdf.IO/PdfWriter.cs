@@ -198,8 +198,8 @@ namespace PdfSharpCore.Pdf.IO
             WriteSeparator(CharCat.Delimiter);
             PdfStringEncoding encoding = (PdfStringEncoding)(value.Flags & PdfStringFlags.EncodingMask);
             string pdf = (value.Flags & PdfStringFlags.HexLiteral) == 0 ?
-                PdfEncoders.ToStringLiteral(value.Value, encoding, SecurityHandler) :
-                PdfEncoders.ToHexStringLiteral(value.Value, encoding, SecurityHandler);
+                PdfEncoders.ToStringLiteral(value.EncryptionValue, encoding == PdfStringEncoding.Unicode, SecurityHandler) :
+                PdfEncoders.ToHexStringLiteral(value.EncryptionValue, encoding == PdfStringEncoding.Unicode, SecurityHandler);
             WriteRaw(pdf);
 
             _lastCat = CharCat.Delimiter;
