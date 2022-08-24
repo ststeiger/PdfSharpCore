@@ -389,7 +389,9 @@ namespace PdfSharpCore.Pdf
 #pragma warning disable 162
 
             // The destination page may not yet transformed to PdfPage.
-            PdfDictionary destPage = (PdfDictionary)((PdfReference)(destination.Elements[0])).Value;
+            PdfDictionary destPage = (destination.Elements[0] is PdfInteger) ? 
+                destination.Owner.Pages[((PdfInteger)destination.Elements[0]).Value] : 
+                (PdfDictionary)((PdfReference)destination.Elements[0]).Value;
             PdfPage page = destPage as PdfPage;
             if (page == null)
                 page = new PdfPage(destPage);
