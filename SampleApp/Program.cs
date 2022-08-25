@@ -3,7 +3,7 @@ using PdfSharpCore.Pdf;
 
 string GetOutFilePath(string name)
 {
-    var OutputDirName = @"C:\Users\Arbeit\Documents\";
+    var OutputDirName = @".";
     return Path.Combine(OutputDirName, name);
 }
 

@@ -216,11 +216,12 @@ namespace PdfSharpCore.Pdf
             #endif
         }
 
+        #if !NET5_0_OR_GREATER
         // Background: The function GetRuntimeFields gets constant fields only for the specified type,
         // not for its base types. So we have to walk recursively through base classes.
         // The docmentation says full trust for the immediate caller is required for property BaseClass.
         // TODO: Rewrite this stuff for medium trust.
-        void CollectKeyDescriptors([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type type)
+        void CollectKeyDescriptors(Type type)
         {
             // Get fields of the specified type only.
             var fields = type.GetTypeInfo().DeclaredFields;
@@ -238,6 +239,7 @@ namespace PdfSharpCore.Pdf
             if (type != typeof(object) && type != typeof(PdfObject))
                 CollectKeyDescriptors(type);
         }
+        #endif
 
         /// <summary>
         /// Gets the KeyDescriptor of the specified key, or null if no such descriptor exits.
