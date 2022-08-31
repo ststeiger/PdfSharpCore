@@ -123,10 +123,6 @@ namespace PdfSharpCore.Drawing  // #??? aufräumen
         }
         XGraphics(XSize size, XGraphicsUnit pageUnit, XPageDirection pageDirection)
         {
-            if (size == null)
-                throw new ArgumentNullException("size");
-            
-
             _gsStack = new GraphicsStateStack(this);
             _pageSizePoints = new XSize(size.Width, size.Height);
             switch (pageUnit)
