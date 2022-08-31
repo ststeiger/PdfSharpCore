@@ -591,6 +591,14 @@ namespace PdfSharpCore.Pdf
             }
 
             /// <summary>
+            /// Sets the entry to a string value with the specified encoding.
+            /// </summary>
+            public void SetString(string key, string value, PdfStringEncoding encoding)
+            {
+                this[key] = new PdfString(value, encoding);
+            }
+
+            /// <summary>
             /// Converts the specified value to a name.
             /// If the value does not exist, the function returns the empty string.
             /// </summary>

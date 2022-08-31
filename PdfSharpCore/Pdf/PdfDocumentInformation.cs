@@ -53,7 +53,7 @@ namespace PdfSharpCore.Pdf
         public string Title
         {
             get { return Elements.GetString(Keys.Title); }
-            set { Elements.SetString(Keys.Title, value); }
+            set { Elements.SetString(Keys.Title, value, PdfStringEncoding.Unicode); }
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace PdfSharpCore.Pdf
         public string Author
         {
             get { return Elements.GetString(Keys.Author); }
-            set { Elements.SetString(Keys.Author, value); }
+            set { Elements.SetString(Keys.Author, value, PdfStringEncoding.Unicode); }
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace PdfSharpCore.Pdf
         public string Subject
         {
             get { return Elements.GetString(Keys.Subject); }
-            set { Elements.SetString(Keys.Subject, value); }
+            set { Elements.SetString(Keys.Subject, value, PdfStringEncoding.Unicode); }
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace PdfSharpCore.Pdf
         public string Keywords
         {
             get { return Elements.GetString(Keys.Keywords); }
-            set { Elements.SetString(Keys.Keywords, value); }
+            set { Elements.SetString(Keys.Keywords, value, PdfStringEncoding.Unicode); }
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace PdfSharpCore.Pdf
         public string Creator
         {
             get { return Elements.GetString(Keys.Creator); }
-            set { Elements.SetString(Keys.Creator, value); }
+            set { Elements.SetString(Keys.Creator, value, PdfStringEncoding.Unicode); }
         }
 
         /// <summary>

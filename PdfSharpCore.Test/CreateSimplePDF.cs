@@ -38,6 +38,28 @@ namespace PdfSharpCore.Test
         }
 
         [Fact]
+        public void CreateTestPdfWithUnicodeMetadata()
+        {
+            const string data = "English, Ελληνικά, 漢語";
+
+            var document = new PdfDocument();
+            document.Info.Title = data;
+            document.Info.Subject = data;
+            document.Info.Author = data;
+
+            using var ms = new MemoryStream();
+            document.AddPage();
+            document.Save(ms);
+            ms.Position = 0;
+
+            PdfDocument generatedDocument = Pdf.IO.PdfReader.Open(ms);
+
+            Assert.Equal(data, generatedDocument.Info.Title);
+            Assert.Equal(data, generatedDocument.Info.Subject);
+            Assert.Equal(data, generatedDocument.Info.Author);
+        }
+
+        [Fact]
         public void CreateTestPdfWithImage()
         {
             using var stream = new MemoryStream();
