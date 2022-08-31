@@ -19,23 +19,31 @@ Image support has been implemented with [SixLabors.ImageSharp](https://github.co
 
 ## Example
 
-```cs
-static void Main(string[] args)
-{
-    var document = new PdfDocument();
-    var page = document.AddPage();
-    var gfx = XGraphics.FromPdfPage(page);
-    var font = new XFont("OpenSans", 20, XFontStyle.Bold);
-            
-    gfx.DrawString(
-        "Hello World!", font, XBrushes.Black,
-        new XRect(20, 20, page.Width, page.Height),
-        XStringFormats.Center);
+The following code snippet creates a simple PDF-file with the text 'Hello World!'.
+The code is written for a .NET 6 console app with top level statements.
 
-    document.Save("test.pdf");
-}
+```csharp
+using PdfSharpCore.Drawing;
+using PdfSharpCore.Fonts;
+using PdfSharpCore.Pdf;
+using PdfSharpCore.Utils;
+
+GlobalFontSettings.FontResolver = new FontResolver();
+
+var document = new PdfDocument();
+var page = document.AddPage();
+
+var gfx = XGraphics.FromPdfPage(page);
+var font = new XFont("Arial", 20, XFontStyle.Bold);
+
+var textColor = XBrushes.Black;
+var layout = new XRect(20, 20, page.Width, page.Height);
+var format = XStringFormats.Center;
+
+gfx.DrawString("Hello World!", font, textColor, layout, format);
+
+document.Save("helloworld.pdf");
 ```
-
 
 ## Contributing
 
