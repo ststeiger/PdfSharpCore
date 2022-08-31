@@ -395,6 +395,10 @@ namespace PdfSharpCore.Pdf
                         this[key] = new PdfInteger();
                     return 0;
                 }
+
+                if (obj is PdfNull)
+                    return 0;
+
                 PdfReference reference = obj as PdfReference;
                 if (reference != null)
                     obj = reference.Value;
