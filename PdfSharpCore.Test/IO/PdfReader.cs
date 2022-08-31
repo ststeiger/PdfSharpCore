@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using FluentAssertions;
+﻿using FluentAssertions;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.IO;
 using PdfSharpCore.Test.Helpers;
+using System;
+using System.IO;
 using Xunit;
 
 namespace PdfSharpCore.Test.IO
@@ -26,11 +26,12 @@ namespace PdfSharpCore.Test.IO
             act.Should().Throw<InvalidOperationException>().WithMessage("The file is not a valid PDF document.");
         }
 
-        private void AssertIsAValidPdfDocumentWithProperties(PdfDocument inputDocument, int expectedFileSize)
+        internal static void AssertIsAValidPdfDocumentWithProperties(PdfDocument inputDocument, int expectedFileSize)
         {
             inputDocument.Should().NotBeNull();
             inputDocument.FileSize.Should().Be(expectedFileSize);
             inputDocument.Info.Should().NotBeNull();
+            inputDocument.PageCount.Should().BeGreaterThan(0);
         }
     }
 }

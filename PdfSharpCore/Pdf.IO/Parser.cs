@@ -35,6 +35,7 @@ using System.Linq;
 using PdfSharpCore.Exceptions;
 using PdfSharpCore.Internal;
 using PdfSharpCore.Pdf.Advanced;
+using PdfSharpCore.Pdf.Internal;
 using PdfSharpCore.Pdf.IO.enums;
 
 namespace PdfSharpCore.Pdf.IO
@@ -272,6 +273,7 @@ namespace PdfSharpCore.Pdf.IO
 #if true_
                 ReadStream(dict);
 #else
+                var startOfStream = _lexer.Position;
                 int length = GetStreamLength(dict);
                 byte[] bytes = _lexer.ReadStream(length);
 #if true_
@@ -301,7 +303,21 @@ namespace PdfSharpCore.Pdf.IO
 #endif
                 PdfDictionary.PdfStream stream = new PdfDictionary.PdfStream(bytes, dict);
                 dict.Stream = stream;
-                ReadSymbol(Symbol.EndStream);
+                try
+                {
+                    ReadSymbol(Symbol.EndStream);
+                }
+                catch (PdfReaderException)
+                {
+                    // stream length may be incorrect, scan byte by byte up to the "endstream" keyword
+                    _lexer.Position = startOfStream;
+                    _lexer.Position = _lexer.MoveToStartOfStream();
+                    bytes = _lexer.ScanUntilMarker(PdfEncoders.RawEncoding.GetBytes("\nendstream"), out var markerFound);
+                    if (!markerFound)
+                        throw;
+                    stream = new PdfDictionary.PdfStream(bytes, dict);
+                    dict.Stream = stream;
+                }
                 symbol = ScanNextToken();
 #endif
                 if (symbol == Symbol.Eof)

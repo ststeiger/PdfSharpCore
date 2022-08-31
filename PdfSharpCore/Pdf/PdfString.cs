@@ -217,10 +217,33 @@ namespace PdfSharpCore.Pdf
         /// </summary>
         internal byte[] EncryptionValue
         {
-            // TODO: Unicode case is not handled!
-            get { return _value == null ? new byte[0] : PdfEncoders.RawEncoding.GetBytes(_value); }
+            get { return _value == null ? new byte[0] : GetBytesFromEncoding(); }
             // BUG: May lead to trouble with the value semantics of PdfString
-            set { _value = PdfEncoders.RawEncoding.GetString(value, 0, value.Length); }
+            set
+            {
+                var encoding = (PdfStringEncoding)(_flags & PdfStringFlags.EncodingMask);
+                switch (encoding)
+                {
+                    case PdfStringEncoding.Unicode:
+                        _value = PdfEncoders.RawUnicodeEncoding.GetString(value);
+                        break;
+                    default:
+                        _value = PdfEncoders.RawEncoding.GetString(value);
+                        break;
+                }
+            }
+        }
+
+        private byte[] GetBytesFromEncoding()
+        {
+            var encoding = (PdfStringEncoding)(_flags & PdfStringFlags.EncodingMask);
+            switch (encoding)
+            {
+                case PdfStringEncoding.Unicode:
+                    return PdfEncoders.RawUnicodeEncoding.GetBytes(_value);
+                default:
+                    return PdfEncoders.RawEncoding.GetBytes(_value);
+            }
         }
 
         /// <summary>

@@ -1,11 +1,11 @@
 #region PDFsharp - A .NET library for processing PDF
 //
 // Authors:
-//   Stefan Lange
+//   Stefan Lange (mailto:Stefan.Lange@pdfsharp.com)
 //
-// Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
+// Copyright (c) 2005-2016 empira Software GmbH, Cologne (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.pdfsharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -46,11 +46,11 @@ namespace PdfSharpCore.Pdf.Security
     public sealed class PdfStandardSecurityHandler : PdfSecurityHandler
     {
         internal PdfStandardSecurityHandler(PdfDocument document)
-            : base(document)
+          : base(document)
         { }
 
         internal PdfStandardSecurityHandler(PdfDictionary dict)
-            : base(dict)
+          : base(dict)
         { }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace PdfSharpCore.Pdf.Security
         {
             Debug.Assert(value.Reference != null);
 
-            SetHashKey(value.ObjectID);
+            stringEncryptor.CreateHashKey(value.ObjectID);
 #if DEBUG
             if (value.ObjectID.ObjectNumber == 10)
                 GetType();
@@ -137,8 +137,7 @@ namespace PdfSharpCore.Pdf.Security
                 if (str.Length != 0)
                 {
                     byte[] bytes = str.EncryptionValue;
-                    PrepareKey();
-                    EncryptRC4(bytes);
+                    bytes = stringEncryptor.Encrypt(bytes);
                     str.EncryptionValue = bytes;
                 }
             }
@@ -149,7 +148,12 @@ namespace PdfSharpCore.Pdf.Security
         /// </summary>
         void EncryptDictionary(PdfDictionary dict)
         {
-            PdfName[] names = dict.Elements.KeyNames;
+            // Pdf Reference 1.7, Chapter 7.5.8.2: The cross-reference stream shall not be encrypted
+            // Pdf Reference 1.7, Chapter 7.6.1: Strings in the Encryption-Dictionary shall not be encrypted
+            if (dict.Elements.GetName("/Type") == "/XRef"
+                || dict.ObjectNumber == ObjectNumber)
+                return;
+
             foreach (KeyValuePair<string, PdfItem> item in dict.Elements)
             {
                 PdfString value1;
@@ -167,8 +171,8 @@ namespace PdfSharpCore.Pdf.Security
                 byte[] bytes = dict.Stream.Value;
                 if (bytes.Length != 0)
                 {
-                    PrepareKey();
-                    EncryptRC4(bytes);
+                    streamEncryptor.CreateHashKey(dict.ObjectID);
+                    bytes = streamEncryptor.Encrypt(bytes);
                     dict.Stream.Value = bytes;
                 }
             }
@@ -187,7 +191,10 @@ namespace PdfSharpCore.Pdf.Security
                 PdfDictionary value2;
                 PdfArray value3;
                 if ((value1 = item as PdfString) != null)
+                {
+                    stringEncryptor.CreateHashKey(array.ObjectID);
                     EncryptString(value1);
+                }
                 else if ((value2 = item as PdfDictionary) != null)
                     EncryptDictionary(value2);
                 else if ((value3 = item as PdfArray) != null)
@@ -203,8 +210,7 @@ namespace PdfSharpCore.Pdf.Security
             if (value.Length != 0)
             {
                 byte[] bytes = value.EncryptionValue;
-                PrepareKey();
-                EncryptRC4(bytes);
+                bytes = stringEncryptor.Encrypt(bytes);
                 value.EncryptionValue = bytes;
             }
         }
@@ -233,35 +239,22 @@ namespace PdfSharpCore.Pdf.Security
             // We can handle 40 and 128 bit standard encryption.
             string filter = Elements.GetName(PdfSecurityHandler.Keys.Filter);
             int v = Elements.GetInteger(PdfSecurityHandler.Keys.V);
-            if (filter != "/Standard" || !(v >= 1 && v <= 3))
+            if (filter != "/Standard" || !(v >= 1 && v <= 5))
                 throw new PdfReaderException(PSSR.UnknownEncryption);
 
-            byte[] documentID = PdfEncoders.RawEncoding.GetBytes(Owner.Internals.FirstDocumentID);
-            byte[] oValue = PdfEncoders.RawEncoding.GetBytes(Elements.GetString(Keys.O));
-            byte[] uValue = PdfEncoders.RawEncoding.GetBytes(Elements.GetString(Keys.U));
-            int pValue = Elements.GetInteger(Keys.P);
-            int rValue = Elements.GetInteger(Keys.R);
 
             if (inputPassword == null)
                 inputPassword = "";
 
-            bool strongEncryption = rValue == 3;
-            int keyLength = strongEncryption ? 16 : 32;
+            EncryptorFactory.Create(_document, this, out stringEncryptor, out streamEncryptor);
+            stringEncryptor.InitEncryptionKey(inputPassword);
+            streamEncryptor.InitEncryptionKey(inputPassword);
 
-            // Try owner password first.
-            //byte[] password = PdfEncoders.RawEncoding.GetBytes(inputPassword);
-            InitWithOwnerPassword(documentID, inputPassword, oValue, pValue, strongEncryption);
-            if (EqualsKey(uValue, keyLength))
-            {
-                _document.SecuritySettings._hasOwnerPermissions = true;
+            stringEncryptor.ValidatePassword(inputPassword);
+
+            if (stringEncryptor.PasswordValid && stringEncryptor.HaveOwnerPermission)
                 return PasswordValidity.OwnerPassword;
-            }
-            _document.SecuritySettings._hasOwnerPermissions = false;
-
-            // Now try user password.
-            //password = PdfEncoders.RawEncoding.GetBytes(inputPassword);
-            InitWithUserPassword(documentID, inputPassword, oValue, pValue, strongEncryption);
-            if (EqualsKey(uValue, keyLength))
+            if (stringEncryptor.PasswordValid)
                 return PasswordValidity.UserPassword;
             return PasswordValidity.Invalid;
         }
@@ -293,10 +286,10 @@ namespace PdfSharpCore.Pdf.Security
             return padded;
         }
         static readonly byte[] PasswordPadding = // 32 bytes password padding defined by Adobe
-            {
-              0x28, 0xBF, 0x4E, 0x5E, 0x4E, 0x75, 0x8A, 0x41, 0x64, 0x00, 0x4E, 0x56, 0xFF, 0xFA, 0x01, 0x08,
-              0x2E, 0x2E, 0x00, 0xB6, 0xD0, 0x68, 0x3E, 0x80, 0x2F, 0x0C, 0xA9, 0xFE, 0x64, 0x53, 0x69, 0x7A,
-            };
+        {
+            0x28, 0xBF, 0x4E, 0x5E, 0x4E, 0x75, 0x8A, 0x41, 0x64, 0x00, 0x4E, 0x56, 0xFF, 0xFA, 0x01, 0x08,
+            0x2E, 0x2E, 0x00, 0xB6, 0xD0, 0x68, 0x3E, 0x80, 0x2F, 0x0C, 0xA9, 0xFE, 0x64, 0x53, 0x69, 0x7A,
+        };
 
         /// <summary>
         /// Generates the user key based on the padded user password.
@@ -368,7 +361,7 @@ namespace PdfSharpCore.Pdf.Security
             permission[1] = (byte)(permissions >> 8);
             permission[2] = (byte)(permissions >> 16);
             permission[3] = (byte)(permissions >> 24);
-            
+
             _md5.TransformBlock(permission, 0, 4, permission, 0);
             _md5.TransformBlock(documentID, 0, documentID.Length, documentID, 0);
             _md5.TransformFinalBlock(permission, 0, 0);
@@ -627,6 +620,10 @@ namespace PdfSharpCore.Pdf.Security
         /// </summary>
         int _keySize;
 
+        private IEncryptor stringEncryptor;
+
+        private IEncryptor streamEncryptor;
+
         #endregion
 
         internal override void WriteObject(PdfWriter writer)
@@ -653,22 +650,30 @@ namespace PdfSharpCore.Pdf.Security
             /// • 3 if the document is encrypted with a V value of 2 or 3, or has any "Revision 3 or 
             ///   greater" access permissions set.
             /// • 4 if the document is encrypted with a V value of 4
+            /// • 5 (ExtensionLevel 3) if the document is encrypted with a V value of 5
             /// </summary>
             [KeyInfo(KeyType.Integer | KeyType.Required)]
             public const string R = "/R";
 
             /// <summary>
-            /// (Required) A 32-byte string, based on both the owner and user passwords, that is
-            /// used in computing the encryption key and in determining whether a valid owner
-            /// password was entered.
+            ///  (Required) A string used in computing the encryption key. 
+            ///  The value of the string depends on the value of the
+            ///  revision number, the R entry described above.
+            ///  • The value of R is 4 or less: A 32-byte string, based on both the owner and user passwords, that is used in 
+            ///    computing the encryption key and in determining whether a valid owner password was entered.
+            ///  • The value for R is 5: (ExtensionLevel 3) A 48-byte string,  based on the owner and user passwords, that is used in 
+            ///    computing the encryption key and in determining whether a valid owner password was entered.
             /// </summary>
             [KeyInfo(KeyType.String | KeyType.Required)]
             public const string O = "/O";
 
             /// <summary>
-            /// (Required) A 32-byte string, based on the user password, that is used in determining
-            /// whether to prompt the user for a password and, if so, whether a valid user or owner 
-            /// password was entered.
+            /// (Required) A string based on the user password. The value 
+            /// of the string depends on the value of the revision number, the R entry described above.
+            /// • The value of R is 4 or less: A 32-byte string, based on the user password, that is used in determining
+            ///   whether to prompt the user for a password and, if so, whether a valid user or owner password was entered.
+            /// • The value for R is 5: (ExtensionLevel 3) A 48-byte string, based on the user password, that is used in 
+            ///   determining whether to prompt the user for a password and, if so, whether a valid user password was entered.
             /// </summary>
             [KeyInfo(KeyType.String | KeyType.Required)]
             public const string U = "/U";
@@ -681,7 +686,28 @@ namespace PdfSharpCore.Pdf.Security
             public const string P = "/P";
 
             /// <summary>
-            /// (Optional; meaningful only when the value of V is 4; PDF 1.5) Indicates whether
+            /// (ExtensionLevel 3; required if R is 5)
+            /// A 32-byte string, based on the owner and user passwords, that is used in computing the encryption key.
+            /// </summary>
+            [KeyInfo(KeyType.Integer | KeyType.Optional)]
+            public const string OE = "/OE";
+
+            /// <summary>
+            /// (ExtensionLevel 3; required if R is 5)
+            /// A 32-byte string, based on the user password, that is used in computing the encryption key.
+            /// </summary>
+            [KeyInfo(KeyType.Integer | KeyType.Optional)]
+            public const string UE = "/UE";
+
+            /// <summary>
+            /// (ExtensionLevel 3; required if R is 5)
+            /// A 16-byte string, encrypted with the file encryption key, that contains an encrypted copy of the permission flags.
+            /// </summary>
+            [KeyInfo(KeyType.Integer | KeyType.Optional)]
+            public const string Perms = "/Perms";
+
+            /// <summary>
+            /// (Optional; meaningful only when the value of V is 4 or 5; PDF 1.5) Indicates whether
             /// the document-level metadata stream is to be encrypted. Applications should respect this value.
             /// Default value: true.
             /// </summary>

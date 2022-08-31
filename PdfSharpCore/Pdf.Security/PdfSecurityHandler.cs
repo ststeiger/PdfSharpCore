@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2005-2016 empira Software GmbH, Cologne Area (Germany)
 //
-// http://www.PdfSharpCore.com
+// http://www.PdfSharp.com
 // http://sourceforge.net/projects/pdfsharp
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -77,8 +77,12 @@ namespace PdfSharpCore.Pdf.Security
             /// 1 Algorithm 3.1, with an encryption key length of 40 bits.
             /// 2 (PDF 1.4) Algorithm 3.1, but permitting encryption key lengths greater than 40 bits.
             /// 3 (PDF 1.4) An unpublished algorithm that permits encryption key lengths ranging from 40 to 128 bits.
-            /// 4 (PDF 1.5) The security handler defines the use of encryption and decryption in the document, using
-            ///             the rules specified by the CF, StmF, and StrF entries.
+            /// 4 (PDF 1.5) The security handler defines the use of encryption and 
+            ///   decryption in the document, using the rules specified by the CF, 
+            ///   StmF, and StrF entries using algorithm 3.1 with a key length of 128 bits.
+            /// 5 (ExtensionLevel 3) The security handler defines the use of 
+            ///   encryption and decryption in the document, using the rules 
+            ///   specified by the CF, StmF, and StrF entries using algorithm 3.1a with a key length of 256 bits
             /// The default value if this entry is omitted is 0, but a value of 1 or greater is strongly recommended.
             /// </summary>
             [KeyInfo(KeyType.Integer | KeyType.Optional)]
@@ -86,7 +90,9 @@ namespace PdfSharpCore.Pdf.Security
 
             /// <summary>
             /// (Optional; PDF 1.4; only if V is 2 or 3) The length of the encryption key, in bits.
-            /// The value must be a multiple of 8, in the range 40 to 128. Default value: 40.
+            /// The value must be a multiple of 8, in the range 40 to 256. Default value: 40.
+            /// Note: Security handlers can define their own use of the Length entry 
+            ///       but are encouraged to use it to define the bit length of the encryption key.
             /// </summary>
             [KeyInfo("1.4", KeyType.Integer | KeyType.Optional)]
             public const string Length = "/Length";
@@ -101,7 +107,38 @@ namespace PdfSharpCore.Pdf.Security
             public const string CF = "/CF";
 
             /// <summary>
-            /// (Optional; meaningful only when the value of V is 4; PDF 1.5)
+            /// (Optional) The method used, if any, by the consumer application to decrypt data.
+            /// The following values are supported:
+            /// • None The application does not decrypt data but directs the input
+            ///   stream to the security handler for decryption. (See implementation
+            ///   note 30 in Appendix H.)
+            /// • V2 The application asks the security handler for the encryption key
+            ///   and implicitly decrypts data with Algorithm 3.1, using the RC4 algorithm.
+            /// • AESV2(PDF 1.6) The application asks the security handler for the
+            ///   encryption key and implicitly decrypts data with Algorithm 3.1, using
+            ///   the AES-128 algorithm in Cipher Block Chaining(CBC) with padding
+            ///   mode with a 16-byte block size and an initialization vector that is
+            ///   randomly generated and placed as the first 16 bytes in the stream or
+            ///   string. The key size(Length) shall be 128 bits.
+            /// • AESV3(ExtensionLevel 3) The application asks the security handler
+            ///   for the encryption key and implicitly decrypts data with
+            ///   Algorithm 3.1a, using the AES-256 algorithm in Cipher Block
+            ///   Chaining(CBC) with padding mode with a 16-byte block size and an
+            ///   initialization vector that is randomly generated and placed as the
+            ///   first 16 bytes in the stream or string. The key size(Length) shall be 256 bits.
+            /// When the value is V2, AESV2, or AESV3, the application may ask once for
+            /// this encryption key and cache the key for subsequent use for streams
+            /// that use the same crypt filter.Therefore, there must be a one-to-one
+            /// relationship between a crypt filter name and the corresponding encryption key.
+            /// Only the values listed here are supported. Applications that encounter
+            /// other values should report that the file is encrypted with an unsupported algorithm.
+            /// Default value: None.
+            /// </summary>
+            [KeyInfo(KeyType.String | KeyType.Optional)]
+            public const string CFM = "/CFM";
+
+            /// <summary>
+            /// (Optional; meaningful only when the value of V is 4 or 5; PDF 1.5)
             /// The name of the crypt filter that is used by default when decrypting streams.
             /// The name must be a key in the CF dictionary or a standard crypt filter name. All streams
             /// in the document, except for cross-reference streams or streams that have a Crypt entry in
@@ -112,7 +149,7 @@ namespace PdfSharpCore.Pdf.Security
             public const string StmF = "/StmF";
 
             /// <summary>
-            /// (Optional; meaningful only when the value of V is 4; PDF 1.)
+            /// (Optional; meaningful only when the value of V is 4 or 5; PDF 1.)
             /// The name of the crypt filter that is used when decrypting all strings in the document.
             /// The name must be a key in the CF dictionary or a standard crypt filter name.
             /// Default value: Identity.
@@ -121,7 +158,7 @@ namespace PdfSharpCore.Pdf.Security
             public const string StrF = "/StrF";
 
             /// <summary>
-            /// (Optional; meaningful only when the value of V is 4; PDF 1.6)
+            /// (Optional; meaningful only when the value of V is 4 or 5; PDF 1.6)
             /// The name of the crypt filter that should be used by default when encrypting embedded
             /// file streams; it must correspond to a key in the CF dictionary or a standard crypt
             /// filter name. This entry is provided by the security handler. Applications should respect

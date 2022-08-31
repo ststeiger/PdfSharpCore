@@ -56,6 +56,12 @@ namespace PdfSharpCore.Pdf.Advanced
         internal PdfObjectStream(PdfDictionary dict)
             : base(dict)
         {
+            // while objects inside an object-stream are not encrypted, the object-streams themself ARE !
+            // 7.5.7, Page 47: In an encrypted file (i.e., entire object stream is encrypted),
+            // strings occurring anywhere in an object stream shall not be separately encrypted.
+            if (_document._trailer.Elements[PdfTrailer.Keys.Encrypt] is PdfReference)
+                _document.SecurityHandler.EncryptObject(dict);
+
             int n = Elements.GetInteger(Keys.N);
             int first = Elements.GetInteger(Keys.First);
             Stream.TryUnfilter();
