@@ -28,6 +28,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PdfSharpCore.Pdf
 {
@@ -36,7 +37,7 @@ namespace PdfSharpCore.Pdf
     /// </summary>
     public class KeysBase
     {
-        internal static DictionaryMeta CreateMeta(Type type)
+        internal static DictionaryMeta CreateMeta([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] Type type)
         {
             return new DictionaryMeta(type);
         }

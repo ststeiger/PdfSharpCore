@@ -31,6 +31,7 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PdfSharpCore.Pdf
 {
@@ -85,11 +86,13 @@ namespace PdfSharpCore.Pdf
         }
         readonly string _fixedValue;
 
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public Type ObjectType
         {
             get { return _objectType; }
             set { _objectType = value; }
         }
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         Type _objectType;
 
         public bool CanBeIndirect
@@ -100,6 +103,7 @@ namespace PdfSharpCore.Pdf
         /// <summary>
         /// Returns the type of the object to be created as value for the described key.
         /// </summary>
+        [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public Type GetValueType()
         {
             Type type = _objectType;
@@ -180,8 +184,21 @@ namespace PdfSharpCore.Pdf
     /// </summary>
     internal class DictionaryMeta
     {
-        public DictionaryMeta(Type type)
+        public DictionaryMeta([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] Type type)
         {
+            #if NET5_0_OR_GREATER
+            FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+            foreach (FieldInfo field in fields)
+            {
+                var attributes = field.GetCustomAttributes<KeyInfoAttribute>(false);
+                foreach (var attribute in attributes)
+                {
+                    KeyDescriptor descriptor = new KeyDescriptor(attribute);
+                    descriptor.KeyValue = (string)field.GetValue(null);
+                    _keyDescriptors[descriptor.KeyValue] = descriptor;
+                }
+            }
+            #else
             // Rewritten for WinRT.
             CollectKeyDescriptors(type);
             //var fields = type.GetRuntimeFields();  // does not work
@@ -196,8 +213,10 @@ namespace PdfSharpCore.Pdf
             //        _keyDescriptors[descriptor.KeyValue] = descriptor;
             //    }
             //}
+            #endif
         }
 
+        #if !NET5_0_OR_GREATER
         // Background: The function GetRuntimeFields gets constant fields only for the specified type,
         // not for its base types. So we have to walk recursively through base classes.
         // The docmentation says full trust for the immediate caller is required for property BaseClass.
@@ -220,6 +239,7 @@ namespace PdfSharpCore.Pdf
             if (type != typeof(object) && type != typeof(PdfObject))
                 CollectKeyDescriptors(type);
         }
+        #endif
 
         /// <summary>
         /// Gets the KeyDescriptor of the specified key, or null if no such descriptor exits.
