@@ -1,36 +1,58 @@
-﻿using PdfSharpCore.Drawing;
-using PdfSharpCore.Pdf;
-
-string GetOutFilePath(string name)
+﻿
+namespace SampleApp 
 {
-    var OutputDirName = @".";
-    return Path.Combine(OutputDirName, name);
-}
 
-void SaveDocument(PdfDocument document, string name)
-{
-    var outFilePath = GetOutFilePath(name);
-    var dir = Path.GetDirectoryName(outFilePath);
-    if (dir is not null && !Directory.Exists(dir))
+
+    public class Program
     {
-        Directory.CreateDirectory(dir);
-    }
+        
 
-    document.Save(outFilePath);
-}
+        private static string GetOutFilePath(string name)
+        {
+            string OutputDirName = @".";
+            return System.IO.Path.Combine(OutputDirName, name);
+        }
 
-Console.WriteLine("Starting...");
 
-const string outName = "test1.pdf";
+        private static void SaveDocument(PdfSharpCore.Pdf.PdfDocument document, string name)
+        {
+            string outFilePath = GetOutFilePath(name);
+            string? dir = System.IO.Path.GetDirectoryName(outFilePath);
+            if (dir != null && !System.IO.Directory.Exists(dir))
+            {
+                System.IO.Directory.CreateDirectory(dir);
+            }
 
-var document = new PdfDocument();
+            document.Save(outFilePath);
+        }
 
-var pageNewRenderer = document.AddPage();
 
-var renderer = XGraphics.FromPdfPage(pageNewRenderer);
+        public static void Main(string[] args)
+        {
+            System.Console.WriteLine("Starting...");
 
-renderer.DrawString("Testy Test Test", new XFont("Arial", 12), XBrushes.Black, new XPoint(12, 12));
+            const string outName = "test1.pdf";
 
-SaveDocument(document, outName);
+            PdfSharpCore.Pdf.PdfDocument? document = new PdfSharpCore.Pdf.PdfDocument();
 
-Console.WriteLine("Done!");
+            PdfSharpCore.Pdf.PdfPage? pageNewRenderer = document.AddPage();
+
+            PdfSharpCore.Drawing.XGraphics? renderer = PdfSharpCore.Drawing.XGraphics.FromPdfPage(pageNewRenderer);
+
+            renderer.DrawString(
+                  "Testy Test Test"
+                , new PdfSharpCore.Drawing.XFont("Arial", 12)
+                , PdfSharpCore.Drawing.XBrushes.Black
+                , new PdfSharpCore.Drawing.XPoint(12, 12)
+            );
+
+            SaveDocument(document, outName);
+
+            System.Console.WriteLine("Done!");
+        } // End Sub Main 
+
+
+    } // End Class Program 
+
+
+} // End Namespace SampleApp 
