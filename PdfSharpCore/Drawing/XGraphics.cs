@@ -207,13 +207,11 @@ namespace PdfSharpCore.Drawing  // #??? aufräumen
             form.AssociateGraphics(this);
 
             _gsStack = new GraphicsStateStack(this);
-#if NET5_0
             _drawGraphics = false;
             if (form.Owner != null)
                 _renderer = new XGraphicsPdfRenderer(form, this);
             _pageSize = form.Size;
             Initialize();
-#endif
         }
 
         /// <summary>
