@@ -500,7 +500,8 @@ namespace PdfSharpCore.Pdf.IO
                                     {
                                         // Octal character code.
                                         if (ch >= '8')
-                                            ParserDiagnostics.HandleUnexpectedCharacter(ch);
+                                            break; // Since the first possible octal character is not valid,
+                                                   // the backslash is ignored. 
 
                                         int n = ch - '0';
                                         if (char.IsDigit(_nextChar))  // Second octal character.
@@ -520,12 +521,6 @@ namespace PdfSharpCore.Pdf.IO
                                             }
                                         }
                                         ch = (char)n;
-                                    }
-                                    else
-                                    {
-                                        //TODO
-                                        // Debug.As sert(false, "Not implemented; unknown escape character.");
-                                        ParserDiagnostics.HandleUnexpectedCharacter(ch);
                                     }
                                     break;
                             }
