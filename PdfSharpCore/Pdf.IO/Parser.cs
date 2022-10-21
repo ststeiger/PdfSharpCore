@@ -483,6 +483,10 @@ namespace PdfSharpCore.Pdf.IO
                         _stack.Shift(new PdfUInteger(_lexer.TokenToUInteger));
                         break;
 
+                    case Symbol.Long:
+                        _stack.Shift(new PdfLong(_lexer.TokenToLong));
+                        break;
+
                     case Symbol.Real:
                         _stack.Shift(new PdfReal(_lexer.TokenToReal));
                         break;
