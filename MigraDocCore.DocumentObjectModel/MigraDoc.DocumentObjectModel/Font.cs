@@ -110,6 +110,9 @@ namespace MigraDocCore.DocumentObjectModel
             if (!font.underline.IsNull && (refFont == null || font.Underline != refFont.Underline))
                 this.Underline = font.Underline;
 
+            if (!font.strikethrough.IsNull && (refFont == null || font.Strikethrough != refFont.Strikethrough))
+                this.Strikethrough = font.Strikethrough;
+
             if (!font.color.IsNull && (refFont == null || font.Color.Argb != refFont.Color.Argb))
                 this.Color = font.Color;
         }
@@ -141,6 +144,9 @@ namespace MigraDocCore.DocumentObjectModel
 
             if (!font.underline.IsNull)
                 this.Underline = font.Underline;
+
+            if (!font.strikethrough.IsNull)
+                this.Strikethrough = font.Strikethrough;
 
             if (!font.color.IsNull)
                 this.Color = font.Color;
@@ -243,6 +249,15 @@ namespace MigraDocCore.DocumentObjectModel
         }
         [DV]
         internal NBool subscript = NBool.NullValue;
+
+
+        public Strikethrough Strikethrough
+        {
+            get { return (Strikethrough)this.strikethrough.Value; }
+            set { this.strikethrough.Value = (int)value; }
+        }
+        [DV(Type = typeof(Strikethrough))]
+        internal NEnum strikethrough = NEnum.NullValue(typeof(Strikethrough));
 
         //  + .Name = "Verdana"
         //  + .Size = 8
@@ -362,6 +377,9 @@ namespace MigraDocCore.DocumentObjectModel
                 if (!this.underline.IsNull)
                     serializer.WriteSimpleAttribute("Underline", this.Underline);
 
+                if (!this.strikethrough.IsNull)
+                    serializer.WriteSimpleAttribute("Strikethrough", this.Strikethrough);
+
                 if (!this.superscript.IsNull)
                     serializer.WriteSimpleAttribute("Superscript", this.Superscript);
 
@@ -398,6 +416,9 @@ namespace MigraDocCore.DocumentObjectModel
 
                 if (!underline.IsNull && (font == null || Underline != font.Underline || font.underline.IsNull))
                     serializer.WriteSimpleAttribute("Underline", Underline);
+
+                if (!strikethrough.IsNull && (font == null || Strikethrough != font.Strikethrough || font.strikethrough.IsNull))
+                    serializer.WriteSimpleAttribute("Strikethrough", Strikethrough);
 
                 if (!superscript.IsNull && (font == null || Superscript != font.Superscript || font.superscript.IsNull))
                     serializer.WriteSimpleAttribute("Superscript", Superscript);

@@ -60,6 +60,7 @@ namespace MigraDocCore.Rendering.ChartMapper
         font.Size = domFont.Size.Point;
       font.Subscript = domFont.Subscript;
       font.Superscript = domFont.Superscript;
+      font.Strikethrough = (Strikethrough)domFont.Strikethrough;
       font.Underline = (Underline)domFont.Underline;
     }
 
