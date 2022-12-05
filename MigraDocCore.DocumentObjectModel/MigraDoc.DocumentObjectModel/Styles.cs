@@ -228,6 +228,7 @@ namespace MigraDocCore.DocumentObjectModel
             style.Font.Color = Colors.Black;
             style.Font.Subscript = false;
             style.Font.Superscript = false;
+            style.Font.Strikethrough = Strikethrough.None;
             style.ParagraphFormat.Alignment = ParagraphAlignment.Left;
             style.ParagraphFormat.FirstLineIndent = 0;
             style.ParagraphFormat.LeftIndent = 0;

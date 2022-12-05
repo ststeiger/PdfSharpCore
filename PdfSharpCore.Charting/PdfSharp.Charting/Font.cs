@@ -123,6 +123,16 @@ namespace PdfSharpCore.Charting
     internal Underline underline;
 
     /// <summary>
+    /// Gets or sets the strikethrough property.
+    /// </summary>
+    public Strikethrough Strikethrough
+    {
+      get { return this.strikethrough; }
+      set { this.strikethrough = value; }
+    }
+    internal Strikethrough strikethrough;
+
+    /// <summary>
     /// Gets or sets the color property.
     /// </summary>
     public XColor Color

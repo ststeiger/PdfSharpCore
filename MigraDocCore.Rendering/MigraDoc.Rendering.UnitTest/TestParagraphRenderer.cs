@@ -48,7 +48,7 @@ namespace MigraDocCore.Rendering.UnitTest
 
         internal static void FillFormattedParagraph(Paragraph par)
         {
-            for (int idx = 0; idx <= 140; ++idx)
+            for (int idx = 0; idx <= 200; ++idx)
             {
                 if (idx < 60)
                 {
@@ -61,12 +61,42 @@ namespace MigraDocCore.Rendering.UnitTest
                     par.AddText((idx).ToString());
                     par.AddText(" ");
                 }
-                else
+                else if (idx < 140)
                 {
                     FormattedText formText = par.AddFormattedText((idx).ToString(), TextFormat.Italic);
                     formText.Font.Size = 6;
                     formText.AddText(" ");
                 }
+                // Strikethrough tests
+                else if (idx < 150)
+                {
+                    FormattedText formText = par.AddFormattedText((idx).ToString());
+                    formText.Font.Size = 16;
+                    formText.Font.Strikethrough = Strikethrough.Single;
+                    formText.AddText(" ");
+                }
+                else if (idx < 160)
+                {
+                    FormattedText formText = par.AddFormattedText((idx).ToString());
+                    formText.Font.Size = 8;
+                    formText.Font.Strikethrough = Strikethrough.DotDash;
+                    formText.AddText(" ");
+                }
+                else if (idx < 170)
+                {
+                    FormattedText formText = par.AddFormattedText((idx).ToString());
+                    formText.Font.Size = 14;
+                    formText.Font.Strikethrough = Strikethrough.DotDotDash;
+                    formText.AddText(" ");
+                }
+                else if (idx < 180)
+                {
+                    FormattedText formText = par.AddFormattedText((idx).ToString());
+                    formText.Font.Size = 20;
+                    formText.Font.Strikethrough = Strikethrough.Dotted;
+                    formText.AddText(" ");
+                }
+
                 if (idx % 50 == 0)
                     par.AddLineBreak();
             }
