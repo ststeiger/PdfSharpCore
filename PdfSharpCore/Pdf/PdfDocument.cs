@@ -799,9 +799,9 @@ namespace PdfSharpCore.Pdf
         }
 
         /// <summary>
-        /// Flattens a document (make the fields non-editable).
+        /// Marks the acroform fields readonly 
         /// </summary>
-        public void Flatten()
+        public void MakeAcroFormsReadOnly()
         {
             for (var i = 0; i < AcroForm?.Fields.Count(); i++)
             {
