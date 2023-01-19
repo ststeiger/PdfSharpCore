@@ -30,6 +30,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Internal;
 using PdfSharpCore.Pdf.IO;
@@ -795,6 +796,17 @@ namespace PdfSharpCore.Pdf
             if (!CanModify)
                 throw new InvalidOperationException(PSSR.CannotModify);
             return Catalog.Pages.Insert(index, page, annotationCopying);
+        }
+
+        /// <summary>
+        /// Marks the acroform fields readonly 
+        /// </summary>
+        public void MakeAcroFormsReadOnly()
+        {
+            for (var i = 0; i < AcroForm?.Fields.Count(); i++)
+            {
+                AcroForm.Fields[i].ReadOnly = true;
+            }
         }
 
         /// <summary>
