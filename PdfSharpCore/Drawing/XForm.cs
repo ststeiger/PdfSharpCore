@@ -32,6 +32,7 @@ using System.Diagnostics;
 using PdfSharpCore.Drawing.Pdf;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.Advanced;
+using PdfSharpCore.Pdf.Filters;
 
 namespace PdfSharpCore.Drawing
 {
