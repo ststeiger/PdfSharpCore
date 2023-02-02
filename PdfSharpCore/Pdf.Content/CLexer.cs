@@ -168,13 +168,27 @@ namespace PdfSharpCore.Pdf.Content
             if (ascii85)
             {
                 // Look for '~>' because 'EI' may be part of the encoded image.
-                while (_currChar != '~' || _nextChar != '>')
+                while (_currChar != Chars.EOF && (_currChar != '~' || _nextChar != '>'))
                     ScanNextChar();
+                if (_currChar == Chars.EOF)
+                    ContentReaderDiagnostics.HandleUnexpectedCharacter(_currChar);
             }
 
-            // Look for 'EI'.
-            while (_currChar != 'E' || _nextChar != 'I')
-                ScanNextChar();
+            // Look for '<ws>EI<ws>', as 'EI' may be part of the binary image data here too.
+            while (_currChar != Chars.EOF)
+            {
+                if (IsWhiteSpace(_currChar))
+                {
+                    if (ScanNextChar() == 'E')
+                        if (ScanNextChar() == 'I')
+                            if (IsWhiteSpace(ScanNextChar()))
+                                break;
+                }
+                else
+                    ScanNextChar();
+            }
+            if (_currChar == Chars.EOF)
+                ContentReaderDiagnostics.HandleUnexpectedCharacter(_currChar);
 
             // We currently do nothing with inline images.
             return CSymbol.None;
@@ -210,18 +224,70 @@ namespace PdfSharpCore.Pdf.Content
 
         protected CSymbol ScanDictionary()
         {
+            // TODO Do an actual recursive parse instead of this simple scan.
+
             ClearToken();
-            _token.Append(_currChar);
+            _token.Append(_currChar);      // '<'
+            _token.Append(ScanNextChar()); // '<'
+
+            bool inString = false, inHexString = false;
+            int nestedDict = 0, nestedStringParen = 0;
             char ch;
             while (true)
             {
                 _token.Append(ch = ScanNextChar());
-                if (ch == '>')
+                if (ch == '<')
                 {
-                    _token.Append(ch = ScanNextChar());
-                    ScanNextChar();
-                    return CSymbol.Dictionary;
+                    if (_nextChar == '<')
+                    {
+                        _token.Append(ScanNextChar());
+                        ++nestedDict;
+                    }
+                    else
+                        inHexString = true;
                 }
+                else if (!inHexString && ch == '(')
+                {
+                    if (inString)
+                        ++nestedStringParen;
+                    else
+                    {
+                        inString = true;
+                        nestedStringParen = 0;
+                    }
+                }
+                else if (inString && ch == ')')
+                {
+                    if (nestedStringParen > 0)
+                        --nestedStringParen;
+                    else
+                        inString = false;
+                }
+                else if (inString && ch == '\\')
+                    _token.Append(ScanNextChar());
+                else if (ch == '>')
+                {
+                    if (inHexString)
+                        inHexString = false;
+                    else if (_nextChar == '>')
+                    {
+                        _token.Append(ScanNextChar());
+                        if (nestedDict > 0)
+                            --nestedDict;
+                        else
+                        {
+                            ScanNextChar();
+
+#if true
+                            return CSymbol.Dictionary;
+#else
+                            return CSymbol.String;
+#endif
+                        }
+                    }
+                }
+                else if (ch == Chars.EOF)
+                    ContentReaderDiagnostics.HandleUnexpectedCharacter(ch);
             }
         }
 
@@ -296,7 +362,7 @@ namespace PdfSharpCore.Pdf.Content
             ContentReaderDiagnostics.ThrowNumberOutOfIntegerRange(value);
             return CSymbol.Error;
         }
-        static readonly double[] PowersOf10 = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
+        static readonly double[] PowersOf10 = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000 };
 
         /// <summary>
         /// Scans an operator.
