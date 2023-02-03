@@ -334,6 +334,16 @@ namespace MigraDocCore.DocumentObjectModel.Tables
         internal Shading shading;
 
         /// <summary>
+        /// Specifies if the Cell should be rendered as a rounded corner.
+        /// </summary>
+        public RoundedCorner RoundedCorner {
+            get { return (RoundedCorner)this.roundedCorner.Value; }
+            set { this.roundedCorner.Value = (int)value; }
+        }
+        [DV(Type = typeof(RoundedCorner))]
+        internal NEnum roundedCorner = NEnum.NullValue(typeof(RoundedCorner));
+
+        /// <summary>
         /// Gets or sets the number of cells to be merged right.
         /// </summary>
         public int MergeRight
@@ -419,6 +429,9 @@ namespace MigraDocCore.DocumentObjectModel.Tables
 
             if (!this.IsNull("Shading"))
                 this.shading.Serialize(serializer);
+
+            if (!this.roundedCorner.IsNull)
+                serializer.WriteSimpleAttribute("RoundedCorner", this.RoundedCorner);
 
             serializer.EndAttributes(pos);
 
