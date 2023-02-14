@@ -34,6 +34,7 @@ using MigraDocCore.DocumentObjectModel;
 using PdfSharpCore.Drawing;
 using MigraDocCore.DocumentObjectModel.IO;
 using MigraDocCore.DocumentObjectModel.Internals;
+using MigraDocCore.DocumentObjectModel.Tables;
 
 namespace MigraDocCore.Rendering
 {
@@ -180,7 +181,47 @@ namespace MigraDocCore.Rendering
       this.gfx.Restore(state);
     }
 
-    private XPen GetPen(BorderType type)
+    internal void RenderRounded(RoundedCorner roundedCorner, XUnit x, XUnit y, XUnit width, XUnit height) 
+    {
+      if (roundedCorner == RoundedCorner.None)
+          return;
+      
+      // As source we use the vertical borders.
+      // If not set originally, they have been set to the horizontal border values in TableRenderer.EqualizeRoundedCornerBorders().
+      BorderType borderType = BorderType.Top;
+      if (roundedCorner == RoundedCorner.TopLeft || roundedCorner == RoundedCorner.BottomLeft)
+        borderType = BorderType.Left;
+      if (roundedCorner == RoundedCorner.TopRight || roundedCorner == RoundedCorner.BottomRight)
+        borderType = BorderType.Right;
+      
+      XUnit borderWidth = GetWidth(borderType);
+      XPen borderPen = GetPen(borderType);
+      
+      if (borderWidth == 0)
+        return;
+      
+      x -= borderWidth / 2;
+      y -= borderWidth / 2;
+      XUnit ellipseWidth = width * 2 + borderWidth;
+      XUnit ellipseHeight = height * 2 + borderWidth;
+      
+      switch (roundedCorner) {
+        case RoundedCorner.TopLeft:
+          this.gfx.DrawArc(borderPen, new XRect(x, y, ellipseWidth, ellipseHeight), 180, 90);
+          break;
+        case RoundedCorner.TopRight:
+          this.gfx.DrawArc(borderPen, new XRect(x - width, y, ellipseWidth, ellipseHeight), 270, 90);
+          break;
+        case RoundedCorner.BottomRight:
+          this.gfx.DrawArc(borderPen, new XRect(x - width, y - height, ellipseWidth, ellipseHeight), 0, 90);
+          break;
+        case RoundedCorner.BottomLeft:
+          this.gfx.DrawArc(borderPen, new XRect(x, y - height, ellipseWidth, ellipseHeight), 90, 90);
+          break;
+      }
+    }
+
+   private XPen GetPen(BorderType type)
     {
       XUnit borderWidth = GetWidth(type);
       if (borderWidth == 0)

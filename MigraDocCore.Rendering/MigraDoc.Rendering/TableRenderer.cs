@@ -36,6 +36,7 @@ using MigraDocCore.DocumentObjectModel;
 using MigraDocCore.DocumentObjectModel.Visitors;
 using MigraDocCore.DocumentObjectModel.Tables;
 using MigraDocCore.DocumentObjectModel.IO;
+using MigraDocCore.DocumentObjectModel.Internals;
 
 namespace MigraDocCore.Rendering
 {
@@ -114,10 +115,51 @@ namespace MigraDocCore.Rendering
       RenderBorders(cell, innerRect);
     }
 
+    private void EqualizeRoundedCornerBorders(Cell cell) {
+      // If any of a corner relevant border is set, we want to copy its values to the second corner relevant border, 
+      // to ensure the innerWidth of the cell is the same, regardless of which border is used.
+      // If set, we use the vertical borders as source for the values, otherwise we use the horizontal borders.
+      RoundedCorner roundedCorner = cell.RoundedCorner;
+
+      if (roundedCorner == RoundedCorner.None)
+        return;
+
+      BorderType primaryBorderType = BorderType.Top, secondaryBorderType = BorderType.Top;
+
+      if (roundedCorner == RoundedCorner.TopLeft || roundedCorner == RoundedCorner.BottomLeft)
+        primaryBorderType = BorderType.Left;
+      if (roundedCorner == RoundedCorner.TopRight || roundedCorner == RoundedCorner.BottomRight)
+        primaryBorderType = BorderType.Right;
+
+      if (roundedCorner == RoundedCorner.TopLeft || roundedCorner == RoundedCorner.TopRight)
+        secondaryBorderType = BorderType.Top;
+      if (roundedCorner == RoundedCorner.BottomLeft || roundedCorner == RoundedCorner.BottomRight)
+        secondaryBorderType = BorderType.Bottom;
+
+      // If both borders don't exist, there's nothing to do and we should not create one by accessing it.
+      if (!cell.Borders.HasBorder(primaryBorderType) && !cell.Borders.HasBorder(secondaryBorderType))
+        return;
+
+      // Get the borders. By using GV.ReadWrite we create the border, if not existing.
+      Border primaryBorder = (Border) cell.Borders.GetValue(primaryBorderType.ToString(), GV.ReadWrite);
+      Border secondaryBorder = (Border) cell.Borders.GetValue(secondaryBorderType.ToString(), GV.ReadWrite);
+
+      Border source = primaryBorder.Visible ? primaryBorder : secondaryBorder.Visible ? secondaryBorder : null;
+      Border target = primaryBorder.Visible ? secondaryBorder : secondaryBorder.Visible ? primaryBorder : null;
+
+      if (source == null || target == null)
+        return;
+
+      target.Visible = source.Visible;
+      target.Width = source.Width;
+      target.Style = source.Style;
+      target.Color = source.Color;
+    }
+
     void RenderShading(Cell cell, Rectangle innerRect)
     {
-      ShadingRenderer shadeRenderer = new ShadingRenderer(this.gfx, cell.Shading);
-      shadeRenderer.Render(innerRect.X, innerRect.Y, innerRect.Width, innerRect.Height);
+      ShadingRenderer shadeRenderer = new ShadingRenderer(this.gfx, cell.Shading);            
+      shadeRenderer.Render(innerRect.X, innerRect.Y, innerRect.Width, innerRect.Height, cell.RoundedCorner);
     }
 
     void RenderBorders(Cell cell, Rectangle innerRect)
@@ -134,10 +176,27 @@ namespace MigraDocCore.Rendering
       XUnit topWidth = bordersRenderer.GetWidth(BorderType.Top);
       XUnit rightWidth = bordersRenderer.GetWidth(BorderType.Right);
 
-      bordersRenderer.RenderVertically(BorderType.Right, rightPos, topPos, bottomPos + bottomWidth - topPos);
-      bordersRenderer.RenderVertically(BorderType.Left, leftPos - leftWidth, topPos, bottomPos + bottomWidth - topPos);
-      bordersRenderer.RenderHorizontally(BorderType.Bottom, leftPos - leftWidth, bottomPos, rightPos + rightWidth + leftWidth - leftPos);
-      bordersRenderer.RenderHorizontally(BorderType.Top, leftPos - leftWidth, topPos - topWidth, rightPos + rightWidth + leftWidth - leftPos);
+      if (cell.RoundedCorner == RoundedCorner.TopLeft)
+        bordersRenderer.RenderRounded(cell.RoundedCorner, innerRect.X, innerRect.Y, innerRect.Width + rightWidth, innerRect.Height + bottomWidth);
+      else if (cell.RoundedCorner == RoundedCorner.TopRight)
+        bordersRenderer.RenderRounded(cell.RoundedCorner, innerRect.X - leftWidth, innerRect.Y, innerRect.Width + leftWidth, innerRect.Height + bottomWidth);
+      else if (cell.RoundedCorner == RoundedCorner.BottomLeft)
+        bordersRenderer.RenderRounded(cell.RoundedCorner, innerRect.X, innerRect.Y - topWidth, innerRect.Width + rightWidth, innerRect.Height + topWidth);
+      else if (cell.RoundedCorner == RoundedCorner.BottomRight)
+        bordersRenderer.RenderRounded(cell.RoundedCorner, innerRect.X - leftWidth, innerRect.Y - topWidth, innerRect.Width + leftWidth, innerRect.Height + topWidth);
+
+      // Render horizontal and vertical borders only if touching no rounded corner.
+      if (cell.RoundedCorner != RoundedCorner.TopRight && cell.RoundedCorner != RoundedCorner.BottomRight)
+        bordersRenderer.RenderVertically(BorderType.Right, rightPos, topPos, bottomPos + bottomWidth - topPos);
+
+      if (cell.RoundedCorner != RoundedCorner.TopLeft && cell.RoundedCorner != RoundedCorner.BottomLeft)
+        bordersRenderer.RenderVertically(BorderType.Left, leftPos - leftWidth, topPos, bottomPos + bottomWidth - topPos);
+
+      if (cell.RoundedCorner != RoundedCorner.BottomLeft && cell.RoundedCorner != RoundedCorner.BottomRight)
+        bordersRenderer.RenderHorizontally(BorderType.Bottom, leftPos - leftWidth, bottomPos, rightPos + rightWidth + leftWidth - leftPos);
+
+      if (cell.RoundedCorner != RoundedCorner.TopLeft && cell.RoundedCorner != RoundedCorner.TopRight)
+        bordersRenderer.RenderHorizontally(BorderType.Top, leftPos - leftWidth, topPos - topWidth, rightPos + rightWidth + leftWidth - leftPos);
 
       RenderDiagonalBorders(mergedBorders, innerRect);
     }
@@ -244,6 +303,12 @@ namespace MigraDocCore.Rendering
       TableFormatInfo prevTableFormatInfo = (TableFormatInfo)previousFormatInfo;
       TableRenderInfo tblRenderInfo = new TableRenderInfo();
       tblRenderInfo.table = this.table;
+
+      // Equalize the two borders, that are used to determine a rounded corner's border.
+      // This way the innerWidth of the cell, which is got by the saved _formattedCells, is the same regardless of which corner relevant border is set.
+      foreach (Row row in this.table.Rows)
+        foreach (Cell cell in row.Cells)
+          EqualizeRoundedCornerBorders(cell);
 
       this.renderInfo = tblRenderInfo;
 
