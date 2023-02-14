@@ -72,7 +72,8 @@ namespace PdfSharpCore.Pdf
         {
             // Set Orientation depending on /Rotate.
             int rotate = Elements.GetInteger(InheritablePageKeys.Rotate);
-            if (Math.Abs((rotate / 90)) % 2 == 1)
+            var mediaBox = Elements.GetArray(InheritablePageKeys.MediaBox);
+            if (Math.Abs((rotate / 90)) % 2 == 1 && mediaBox.Elements.GetReal(3) > mediaBox.Elements.GetReal(2))
                 _orientation = PageOrientation.Landscape;
         }
 
