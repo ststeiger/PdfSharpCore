@@ -56,7 +56,7 @@ namespace PdfSharpCore.Pdf.AcroForms
             /// must be Sig for a signature dictionary.
             /// </summary>
             [KeyInfo(KeyType.Name | KeyType.Optional)]
-            public const string Type = "/Type";
+            public new const string Type = "/Type";
 
             /// <summary>
             /// (Required; inheritable) The name of the signature handler to be used for
