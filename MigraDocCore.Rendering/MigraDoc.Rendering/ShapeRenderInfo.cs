@@ -44,7 +44,7 @@ namespace MigraDocCore.Rendering
     {
     }
 
-    internal override DocumentObject DocumentObject
+    public override DocumentObject DocumentObject
     {
       get { return this.shape; }
     }
