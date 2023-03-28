@@ -22,16 +22,27 @@ namespace PdfSharpCore.Utils
 
         protected override IImageSource FromBinaryImpl(string name, Func<byte[]> imageSource, int? quality = 75)
         {
+
+#if NET6_0 || NET7_0
             var image = Image.Load<TPixel>(imageSource.Invoke());
             var imgFormat = image.Metadata.DecodedImageFormat;
+#else
+            var image = Image.Load<TPixel>(imageSource.Invoke(), out IImageFormat imgFormat);
+#endif
 
             return new ImageSharpImageSourceImpl<TPixel>(name, image, (int)quality, imgFormat is PngFormat);
         }
 
         protected override IImageSource FromFileImpl(string path, int? quality = 75)
         {
+
+#if NET6_0 || NET7_0
             var image = Image.Load<TPixel>(path);
             var imgFormat = image.Metadata.DecodedImageFormat;
+#else
+            var image = Image.Load<TPixel>(path, out IImageFormat imgFormat);
+#endif
+
             return new ImageSharpImageSourceImpl<TPixel>(path, image, (int) quality, imgFormat is PngFormat);
         }
 
@@ -39,8 +50,13 @@ namespace PdfSharpCore.Utils
         {
             using (var stream = imageStream.Invoke())
             {
+
+#if NET6_0 || NET7_0
                 var image = Image.Load<TPixel>(stream);
                 var imgFormat = image.Metadata.DecodedImageFormat;
+#else
+                var image = Image.Load<TPixel>(stream, out IImageFormat imgFormat);
+#endif
                 return new ImageSharpImageSourceImpl<TPixel>(name, image, (int)quality, imgFormat is PngFormat);
             }
         }
