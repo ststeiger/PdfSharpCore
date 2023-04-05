@@ -115,7 +115,7 @@ namespace PdfSharpCore.Pdf
         /// Adds the specified PdfPage to the end of this document and maybe returns a new PdfPage object.
         /// The value returned is a new object if the added page comes from a foreign document.
         /// </summary>
-        public PdfPage Add(PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        public PdfPage Add(PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             return Insert(Count, page, annotationCopying);
         }
@@ -134,7 +134,7 @@ namespace PdfSharpCore.Pdf
         /// Inserts the specified PdfPage at the specified position to this document and maybe returns a new PdfPage object.
         /// The value returned is a new object if the inserted page comes from a foreign document.
         /// </summary>
-        public PdfPage Insert(int index, PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        public PdfPage Insert(int index, PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             if (page == null)
                 throw new ArgumentNullException("page");
@@ -204,8 +204,8 @@ namespace PdfSharpCore.Pdf
         /// <param name="document">The document to be inserted.</param>
         /// <param name="startIndex">The index of the first page to be inserted.</param>
         /// <param name="pageCount">The number of pages to be inserted.</param>
-        /// <param name="annotationCopying">Annotation copying action, by default annotations are not copied.</param>
-        public void InsertRange(int index, PdfDocument document, int startIndex, int pageCount, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        /// <param name="annotationCopying">Annotation copying action, by default annotations are copied shallowly.</param>
+        public void InsertRange(int index, PdfDocument document, int startIndex, int pageCount, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             if (document == null)
                 throw new ArgumentNullException("document");
@@ -358,8 +358,8 @@ namespace PdfSharpCore.Pdf
         /// </summary>
         /// <param name="index">The index in this document where to insert the page .</param>
         /// <param name="document">The document to be inserted.</param>
-        /// <param name="annotationCopying">Annotation copying action, by default annotations are not copied.</param>
-        public void InsertRange(int index, PdfDocument document, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        /// <param name="annotationCopying">Annotation copying action, by default annotations are copied shallowly.</param>
+        public void InsertRange(int index, PdfDocument document, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             if (document == null)
                 throw new ArgumentNullException("document");
@@ -373,8 +373,8 @@ namespace PdfSharpCore.Pdf
         /// <param name="index">The index in this document where to insert the page .</param>
         /// <param name="document">The document to be inserted.</param>
         /// <param name="startIndex">The index of the first page to be inserted.</param>
-        /// <param name="annotationCopying">Annotation copying action, by default annotations are not copied.</param>
-        public void InsertRange(int index, PdfDocument document, int startIndex, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        /// <param name="annotationCopying">Annotation copying action, by default annotations are copied shallowly.</param>
+        public void InsertRange(int index, PdfDocument document, int startIndex, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             if (document == null)
                 throw new ArgumentNullException("document");
@@ -426,7 +426,7 @@ namespace PdfSharpCore.Pdf
         /// of their transitive closure. Any reuse of already imported objects is not intended because
         /// any modification of an imported page must not change another page.
         /// </summary>
-        PdfPage ImportExternalPage(PdfPage importPage, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        PdfPage ImportExternalPage(PdfPage importPage, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             if (importPage.Owner._openMode != PdfDocumentOpenMode.Import)
                 throw new InvalidOperationException("A PDF document must be opened with PdfDocumentOpenMode.Import to import pages from it.");

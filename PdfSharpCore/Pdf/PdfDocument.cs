@@ -769,7 +769,7 @@ namespace PdfSharpCore.Pdf
         /// it is imported to this document. In this case the returned page is not the same
         /// object as the specified one.
         /// </summary>
-        public PdfPage AddPage(PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        public PdfPage AddPage(PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             if (!CanModify)
                 throw new InvalidOperationException(PSSR.CannotModify);
@@ -791,7 +791,7 @@ namespace PdfSharpCore.Pdf
         /// it is imported to this document. In this case the returned page is not the same
         /// object as the specified one.
         /// </summary>
-        public PdfPage InsertPage(int index, PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        public PdfPage InsertPage(int index, PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             if (!CanModify)
                 throw new InvalidOperationException(PSSR.CannotModify);
