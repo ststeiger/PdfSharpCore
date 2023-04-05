@@ -37,20 +37,20 @@ namespace MigraDocCore.Rendering
   /// <summary>
   /// Abstract base class for all classes that store rendering information.
   /// </summary>
-  internal abstract class RenderInfo
+  public abstract class RenderInfo
   {
     internal abstract FormatInfo FormatInfo
     {
       get;
     }
 
-    internal LayoutInfo LayoutInfo
+    public LayoutInfo LayoutInfo
     {
       get { return this.layoutInfo; }
     }
     LayoutInfo layoutInfo = new LayoutInfo();
 
-    internal abstract DocumentObject DocumentObject
+    public abstract DocumentObject DocumentObject
     {
       get;
     }

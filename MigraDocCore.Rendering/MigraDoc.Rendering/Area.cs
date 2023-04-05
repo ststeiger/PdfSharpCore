@@ -36,7 +36,7 @@ namespace MigraDocCore.Rendering
   /// <summary>
   /// Abstract base class for all areas to render in.
   /// </summary>
-  internal abstract class Area
+  public abstract class Area
   {
     internal Area()
     {
@@ -45,7 +45,7 @@ namespace MigraDocCore.Rendering
     /// <summary>
     /// Gets the left boundary of the area.
     /// </summary>
-    internal abstract XUnit X
+    public abstract XUnit X
     {
       get;
       set;
@@ -54,7 +54,7 @@ namespace MigraDocCore.Rendering
     /// <summary>
     /// Gets the top boundary of the area.
     /// </summary>
-    internal abstract XUnit Y
+    public abstract XUnit Y
     {
       get;
       set;
@@ -74,7 +74,7 @@ namespace MigraDocCore.Rendering
     /// <summary>
     /// Gets or sets the height of the smallest rectangle containing the area. 
     /// </summary>
-    internal abstract XUnit Height
+    public abstract XUnit Height
     {
       get;
       set;
@@ -83,7 +83,7 @@ namespace MigraDocCore.Rendering
     /// <summary>
     /// Gets or sets the width of the smallest rectangle containing the area. 
     /// </summary>
-    internal abstract XUnit Width
+    public abstract XUnit Width
     {
       get;
       set;
@@ -152,7 +152,7 @@ namespace MigraDocCore.Rendering
     /// <summary>
     /// Gets or sets the left boundary of the rectangle. 
     /// </summary>
-    internal override XUnit X
+    public override XUnit X
     {
       get { return this.x; }
       set { this.x = value; }
@@ -162,7 +162,7 @@ namespace MigraDocCore.Rendering
     /// <summary>
     /// Gets or sets the top boundary of the rectangle. 
     /// </summary>
-    internal override XUnit Y
+    public override XUnit Y
     {
       get { return this.y; }
       set { this.y = value; }
@@ -172,7 +172,7 @@ namespace MigraDocCore.Rendering
     /// <summary>
     /// Gets or sets the top boundary of the rectangle. 
     /// </summary>
-    internal override XUnit Width
+    public override XUnit Width
     {
       get { return this.width; }
       set { this.width = value; }
@@ -182,7 +182,7 @@ namespace MigraDocCore.Rendering
     /// <summary>
     /// Gets or sets the height of the rectangle. 
     /// </summary>
-    internal override XUnit Height
+    public override XUnit Height
     {
       get { return this.height; }
       set { this.height = value; }

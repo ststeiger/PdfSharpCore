@@ -49,7 +49,7 @@ namespace MigraDocCore.Rendering
     }
     private TableFormatInfo formatInfo = new TableFormatInfo();
 
-    internal override DocumentObject DocumentObject
+    public override DocumentObject DocumentObject
     {
       get { return this.table; }
     }
