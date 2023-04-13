@@ -592,8 +592,7 @@ namespace PdfSharpCore.Pdf
         {
             // HACK: temporarily flip media box if Landscape
             PdfRectangle mediaBox = MediaBox;
-            // TODO: Take /Rotate into account
-            if (_orientation == PageOrientation.Landscape)
+            if (_orientation == PageOrientation.Landscape && Math.Abs(Rotate / 90) % 2 == 0)
                 MediaBox = new PdfRectangle(mediaBox.X1, mediaBox.Y1, mediaBox.Y2, mediaBox.X2);
 
 #if true
