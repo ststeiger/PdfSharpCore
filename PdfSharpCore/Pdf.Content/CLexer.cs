@@ -168,12 +168,14 @@ namespace PdfSharpCore.Pdf.Content
             if (ascii85)
             {
                 // Look for '~>' because 'EI' may be part of the encoded image.
-                while (_currChar != '~' || _nextChar != '>')
+                // currChar != Chars.EOF: Addresses issue #354 - malformed PDF that ends without closing an inline image
+                while (_currChar != Chars.EOF && ( _currChar != '~' || _nextChar != '>'))
                     ScanNextChar();
             }
-
+            
             // Look for 'EI'.
-            while (_currChar != 'E' || _nextChar != 'I')
+            // currChar != Chars.EOF: Addresses issue #354 - malformed PDF that ends without closing an inline image
+            while (_currChar != Chars.EOF && (_currChar != 'E' || _nextChar != 'I'))
                 ScanNextChar();
 
             // We currently do nothing with inline images.
