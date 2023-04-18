@@ -137,6 +137,8 @@ namespace MigraDocCore.DocumentObjectModel.Internals
         /// <summary>
         /// Type of the described value, e.g. typeof(Int32) for an NInt.
         /// </summary>
+        ///
+        // [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         public Type ValueType;
 
         /// <summary>
