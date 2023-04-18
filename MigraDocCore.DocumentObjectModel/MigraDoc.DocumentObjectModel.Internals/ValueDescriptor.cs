@@ -56,6 +56,7 @@ namespace MigraDocCore.DocumentObjectModel.Internals
         public object CreateValue()
         {
             ConstructorInfo constructorInfoObj = ValueType.GetConstructor(Type.EmptyTypes);
+            
             return constructorInfoObj.Invoke(null);
         }
 

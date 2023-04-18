@@ -12,7 +12,9 @@
     <PackageReleaseNotes>MigraDocCore.DocumentObjectModel was ported from MigraDoc version 1.32</PackageReleaseNotes>
     <summary>MigraDocCore.DocumentObjectModel for .NET Core</summary>
     <IsTrimmable>true</IsTrimmable>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    
+    <!-- fuck this shit -->
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
