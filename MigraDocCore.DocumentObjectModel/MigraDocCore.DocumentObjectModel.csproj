@@ -12,8 +12,6 @@
     <PackageReleaseNotes>MigraDocCore.DocumentObjectModel was ported from MigraDoc version 1.32</PackageReleaseNotes>
     <summary>MigraDocCore.DocumentObjectModel for .NET Core</summary>
     <IsTrimmable>true</IsTrimmable>
-    
-    <!-- fuck this shit -->
     <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
   </PropertyGroup>
 
