@@ -44,7 +44,14 @@ namespace MigraDocCore.DocumentObjectModel.Internals
     /// </summary>
     public abstract class ValueDescriptor
     {
-        internal ValueDescriptor(string valueName, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]Type valueType, Type memberType, MemberInfo memberInfo, VDFlags flags)
+        internal ValueDescriptor(
+            string valueName, 
+            [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+            Type valueType, 
+            Type memberType, 
+            MemberInfo memberInfo, 
+            VDFlags flags
+        )
         {
             this.ValueName = valueName;
             this.ValueType = valueType;
