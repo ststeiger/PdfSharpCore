@@ -12,16 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        options:
-          - framework: net6.0
-          - framework: net5.0
-          - framework: netcoreapp3.1
+        dotnet: ['3.1.x','5.0.x','6.0.x','7.0.x']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            3.1.x
+            5.0.x
+            6.0.x
+            7.0.x
       - name: DotNetBuild
         shell: pwsh
-        run: ./ci-build.ps1 "${{matrix.options.framework}}"
+        run: ./ci-build.ps1
       - name: Test
         run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3

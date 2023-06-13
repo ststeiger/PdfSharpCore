@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using MigraDocCore.DocumentObjectModel;
 using PdfSharpCore.Drawing;
 
@@ -57,7 +58,7 @@ namespace MigraDocCore.Rendering
 
     internal virtual void RemoveEnding()
     {
-      System.Diagnostics.Debug.Assert(false, "Unexpected call of RemoveEnding");
+      Debug.Assert(false, "Unexpected call of RemoveEnding");
     }
 
     internal static XUnit GetTotalHeight(RenderInfo[] renderInfos)
