@@ -90,6 +90,6 @@ namespace MigraDocCore.DocumentObjectModel.Internals
     }
 
     ArrayList arrayList = new ArrayList();
-    Hashtable hashTable = new Hashtable(StringComparer.CurrentCultureIgnoreCase);
+    Hashtable hashTable = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
   }
 }
