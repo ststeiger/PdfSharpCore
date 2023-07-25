@@ -57,8 +57,13 @@ namespace PdfSharpCore.Fonts
         {
             get 
             {
-                if (_fontResolver == null) FontResolver = new FontResolver();
-                    return _fontResolver; 
+                try
+                {
+                    Lock.EnterFontFactory();
+                    if (_fontResolver == null) FontResolver = new FontResolver();
+                        return _fontResolver;
+                }
+                finally { Lock.ExitFontFactory(); }
             }
             set
             {
