@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PdfSharpCore\PdfSharpCore.csproj" />
+    <ProjectReference Include="..\MigraDocCore.Rendering\MigraDocCore.Rendering.csproj" />
   </ItemGroup>
 
   <ItemGroup>
