@@ -45,11 +45,17 @@ XGraphics gfx = XGraphics.FromPdfPage(page);
 // Then you'll create a font:
 XFont font = new XFont("Verdana", 20, XFontStyle.Bold);
 
-// And you use that font to draw a string:
+// And you'll create an alignment to your text
+XStringFormat stringFormat = new XStringFormat
+{
+    Alignment = XStringAlignment.Center
+};
+
+// And you use that font and alignment to draw a string:
 gfx.DrawString(
     "Hello, World!", font, XBrushes.Black,
     new XRect(0, 0, page.Width, page.Height),
-    XStringFormat.Center);
+    stringFormat);
 
 // When drawing is done, write the file:
 string filename = "HelloWorld.pdf";
