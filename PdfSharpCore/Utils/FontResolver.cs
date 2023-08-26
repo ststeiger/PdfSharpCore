@@ -125,7 +125,9 @@ namespace PdfSharpCore.Utils
                 }
                 catch (System.Exception e)
                 {
+#if DEBUG
                     System.Console.Error.WriteLine(e);
+#endif
                 }
             }
 
@@ -139,7 +141,9 @@ namespace PdfSharpCore.Utils
                 }
                 catch (System.Exception e)
                 {
+#if DEBUG
                     System.Console.Error.WriteLine(e);
+#endif
                 }
         }
 
