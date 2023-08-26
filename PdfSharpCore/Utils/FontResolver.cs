@@ -1,232 +1,214 @@
-﻿
-using System.Linq;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Collections.Generic;
-
-using PdfSharpCore.Internal;
-using PdfSharpCore.Drawing;
+﻿using PdfSharpCore.Drawing;
 using PdfSharpCore.Fonts;
-
-using SixLabors.Fonts;
-
+using PdfSharpCore.Internal;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace PdfSharpCore.Utils
 {
-
-
-    public class FontResolver 
-        : IFontResolver
+    public class FontResolver : IFontResolver
     {
-        public string DefaultFontName => "Arial";
+        private static bool _isInitialized;
 
-        private static readonly Dictionary<string, FontFamilyModel> InstalledFonts = new Dictionary<string, FontFamilyModel>();
-
-        private static readonly string[] SSupportedFonts;
+        private static readonly List<FontFamilyModel> installedFonts = new List<FontFamilyModel>();
+        private static string[] installedFontFilePaths;
 
         public FontResolver()
         {
-        }
-
-        static FontResolver()
-        {
-            string fontDir;
-
-            bool isOSX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
-            if (isOSX)
+            if(_isInitialized)
             {
-                fontDir = "/Library/Fonts/";
-                SSupportedFonts = System.IO.Directory.GetFiles(fontDir, "*.ttf", System.IO.SearchOption.AllDirectories);
-                SetupFontsFiles(SSupportedFonts);
                 return;
             }
 
-            bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
-            if (isLinux)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                SSupportedFonts = LinuxSystemFontResolver.Resolve();
-                SetupFontsFiles(SSupportedFonts);
-                return;
+                installedFontFilePaths = LoadWindowsFonts();
             }
-
-            bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-            if (isWindows)
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                fontDir = System.Environment.ExpandEnvironmentVariables(@"%SystemRoot%\Fonts");
-                var fontPaths = new List<string>();
-
-                var systemFontPaths = System.IO.Directory.GetFiles(fontDir, "*.ttf", System.IO.SearchOption.AllDirectories);
-                fontPaths.AddRange(systemFontPaths);
-
-                var appdataFontDir = System.Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\Microsoft\Windows\Fonts");
-                if(System.IO.Directory.Exists(appdataFontDir))
-                {
-                    var appdataFontPaths = System.IO.Directory.GetFiles(appdataFontDir, "*.ttf", System.IO.SearchOption.AllDirectories);
-                    fontPaths.AddRange(appdataFontPaths);
-                }
-
-                SSupportedFonts = fontPaths.ToArray();
-                SetupFontsFiles(SSupportedFonts);
-                return;
+                installedFontFilePaths = LoadOSXFonts();
             }
-
-            throw new System.NotImplementedException("FontResolver not implemented for this platform (PdfSharpCore.Utils.FontResolver.cs).");
-        }
-
-
-        private readonly struct FontFileInfo
-        {
-            private FontFileInfo(string path, FontDescription fontDescription)
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                this.Path = path;
-                this.FontDescription = fontDescription;
+                installedFontFilePaths = LinuxSystemFontResolver.Resolve();
             }
-
-            public string Path { get; }
-
-            public FontDescription FontDescription { get; }
-
-            public string FamilyName => this.FontDescription.FontFamilyInvariantCulture;
-
-
-            public XFontStyle GuessFontStyle()
-            {
-                switch (this.FontDescription.Style)
-                {
-                    case FontStyle.Bold:
-                        return XFontStyle.Bold;
-                    case FontStyle.Italic:
-                        return XFontStyle.Italic;
-                    case FontStyle.BoldItalic:
-                        return XFontStyle.BoldItalic;
-                    default:
-                        return XFontStyle.Regular;
-                }
-            }
-
-            public static FontFileInfo Load(string path)
-            {
-                FontDescription fontDescription = FontDescription.LoadDescription(path);
-                return new FontFileInfo(path, fontDescription);
-            }
-        }
-
-
-        public static void SetupFontsFiles(string[] sSupportedFonts)
-        {
-            List<FontFileInfo> tempFontInfoList = new List<FontFileInfo>();
-            foreach (string fontPathFile in sSupportedFonts)
-            {
-                try
-                {
-                    FontFileInfo fontInfo = FontFileInfo.Load(fontPathFile);
-                    Debug.WriteLine(fontPathFile);
-                    tempFontInfoList.Add(fontInfo);
-                }
-                catch (System.Exception e)
-                {
-                    System.Console.Error.WriteLine(e);
-                }
-            }
-
-            // Deserialize all font families
-            foreach (IGrouping<string, FontFileInfo> familyGroup in tempFontInfoList.GroupBy(info => info.FamilyName))
-                try
-                {
-                    string familyName = familyGroup.Key;
-                    FontFamilyModel family = DeserializeFontFamily(familyName, familyGroup);
-                    InstalledFonts.Add(familyName.ToLower(), family);
-                }
-                catch (System.Exception e)
-                {
-                    System.Console.Error.WriteLine(e);
-                }
-        }
-
-
-        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-        private static FontFamilyModel DeserializeFontFamily(string fontFamilyName, IEnumerable<FontFileInfo> fontList)
-        {
-            FontFamilyModel font = new FontFamilyModel { Name = fontFamilyName };
-
-            // there is only one font
-            if (fontList.Count() == 1)
-                font.FontFiles.Add(XFontStyle.Regular, fontList.First().Path);
             else
             {
-                foreach (FontFileInfo info in fontList)
-                {
-                    XFontStyle style = info.GuessFontStyle();
-                    if (!font.FontFiles.ContainsKey(style))
-                        font.FontFiles.Add(style, info.Path);
-                }
+                throw new NotImplementedException($"FontResolver not implemented for this platform (PdfSharpCore.Utils.FontResolver.cs).");
             }
 
-            return font;
+            SetupFontFiles();
+
+            _isInitialized = true;
         }
 
-        public virtual byte[] GetFont(string faceFileName)
-        {
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
-            {
-                string ttfPathFile = "";
-                try
-                {
-                    ttfPathFile = SSupportedFonts.ToList().First(x => x.ToLower().Contains(
-                        System.IO.Path.GetFileName(faceFileName).ToLower())
-                    );
-
-                    using (System.IO.Stream ttf = System.IO.File.OpenRead(ttfPathFile))
-                    {
-                        ttf.CopyTo(ms);
-                        ms.Position = 0;
-                        return ms.ToArray();
-                    }
-                }
-                catch (System.Exception e)
-                {
-                    System.Console.WriteLine(e);
-                    throw new System.Exception("No Font File Found - " + faceFileName + " - " + ttfPathFile);
-                }
-            }
-        }
-
+        public string DefaultFontName => "Arial";
         public bool NullIfFontNotFound { get; set; } = false;
 
+        public virtual byte[] GetFont(string faceName)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var fontFilepath = string.Empty;
+                try
+                {
+                    var fontFileName = Path.GetFileName(faceName).ToLower();
+                    fontFilepath = installedFontFilePaths                       
+                        .First(x => x.ToLower().Contains(fontFileName));
+
+                    if (File.Exists(fontFilepath))
+                    {
+                        using (var fileStream = File.OpenRead(fontFilepath))
+                        {
+                            fileStream.CopyTo(ms);
+                            ms.Position = 0;
+                            return ms.ToArray();
+                        }
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException(fontFilepath);
+                    }
+                }
+                catch (Exception)
+                {
+                    throw new Exception($"Font file with name {faceName} and path {fontFilepath} not found.");
+                }
+            }
+        }
         public virtual FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
         {
-            if (InstalledFonts.Count == 0)
-                throw new System.IO.FileNotFoundException("No Fonts installed on this device!");
+            if (installedFonts.Count == 0)
+            {
+                throw new FileNotFoundException("No Fonts installed on this device!");
+            }
 
-            if (InstalledFonts.TryGetValue(familyName.ToLower(), out FontFamilyModel family))
+            var fontFamily = installedFonts.Find(x => x.Name.ToLower().Equals(familyName.ToLower()));
+            if (fontFamily != null)
             {
                 if (isBold && isItalic)
                 {
-                    if (family.FontFiles.TryGetValue(XFontStyle.BoldItalic, out string boldItalicFile))
-                        return new FontResolverInfo(System.IO.Path.GetFileName(boldItalicFile));
+                    if (fontFamily.FontFiles.TryGetValue(XFontStyle.BoldItalic, out string boldItalicFile))
+                    {
+                        return new FontResolverInfo(Path.GetFileName(boldItalicFile));
+                    }
                 }
                 else if (isBold)
                 {
-                    if (family.FontFiles.TryGetValue(XFontStyle.Bold, out string boldFile))
-                        return new FontResolverInfo(System.IO.Path.GetFileName(boldFile));
+                    if (fontFamily.FontFiles.TryGetValue(XFontStyle.Bold, out string boldFile))
+                    {
+                        return new FontResolverInfo(Path.GetFileName(boldFile));
+                    }
                 }
                 else if (isItalic)
                 {
-                    if (family.FontFiles.TryGetValue(XFontStyle.Italic, out string italicFile))
-                        return new FontResolverInfo(System.IO.Path.GetFileName(italicFile));
+                    if (fontFamily.FontFiles.TryGetValue(XFontStyle.Italic, out string italicFile))
+                    {
+                        return new FontResolverInfo(Path.GetFileName(italicFile));
+                    }
                 }
 
-                if (family.FontFiles.TryGetValue(XFontStyle.Regular, out string regularFile))
-                    return new FontResolverInfo(System.IO.Path.GetFileName(regularFile));
+                if (fontFamily.FontFiles.TryGetValue(XFontStyle.Regular, out string regularFile))
+                {
+                    return new FontResolverInfo(Path.GetFileName(regularFile));
+                }
 
-                return new FontResolverInfo(System.IO.Path.GetFileName(family.FontFiles.First().Value));
+                return new FontResolverInfo(Path.GetFileName(fontFamily.FontFiles.First().Value));
             }
 
             if (NullIfFontNotFound)
+            {
                 return null;
+            }
 
-            string ttfFile = InstalledFonts.First().Value.FontFiles.First().Value;
-            return new FontResolverInfo(System.IO.Path.GetFileName(ttfFile));
+            var firstFontPath = installedFonts.First().FontFiles.First().Value;
+            return new FontResolverInfo(Path.GetFileName(firstFontPath));
+        }
+
+        private static string[] LoadOSXFonts()
+        {
+            var fontDirectory = "/Library/Fonts/";
+            return Directory.GetFiles(fontDirectory, "*.ttf", SearchOption.AllDirectories);
+        }
+        private static string[] LoadWindowsFonts()
+        {
+            var fontPaths = new List<string>();
+
+            var systemFontPath = @"%SystemRoot%\Fonts";
+            var localAppDataFontPath = @"%LOCALAPPDATA%\Microsoft\Windows\Fonts";
+
+            var systemFontDirectory = Environment.ExpandEnvironmentVariables(systemFontPath);
+            var systemFontPaths = Directory.GetFiles(systemFontDirectory, "*.ttf", SearchOption.AllDirectories);
+            fontPaths.AddRange(systemFontPaths);
+
+            var appdataFontDirectory = Environment.ExpandEnvironmentVariables(localAppDataFontPath);
+            if (Directory.Exists(appdataFontDirectory))
+            {
+                var appdataFontPaths = Directory.GetFiles(appdataFontDirectory, "*.ttf", SearchOption.AllDirectories);
+                fontPaths.AddRange(appdataFontPaths);
+            }
+
+            return fontPaths.ToArray();
+        }
+        private static void SetupFontFiles()
+        {
+            var fontFiles = new List<FontFileInfo>();
+            foreach (var fontFilePath in installedFontFilePaths)
+            {
+                try
+                {
+                    var fontFileInfo = FontFileInfo.Load(fontFilePath);
+                    fontFiles.Add(fontFileInfo);
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine(e);
+                }
+            }
+
+            foreach (var familyGroup in fontFiles.GroupBy(info => info.FamilyName))
+            {
+                try
+                {
+                    var familyName = familyGroup.Key;
+                    FontFamilyModel family = DeserializeFontFamily(familyName, familyGroup);
+                    installedFonts.Add(family);
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine(e);
+                }
+            }
+        }
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+        private static FontFamilyModel DeserializeFontFamily(string familyName, IEnumerable<FontFileInfo> fontFiles)
+        {
+            var fontFamilyModel = new FontFamilyModel
+            {
+                Name = familyName
+            };
+
+            if (fontFiles.Count() == 1)
+            {
+                fontFamilyModel.FontFiles.Add(XFontStyle.Regular, fontFiles.First().Path);
+            }
+            else
+            {
+                foreach (var info in fontFiles)
+                {
+                    var style = info.GuessFontStyle();
+                    if (!fontFamilyModel.FontFiles.ContainsKey(style))
+                    {
+                        fontFamilyModel.FontFiles.Add(style, info.Path);
+                    }
+                }
+            }
+
+            return fontFamilyModel;
         }
     }
 }
