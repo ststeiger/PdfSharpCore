@@ -88,11 +88,11 @@ namespace PdfSharpCore.Test
             var renderer = XGraphics.FromPdfPage(pageNewRenderer);
 
             // Load image for ImageSharp and apply a simple mutation:
-            var image = Image.Load<Rgb24>(PathHelper.GetInstance().GetAssetPath("lenna.png"), out var format);
+            var image = Image.Load<Rgb24>(PathHelper.GetInstance().GetAssetPath("lenna.png"));
             image.Mutate(ctx => ctx.Grayscale());
 
             // create XImage from that same ImageSharp image:
-            var source = ImageSharpImageSource<Rgb24>.FromImageSharpImage(image, format);
+            var source = ImageSharpImageSource<Rgb24>.FromImageSharpImage(image, image.Metadata.DecodedImageFormat);
             var img = XImage.FromImageSource(source);
 
             renderer.DrawImage(img, new XPoint(0, 0));
