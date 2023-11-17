@@ -84,7 +84,7 @@ namespace PdfSharpCore.Test.Helpers
             
             if (diffVal > 0 && outputPath != null && filePrefix != null)
             {
-                WriteImage(diffImg, outputPath, $"{filePrefix}_diff.png");
+                WriteImage(diffImg, outputPath, $"{filePrefix}_diff");
             }
             
             return new DiffOutput
