@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using PdfSharpCore.Drawing.Layout.enums;
 using PdfSharpCore.Pdf.IO;
 
@@ -89,6 +90,10 @@ namespace PdfSharpCore.Drawing.Layout
         double _cyAscent;
         double _cyDescent;
         double _spaceWidth;
+        double _lineHeight;
+
+        // Bounding box of the formatted text after layout
+        private XRect _textLayout;
 
         /// <summary>
         /// Gets or sets the bounding box of the layout.
@@ -101,15 +106,31 @@ namespace PdfSharpCore.Drawing.Layout
         XRect _layoutRectangle;
 
         /// <summary>
-        /// Gets or sets the alignment of the text.
+        /// When true, ignore the height of text areas when rendering multiline strings
         /// </summary>
-        public XParagraphAlignment Alignment
-        {
-            get { return _alignment; }
-            set { _alignment = value; }
-        }
-        XParagraphAlignment _alignment = XParagraphAlignment.Left;
+        public bool AllowVerticalOverflow { get; set; } = false;
+        
+        /// <summary>
+        /// Gets or sets the horizontal alignment of the text.
+        /// </summary>
+        public XParagraphAlignment Alignment { get; set; } = XParagraphAlignment.Left;
+        
+        /// <summary>
+        /// Gets or sets the vertical alignment of the text.
+        /// </summary>
+        public XVerticalAlignment VerticalAlignment { get; set; } = XVerticalAlignment.Top;
 
+        /// <summary>
+        /// Set vertical and horizontal alignment
+        /// </summary>
+        /// <param name="alignments"></param>
+        public void SetAlignment(TextFormatAlignment alignments)
+        {
+            Alignment = alignments.Horizontal;
+            VerticalAlignment = alignments.Vertical;
+        }
+        
+        
         /// <summary>
         /// Draws the text.
         /// </summary>
@@ -117,9 +138,9 @@ namespace PdfSharpCore.Drawing.Layout
         /// <param name="font">The font.</param>
         /// <param name="brush">The text brush.</param>
         /// <param name="layoutRectangle">The layout rectangle.</param>
-        public void DrawString(string text, XFont font, XBrush brush, XRect layoutRectangle)
+        public void DrawString(string text, XFont font, XBrush brush, XRect layoutRectangle, XUnit? lineHeight = null)
         {
-            DrawString(text, font, brush, layoutRectangle, XStringFormats.TopLeft);
+            DrawString(text, font, brush, layoutRectangle, XStringFormats.TopLeft, lineHeight);
         }
 
         /// <summary>
@@ -130,7 +151,7 @@ namespace PdfSharpCore.Drawing.Layout
         /// <param name="brush">The text brush.</param>
         /// <param name="layoutRectangle">The layout rectangle.</param>
         /// <param name="format">The format. Must be <c>XStringFormat.TopLeft</c></param>
-        public void DrawString(string text, XFont font, XBrush brush, XRect layoutRectangle, XStringFormat format)
+        public void DrawString(string text, XFont font, XBrush brush, XRect layoutRectangle, XStringFormat format, XUnit? lineHeight = null)
         {
             if (text == null)
                 throw new ArgumentNullException("text");
@@ -144,6 +165,8 @@ namespace PdfSharpCore.Drawing.Layout
             Text = text;
             Font = font;
             LayoutRectangle = layoutRectangle;
+            
+            _lineHeight = lineHeight?.Point ?? _lineSpace;
 
             if (text.Length == 0)
                 return;
@@ -154,6 +177,16 @@ namespace PdfSharpCore.Drawing.Layout
 
             double dx = layoutRectangle.Location.X;
             double dy = layoutRectangle.Location.Y + _cyAscent;
+            
+            if (VerticalAlignment == XVerticalAlignment.Middle)
+            {
+                dy += layoutRectangle.Height / 2 - _layoutRectangle.Height / 2 - _cyDescent;
+            }
+            else if (VerticalAlignment == XVerticalAlignment.Bottom)
+            {
+                dy = layoutRectangle.Location.Y + layoutRectangle.Height - _layoutRectangle.Height + _lineHeight - _cyDescent;
+            }
+            
             int count = _blocks.Count;
             for (int idx = 0; idx < count; idx++)
             {
@@ -238,11 +271,11 @@ namespace PdfSharpCore.Drawing.Layout
                 {
                     if (Alignment == XParagraphAlignment.Justify)
                         _blocks[firstIndex].Alignment = XParagraphAlignment.Left;
-                    AlignLine(firstIndex, idx - 1, rectWidth);
+                    HorizontalAlignLine(firstIndex, idx - 1, rectWidth);
                     firstIndex = idx + 1;
                     x = 0;
-                    y += _lineSpace;
-                    if (y > rectHeight)
+                    y += _lineHeight;
+                    if (!AllowVerticalOverflow && y > rectHeight)
                     {
                         block.Stop = true;
                         break;
@@ -258,10 +291,12 @@ namespace PdfSharpCore.Drawing.Layout
                     }
                     else
                     {
-                        AlignLine(firstIndex, idx - 1, rectWidth);
+                        HorizontalAlignLine(firstIndex, idx - 1, rectWidth);
+
+                        // Begin implicit line break
                         firstIndex = idx;
-                        y += _lineSpace;
-                        if (y > rectHeight)
+                        y += _lineHeight;
+                        if (!AllowVerticalOverflow && y > rectHeight)
                         {
                             block.Stop = true;
                             break;
@@ -272,16 +307,28 @@ namespace PdfSharpCore.Drawing.Layout
                 }
             }
             if (firstIndex < count && Alignment != XParagraphAlignment.Justify)
-                AlignLine(firstIndex, count - 1, rectWidth);
+                HorizontalAlignLine(firstIndex, count - 1, rectWidth);
+            
+            var minY = _blocks.Min(b => b.Location.Y);
+            var maxY = _blocks.Max(b => b.Location.Y + _lineHeight);
+            var minX = _blocks.Min(b => b.Location.X);
+            var maxX = _blocks.Max(b => b.Location.X + b.Width);
+            _layoutRectangle = new XRect
+            {
+                X = minX,
+                Y = minY,
+                Height = maxY - minY,
+                Width = maxX - minX
+            };
         }
 
         /// <summary>
         /// Align center, right, or justify.
         /// </summary>
-        void AlignLine(int firstIndex, int lastIndex, double layoutWidth)
+        void HorizontalAlignLine(int firstIndex, int lastIndex, double layoutWidth)
         {
             XParagraphAlignment blockAlignment = _blocks[firstIndex].Alignment;
-            if (_alignment == XParagraphAlignment.Left || blockAlignment == XParagraphAlignment.Left)
+            if (Alignment == XParagraphAlignment.Left || blockAlignment == XParagraphAlignment.Left)
                 return;
 
             int count = lastIndex - firstIndex + 1;
@@ -294,9 +341,9 @@ namespace PdfSharpCore.Drawing.Layout
 
             double dx = Math.Max(layoutWidth - totalWidth, 0);
             //Debug.Assert(dx >= 0);
-            if (_alignment != XParagraphAlignment.Justify)
+            if (Alignment != XParagraphAlignment.Justify)
             {
-                if (_alignment == XParagraphAlignment.Center)
+                if (Alignment == XParagraphAlignment.Center)
                     dx /= 2;
                 for (int idx = firstIndex; idx <= lastIndex; idx++)
                 {
@@ -319,7 +366,6 @@ namespace PdfSharpCore.Drawing.Layout
 
         // TODO:
         // - more XStringFormat variations
-        // - calculate bounding box
         // - left and right indent
         // - first line indent
         // - margins and paddings
@@ -329,9 +375,14 @@ namespace PdfSharpCore.Drawing.Layout
         // - hyphens, soft hyphens, hyphenation
         // - kerning
         // - change font, size, text color etc.
-        // - line spacing
         // - underline and strike-out variation
         // - super- and sub-script
         // - ...
+    }
+
+    public class TextFormatAlignment
+    {
+        public XParagraphAlignment Horizontal { get; set; } = XParagraphAlignment.Left;
+        public XVerticalAlignment Vertical { get; set; } = XVerticalAlignment.Top;
     }
 }
