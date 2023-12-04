@@ -570,14 +570,18 @@ namespace PdfSharpCore.Pdf.AcroForms
             [KeyInfo(KeyType.Name | KeyType.Required)]
             public const string Subtype = "/Subtype";
 
+
             /// <summary>
             /// 
             /// </summary>
             [KeyInfo(KeyType.Rectangle | KeyType.Required)]
             public const string Rect = "/Rect";
 
+
             [KeyInfo(KeyType.Rectangle | KeyType.Required)]
             public const string P = "/P";
+
+            // ReSharper restore InconsistentNaming
         }
     }
 }

@@ -175,6 +175,14 @@ namespace MigraDocCore.Rendering
         }
 
         /// <summary>
+        /// Gets the render information for document objects that get rendered on the specified page.
+        /// </summary>
+        public RenderInfo[] GetRenderInfoFromPage(int page)
+        {
+            return this.formattedDocument.GetRenderInfos(page);
+        }
+
+        /// <summary>
         /// Renders a single object to the specified graphics object at the given point.
         /// </summary>
         /// <param name="graphics">The graphics object to render on.</param>

@@ -49,7 +49,8 @@ namespace PdfSharpCore.Drawing  // #??? aufräumen
         DrawingPdfContent,
         DrawingBitmap,
     }
-
+    
+    
     /// <summary>
     /// Represents a drawing surface for a fixed size page.
     /// </summary>
@@ -123,10 +124,6 @@ namespace PdfSharpCore.Drawing  // #??? aufräumen
         }
         XGraphics(XSize size, XGraphicsUnit pageUnit, XPageDirection pageDirection)
         {
-            if (size == null)
-                throw new ArgumentNullException("size");
-            
-
             _gsStack = new GraphicsStateStack(this);
             _pageSizePoints = new XSize(size.Width, size.Height);
             switch (pageUnit)
@@ -208,13 +205,11 @@ namespace PdfSharpCore.Drawing  // #??? aufräumen
             form.AssociateGraphics(this);
 
             _gsStack = new GraphicsStateStack(this);
-#if NET5_0
             _drawGraphics = false;
             if (form.Owner != null)
                 _renderer = new XGraphicsPdfRenderer(form, this);
             _pageSize = form.Size;
             Initialize();
-#endif
         }
 
         /// <summary>

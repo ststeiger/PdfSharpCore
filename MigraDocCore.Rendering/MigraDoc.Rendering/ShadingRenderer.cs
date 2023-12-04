@@ -32,6 +32,7 @@ using System;
 using PdfSharpCore.Drawing;
 using MigraDocCore.DocumentObjectModel;
 using MigraDocCore.DocumentObjectModel.IO;
+using MigraDocCore.DocumentObjectModel.Tables;
 
 namespace MigraDocCore.Rendering
 {
@@ -53,6 +54,42 @@ namespace MigraDocCore.Rendering
         return;
 
       this.gfx.DrawRectangle(this.brush, x.Point, y.Point, width.Point, height.Point);
+    }
+
+    internal void Render(XUnit x, XUnit y, XUnit width, XUnit height, RoundedCorner roundedCorner) 
+    {
+      // If there is no rounded corner, we can use the usual Render method.
+      if (roundedCorner == RoundedCorner.None) {
+          Render(x, y, width, height);
+          return;
+      }
+
+      if (this.shading == null || this.brush == null)
+          return;
+
+      XGraphicsPath path = new XGraphicsPath();
+
+      switch (roundedCorner) {
+        case RoundedCorner.TopLeft:
+          path.AddArc(new XRect(x, y, width * 2, height * 2), 180, 90); // Error in CORE: _corePath.AddArc().
+          path.AddLine(new XPoint(x + width, y), new XPoint(x + width, y + height));
+          break;
+        case RoundedCorner.TopRight:
+          path.AddArc(new XRect(x - width, y, width * 2, height * 2), 270, 90); // Error in CORE: _corePath.AddArc().
+          path.AddLine(new XPoint(x + width, y + height), new XPoint(x, y + height));
+          break;
+        case RoundedCorner.BottomRight:
+          path.AddArc(new XRect(x - width, y - height, width * 2, height * 2), 0, 90); // Error in CORE: _corePath.AddArc().
+          path.AddLine(new XPoint(x, y + height), new XPoint(x, y));
+          break;
+        case RoundedCorner.BottomLeft:
+          path.AddArc(new XRect(x, y - height, width * 2, height * 2), 90, 90); // Error in CORE: _corePath.AddArc().
+          path.AddLine(new XPoint(x, y), new XPoint(x + width, y));
+          break;
+      }
+
+      path.CloseFigure();
+      this.gfx.DrawPath(this.brush, path);
     }
 
     private bool IsVisible()

@@ -30,8 +30,8 @@
 using System;
 using System.IO;
 using PdfSharpCore.Internal;
-using PdfSharpCore.SharpZipLib.Zip.Compression;
-using PdfSharpCore.SharpZipLib.Zip.Compression.Streams;
+using ICSharpCode.SharpZipLib.Zip.Compression;
+using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 namespace PdfSharpCore.Pdf.Filters
 {
@@ -81,6 +81,8 @@ namespace PdfSharpCore.Pdf.Filters
         /// </summary>
         public override byte[] Decode(byte[] data, FilterParms parms)
         {
+            if (data.Length == 0) return data;
+
             MemoryStream msInput = new MemoryStream(data);
             MemoryStream msOutput = new MemoryStream();
 

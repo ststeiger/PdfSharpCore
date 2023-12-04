@@ -36,7 +36,7 @@ namespace MigraDocCore.Rendering
   /// <summary>
   /// Abstract base class to serve as a layoutable unit.
   /// </summary>
-  internal class LayoutInfo
+  public class LayoutInfo
   {
     internal LayoutInfo()
     {
@@ -125,7 +125,7 @@ namespace MigraDocCore.Rendering
     /// <summary>
     /// Gets or sets the Area needed by the content (including padding and borders for e.g. paragraphs).
     /// </summary>
-    internal Area ContentArea
+    public Area ContentArea
     {
       get { return this.contentArea; }
       set { this.contentArea = value; }

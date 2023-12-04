@@ -68,12 +68,23 @@ namespace PdfSharpCore.Drawing
             Initialize();
         }
 
+        // ReSharper disable once UnusedMember.Global
+        public XGlyphTypeface(string key, XFontFamily fontFamily, XFontSource fontSource, XStyleSimulations styleSimulations)
+        {
+            _key = key;
+            _fontFamily = fontFamily;
+            _fontSource = fontSource;
+            _styleSimulations = styleSimulations;
+            _fontface = OpenTypeFontface.CetOrCreateFrom(fontSource);
+
+            Initialize();
+        }
+
         public static XGlyphTypeface GetOrCreateFrom(string familyName, FontResolvingOptions fontResolvingOptions)
         {
             // Check cache for requested type face.
             string typefaceKey = ComputeKey(familyName, fontResolvingOptions);
-            XGlyphTypeface glyphTypeface;
-            if (GlyphTypefaceCache.TryGetGlyphTypeface(typefaceKey, out glyphTypeface))
+            if (GlyphTypefaceCache.TryGetGlyphTypeface(typefaceKey, out var glyphTypeface))
             {
                 // Just return existing one.
                 return glyphTypeface;
@@ -88,8 +99,7 @@ namespace PdfSharpCore.Drawing
             }
             // Now create the font family at the first.
             XFontFamily fontFamily;
-            PlatformFontResolverInfo platformFontResolverInfo = fontResolverInfo as PlatformFontResolverInfo;
-            if (platformFontResolverInfo != null)
+            if (fontResolverInfo is PlatformFontResolverInfo platformFontResolverInfo)
             {
             }
             else

@@ -28,6 +28,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PdfSharpCore.Pdf
 {
@@ -90,14 +91,16 @@ namespace PdfSharpCore.Pdf
             KeyType = keyType;
         }
 
-        public KeyInfoAttribute(KeyType keyType, Type objectType)
+        public KeyInfoAttribute(KeyType keyType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
+         Type objectType)
         {
             //_version = version;
             KeyType = keyType;
             _objectType = objectType;
         }
 
-        public KeyInfoAttribute(string version, KeyType keyType, Type objectType)
+        public KeyInfoAttribute(string version, KeyType keyType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
+        Type objectType)
         {
             //_version = version;
             KeyType = keyType;
@@ -118,11 +121,14 @@ namespace PdfSharpCore.Pdf
         }
         KeyType _entryType;
 
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public Type ObjectType
         {
             get { return _objectType; }
             set { _objectType = value; }
         }
+
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         Type _objectType;
 
         public string FixedValue

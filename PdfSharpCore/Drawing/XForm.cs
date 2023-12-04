@@ -32,6 +32,7 @@ using System.Diagnostics;
 using PdfSharpCore.Drawing.Pdf;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.Advanced;
+using PdfSharpCore.Pdf.Filters;
 
 namespace PdfSharpCore.Drawing
 {
@@ -177,6 +178,31 @@ namespace PdfSharpCore.Drawing
         /// </summary>
         internal virtual void Finish()
         {
+            if (_formState == FormState.NotATemplate || _formState == FormState.Finished)
+                return;
+
+            if (!(_formState == FormState.Created || _formState == FormState.UnderConstruction))
+            {
+                throw new InvalidOperationException("Expected the form to be Created or UnderConstruction");
+            }
+
+            _formState = FormState.Finished;
+            Gfx.Dispose();
+            Gfx = null;
+
+            if (PdfRenderer != null)
+            {
+                //pdfForm.CreateStream(PdfEncoders.RawEncoding.GetBytes(PdfRenderer.GetContent()));
+                PdfRenderer.Close();
+
+                if (_document.Options.CompressContentStreams)
+                {
+                    _pdfForm.Stream.Value = Filtering.FlateDecode.Encode(_pdfForm.Stream.Value, _document.Options.FlateEncodeMode);
+                    _pdfForm.Elements["/Filter"] = new PdfName("/FlateDecode");
+                }
+                int length = _pdfForm.Stream.Length;
+                _pdfForm.Elements.SetInteger("/Length", length);
+            }
         }
 
         /// <summary>

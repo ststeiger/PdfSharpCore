@@ -30,6 +30,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Internal;
 using PdfSharpCore.Pdf.IO;
@@ -778,7 +779,7 @@ namespace PdfSharpCore.Pdf
         /// it is imported to this document. In this case the returned page is not the same
         /// object as the specified one.
         /// </summary>
-        public PdfPage AddPage(PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        public PdfPage AddPage(PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             if (!CanModify)
                 throw new InvalidOperationException(PSSR.CannotModify);
@@ -800,11 +801,22 @@ namespace PdfSharpCore.Pdf
         /// it is imported to this document. In this case the returned page is not the same
         /// object as the specified one.
         /// </summary>
-        public PdfPage InsertPage(int index, PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.DoNotCopy)
+        public PdfPage InsertPage(int index, PdfPage page, AnnotationCopyingType annotationCopying = AnnotationCopyingType.ShallowCopy)
         {
             if (!CanModify)
                 throw new InvalidOperationException(PSSR.CannotModify);
             return Catalog.Pages.Insert(index, page, annotationCopying);
+        }
+
+        /// <summary>
+        /// Marks the acroform fields readonly 
+        /// </summary>
+        public void MakeAcroFormsReadOnly()
+        {
+            for (var i = 0; i < AcroForm?.Fields.Count(); i++)
+            {
+                AcroForm.Fields[i].ReadOnly = true;
+            }
         }
 
         /// <summary>

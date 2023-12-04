@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using MigraDocCore.DocumentObjectModel;
 using PdfSharpCore.Drawing;
 
@@ -37,27 +38,27 @@ namespace MigraDocCore.Rendering
   /// <summary>
   /// Abstract base class for all classes that store rendering information.
   /// </summary>
-  internal abstract class RenderInfo
+  public abstract class RenderInfo
   {
     internal abstract FormatInfo FormatInfo
     {
       get;
     }
 
-    internal LayoutInfo LayoutInfo
+    public LayoutInfo LayoutInfo
     {
       get { return this.layoutInfo; }
     }
     LayoutInfo layoutInfo = new LayoutInfo();
 
-    internal abstract DocumentObject DocumentObject
+    public abstract DocumentObject DocumentObject
     {
       get;
     }
 
     internal virtual void RemoveEnding()
     {
-      System.Diagnostics.Debug.Assert(false, "Unexpected call of RemoveEnding");
+      Debug.Assert(false, "Unexpected call of RemoveEnding");
     }
 
     internal static XUnit GetTotalHeight(RenderInfo[] renderInfos)

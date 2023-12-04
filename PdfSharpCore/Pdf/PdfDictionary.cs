@@ -39,6 +39,7 @@ using PdfSharpCore.Pdf.IO;
 using PdfSharpCore.Pdf.Filters;
 using PdfSharpCore.Pdf.Advanced;
 using PdfSharpCore.Pdf.Internal;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PdfSharpCore.Pdf
 {
@@ -395,6 +396,10 @@ namespace PdfSharpCore.Pdf
                         this[key] = new PdfInteger();
                     return 0;
                 }
+
+                if (obj is PdfNull)
+                    return 0;
+
                 PdfReference reference = obj as PdfReference;
                 if (reference != null)
                     obj = reference.Value;
@@ -584,6 +589,14 @@ namespace PdfSharpCore.Pdf
             public void SetString(string key, string value)
             {
                 this[key] = new PdfString(value);
+            }
+
+            /// <summary>
+            /// Sets the entry to a string value with the specified encoding.
+            /// </summary>
+            public void SetString(string key, string value, PdfStringEncoding encoding)
+            {
+                this[key] = new PdfString(value, encoding);
             }
 
             /// <summary>
@@ -935,6 +948,7 @@ namespace PdfSharpCore.Pdf
             /// <summary>
             /// Returns the type of the object to be created as value of the specified key.
             /// </summary>
+            [return:DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
             Type GetValueType(string key)  // TODO: move to PdfObject
             {
                 Type type = null;
@@ -952,7 +966,7 @@ namespace PdfSharpCore.Pdf
                 return type;
             }
 
-            PdfArray CreateArray(Type type, PdfArray oldArray)
+            PdfArray CreateArray([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]Type type, PdfArray oldArray)
             {
                 // Rewritten WinRT style.
                 PdfArray array = null;
@@ -991,7 +1005,8 @@ namespace PdfSharpCore.Pdf
                 return array;
             }
 
-            PdfDictionary CreateDictionary(Type type, PdfDictionary oldDictionary)
+            PdfDictionary CreateDictionary([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
+            Type type, PdfDictionary oldDictionary)
             {
                 // Rewritten WinRT style.
                 PdfDictionary dict = null;
@@ -1028,7 +1043,7 @@ namespace PdfSharpCore.Pdf
                 return dict;
             }
 
-            PdfItem CreateValue(Type type, PdfDictionary oldValue)
+            PdfItem CreateValue([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]Type type, PdfDictionary oldValue)
             {
 
                 // Rewritten WinRT style.

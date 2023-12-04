@@ -869,6 +869,7 @@ namespace MigraDocCore.Rendering
             RenderByInfos(this.currentXPosition, top, new RenderInfo[] { renderInfo });
 
             RenderUnderline(contentArea.Width, true);
+            RenderStrikethrough(contentArea.Width, true);
             RealizeHyperlink(contentArea.Width);
 
             this.currentXPosition += contentArea.Width;
@@ -907,6 +908,7 @@ namespace MigraDocCore.Rendering
         void RenderBookmarkField()
         {
             RenderUnderline(0, false);
+            RenderStrikethrough(0, false);
         }
 
         void RenderPageRefField(PageRefField pageRefField)
@@ -946,6 +948,7 @@ namespace MigraDocCore.Rendering
         void RenderLinebreak()
         {
             this.RenderUnderline(0, false);
+            this.RenderStrikethrough(0, false);
             this.RealizeHyperlink(0);
         }
 
@@ -963,6 +966,7 @@ namespace MigraDocCore.Rendering
         {
             TabOffset tabOffset = NextTabOffset();
             RenderUnderline(tabOffset.offset, false);
+            RenderStrikethrough(tabOffset.offset, false);
             RenderTabLeader(tabOffset);
             RealizeHyperlink(tabOffset.offset);
             this.currentXPosition += tabOffset.offset;
@@ -1065,12 +1069,14 @@ namespace MigraDocCore.Rendering
             {
                 XUnit wordDistance = this.CurrentWordDistance;
                 RenderUnderline(wordDistance, false);
+                RenderStrikethrough(wordDistance, false);
                 RealizeHyperlink(wordDistance);
                 this.currentXPosition += wordDistance;
             }
             else
             {
                 RenderUnderline(0, false);
+                RenderStrikethrough(0, false);
                 RealizeHyperlink(0);
             }
         }
@@ -1096,6 +1102,7 @@ namespace MigraDocCore.Rendering
             this.gfx.DrawString(word, xFont, CurrentBrush, this.currentXPosition, CurrentBaselinePosition);
             XUnit wordWidth = MeasureString(word);
             RenderUnderline(wordWidth, true);
+            RenderStrikethrough(wordWidth, true);
             RealizeHyperlink(wordWidth);
             this.currentXPosition += wordWidth;
         }
@@ -2410,6 +2417,66 @@ namespace MigraDocCore.Rendering
             return pen.Width != this.currentUnderlinePen.Width;
         }
 
+
+        void RenderStrikethrough(XUnit width, bool isWord)
+        {
+            XPen pen = GetStrikethroughPen(isWord);
+
+            bool penChanged = StrikethroughPenChanged(pen);
+            if (penChanged)
+            {
+                if (this.currentStrikethroughPen != null)
+                    EndStrikethrough(this.currentStrikethroughPen, this.currentXPosition);
+
+                if (pen != null)
+                    StartStrikethrough(this.currentXPosition);
+
+                this.currentStrikethroughPen = pen;
+            }
+
+            if (this.currentLeaf.Current == this.endLeaf.Current)
+            {
+                if (this.currentStrikethroughPen != null)
+                    EndStrikethrough(this.currentStrikethroughPen, this.currentXPosition + width);
+
+                this.currentStrikethroughPen = null;
+            }
+        }
+
+        void StartStrikethrough(XUnit xPosition)
+        {
+            this.strikethroughStartPos = xPosition;
+        }
+
+        void EndStrikethrough(XPen pen, XUnit xPosition)
+        {
+            XUnit yPosition = CurrentBaselinePosition;
+            yPosition -= pen.Width / 2;
+            yPosition -= this.currentVerticalInfo.descent;
+
+            this.gfx.DrawLine(pen, this.strikethroughStartPos, yPosition, xPosition, yPosition);
+        }
+
+        XPen currentStrikethroughPen = null;
+        XUnit strikethroughStartPos;
+
+        bool StrikethroughPenChanged(XPen pen)
+        {
+            if (pen == null && this.currentStrikethroughPen == null)
+                return false;
+
+            if (pen == null && this.currentStrikethroughPen != null)
+                return true;
+
+            if (pen != null && this.currentStrikethroughPen == null)
+                return true;
+
+            if (pen.Color != this.currentStrikethroughPen.Color)
+                return true;
+
+            return pen.Width != this.currentStrikethroughPen.Width;
+        }
+
         RenderInfo CurrentImageRenderInfo
         {
             get
@@ -2467,6 +2534,47 @@ namespace MigraDocCore.Rendering
                     break;
 
                 case Underline.Single:
+                default:
+                    pen.DashStyle = XDashStyle.Solid;
+                    break;
+            }
+            return pen;
+        }
+
+        XPen GetStrikethroughPen(bool isWord)
+        {
+            Font font = CurrentDomFont;
+            Strikethrough strikethroughType = font.Strikethrough;
+            if (strikethroughType == Strikethrough.None)
+                return null;
+
+            if (strikethroughType == Strikethrough.Words && !isWord)
+                return null;
+
+#if noCMYK
+      XPen pen = new XPen(XColor.FromArgb(font.Color.Argb), font.Size / 16);
+#else
+            XPen pen = new XPen(ColorHelper.ToXColor(font.Color, this.paragraph.Document.UseCmykColor), font.Size / 16);
+#endif
+            switch (font.Strikethrough)
+            {
+                case Strikethrough.DotDash:
+                    pen.DashStyle = XDashStyle.DashDot;
+                    break;
+
+                case Strikethrough.DotDotDash:
+                    pen.DashStyle = XDashStyle.DashDotDot;
+                    break;
+
+                case Strikethrough.Dash:
+                    pen.DashStyle = XDashStyle.Dash;
+                    break;
+
+                case Strikethrough.Dotted:
+                    pen.DashStyle = XDashStyle.Dot;
+                    break;
+
+                case Strikethrough.Single:
                 default:
                     pen.DashStyle = XDashStyle.Solid;
                     break;

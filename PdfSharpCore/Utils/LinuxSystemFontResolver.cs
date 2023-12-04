@@ -136,7 +136,9 @@ namespace PdfSharpCore.Utils
             }
             catch(Exception ex)
             {
+#if DEBUG
                 Console.Error.WriteLine(ex.ToString());
+#endif
                 return ResolveFallback().Where(x => x.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase)).ToArray();
             }
         }
@@ -194,8 +196,10 @@ namespace PdfSharpCore.Utils
             }
             catch (Exception ex)
             {
+#if DEBUG
                 Console.Error.WriteLine(ex.Message);
                 Console.Error.WriteLine(ex.StackTrace);
+#endif
             }
 
             dirs.Add("/usr/share/fonts");

@@ -47,7 +47,7 @@ namespace MigraDocCore.Rendering
     }
     internal PageBreakFormatInfo pageBreakFormatInfo;
 
-    internal override DocumentObject DocumentObject
+    public override DocumentObject DocumentObject
     {
       get { return this.pageBreak; }
     }

@@ -42,12 +42,6 @@ namespace PdfSharpCore.Pdf
         /// <summary>
         /// Initializes a new instance of the <see cref="PdfDate"/> class.
         /// </summary>
-        public PdfDate()
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PdfDate"/> class.
-        /// </summary>
         public PdfDate(string value)
         {
             _value = Parser.ParseDateTime(value, DateTime.MinValue);
@@ -64,20 +58,19 @@ namespace PdfSharpCore.Pdf
         /// <summary>
         /// Gets the value as DateTime.
         /// </summary>
-        public DateTime Value
-        {
+        public DateTime Value =>
             // This class must behave like a value type. Therefore it cannot be changed (like System.String).
-            get { return _value; }
-        }
-        DateTime _value;
+            _value;
+
+        readonly DateTime _value;
 
         /// <summary>
         /// Returns the value in the PDF date format.
         /// </summary>
         public override string ToString()
         {
-            string delta = _value.ToString("zzz").Replace(':', '\'');
-            return String.Format("D:{0:yyyyMMddHHmmss}{1}'", _value, delta);
+            var delta = _value.ToString("zzz").Replace(':', '\'');
+            return $"D:{_value:yyyyMMddHHmmss}{delta}'";
         }
 
         /// <summary>

@@ -44,7 +44,14 @@ namespace MigraDocCore.DocumentObjectModel.Internals
     /// </summary>
     public abstract class ValueDescriptor
     {
-        internal ValueDescriptor(string valueName, Type valueType, Type memberType, MemberInfo memberInfo, VDFlags flags)
+        internal ValueDescriptor(
+            string valueName, 
+            [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+            Type valueType, 
+            Type memberType, 
+            MemberInfo memberInfo, 
+            VDFlags flags
+        )
         {
             this.ValueName = valueName;
             this.ValueType = valueType;
@@ -56,6 +63,7 @@ namespace MigraDocCore.DocumentObjectModel.Internals
         public object CreateValue()
         {
             ConstructorInfo constructorInfoObj = ValueType.GetConstructor(Type.EmptyTypes);
+            
             return constructorInfoObj.Invoke(null);
         }
 
@@ -71,7 +79,7 @@ namespace MigraDocCore.DocumentObjectModel.Internals
                 flags |= VDFlags.RefOnly;
 
             string name = memberInfo.Name;
-
+             
             Type type;
             if (memberInfo is FieldInfo)
                 type = ((FieldInfo)memberInfo).FieldType;
@@ -136,6 +144,8 @@ namespace MigraDocCore.DocumentObjectModel.Internals
         /// <summary>
         /// Type of the described value, e.g. typeof(Int32) for an NInt.
         /// </summary>
+        ///
+        [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         public Type ValueType;
 
         /// <summary>
@@ -159,7 +169,7 @@ namespace MigraDocCore.DocumentObjectModel.Internals
     /// </summary>
     internal class NullableDescriptor : ValueDescriptor
     {
-        internal NullableDescriptor(string valueName, Type valueType, Type fieldType, MemberInfo memberInfo, VDFlags flags)
+        internal NullableDescriptor(string valueName, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]Type valueType, Type fieldType, MemberInfo memberInfo, VDFlags flags)
           : base(valueName, valueType, fieldType, memberInfo, flags)
         {
         }
@@ -240,7 +250,7 @@ namespace MigraDocCore.DocumentObjectModel.Internals
     /// </summary>
     internal class ValueTypeDescriptor : ValueDescriptor
     {
-        internal ValueTypeDescriptor(string valueName, Type valueType, Type fieldType, MemberInfo memberInfo, VDFlags flags)
+        internal ValueTypeDescriptor(string valueName, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]Type valueType, Type fieldType, MemberInfo memberInfo, VDFlags flags)
           :
           base(valueName, valueType, fieldType, memberInfo, flags)
         {
@@ -315,7 +325,7 @@ namespace MigraDocCore.DocumentObjectModel.Internals
     /// </summary>
     internal class DocumentObjectDescriptor : ValueDescriptor
     {
-        internal DocumentObjectDescriptor(string valueName, Type valueType, Type fieldType, MemberInfo memberInfo, VDFlags flags)
+        internal DocumentObjectDescriptor(string valueName, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]Type valueType, Type fieldType, MemberInfo memberInfo, VDFlags flags)
           :
           base(valueName, valueType, fieldType, memberInfo, flags)
         {
@@ -416,7 +426,7 @@ namespace MigraDocCore.DocumentObjectModel.Internals
     /// </summary>
     internal class DocumentObjectCollectionDescriptor : ValueDescriptor
     {
-        internal DocumentObjectCollectionDescriptor(string valueName, Type valueType, Type fieldType, MemberInfo memberInfo, VDFlags flags)
+        internal DocumentObjectCollectionDescriptor(string valueName, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]Type valueType, Type fieldType, MemberInfo memberInfo, VDFlags flags)
           :
           base(valueName, valueType, fieldType, memberInfo, flags)
         {

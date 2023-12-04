@@ -240,7 +240,7 @@ namespace PdfSharpCore.Pdf
             get { return _zoom; }
             set { _zoom = value; }
         }
-        double _zoom; // PDF teats 0 and null equally.
+        double _zoom = double.NaN; // PDF teats 0 and null equally.
 
         /// <summary>
         /// Gets or sets whether the outline item is opened (or expanded).
@@ -389,7 +389,9 @@ namespace PdfSharpCore.Pdf
 #pragma warning disable 162
 
             // The destination page may not yet transformed to PdfPage.
-            PdfDictionary destPage = (PdfDictionary)((PdfReference)(destination.Elements[0])).Value;
+            PdfDictionary destPage = (destination.Elements[0] is PdfInteger) ? 
+                destination.Owner.Pages[((PdfInteger)destination.Elements[0]).Value] : 
+                (PdfDictionary)((PdfReference)destination.Elements[0]).Value;
             PdfPage page = destPage as PdfPage;
             if (page == null)
                 page = new PdfPage(destPage);

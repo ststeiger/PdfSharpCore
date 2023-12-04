@@ -1,0 +1,27 @@
+# PdfSharpCore > Samples
+
+Samples for [PdfSharpCore](../index.md):
+
+* [Hello World](HelloWorld.md)
+* [Graphics](Graphics.md)
+* [Annotations](Annotations.md)
+* [Booklet](Booklet.md)
+* [Bookmarks](Bookmarks.md)
+* [Colors CMYK](ColorsCMYK.md)
+* [Combine Documents](CombineDocuments.md)
+* [Concatenate Documents](ConcatenateDocuments.md)
+* [Export Images](ExportImages.md)
+* [Font Resolver](FontResolver.md)
+* [Multiple Pages](MultiplePages.md)
+* [Page Sizes](PageSizes.md)
+* [Preview](Preview.md)
+* [Protect Document](ProtectDocument.md)
+* [Unprotect Document](UnprotectDocument.md)
+* [Split Document](SplitDocument.md)
+* [Text Layout](TextLayout.md)
+* [Two Pages on One](TwoPagesOnOne.md)
+* [Unicode](Unicode.md)
+* [Watermark](Watermark.md)
+* [Work on Pdf Objects](WorkOnPdfObjects.md)
+* [XForms](XForms.md)
+* [Clock](Clock.md)

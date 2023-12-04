@@ -52,11 +52,14 @@ namespace MigraDocCore.DocumentObjectModel.Internals
     /// <summary>
     /// Gets or sets the type of the reflected value. Must be specified by NEnum.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public Type Type
     {
       get { return this.type; }
       set { this.type = value; }
     }
+    
+    [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     internal Type type;
 
     /// <summary>

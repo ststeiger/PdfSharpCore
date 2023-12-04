@@ -1,17 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Stefan Steiger and Contributors</Authors>
     <Description>MigraDocCore.Rendering for .NET Core
 
 MigraDocCore.Rendering was ported from MigraDoc version 1.32</Description>
     <Copyright>Copyright (c) 2005-2007 empira Software GmbH, Cologne (Germany)</Copyright>
-    <PackageLicenseFile>LICENCE.md</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/ststeiger/PdfSharpCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ststeiger/PdfSharpCore</RepositoryUrl>
     <PackageReleaseNotes>MigraDocCore.Rendering was ported from MigraDoc version 1.32</PackageReleaseNotes>
     <summary>MigraDocCore.Rendering for .NET Core</summary>
+    <IsTrimmable>true</IsTrimmable>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,15 +26,13 @@ MigraDocCore.Rendering was ported from MigraDoc version 1.32</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
-    <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
     <ProjectReference Include="..\MigraDocCore.DocumentObjectModel\MigraDocCore.DocumentObjectModel.csproj" />
     <ProjectReference Include="..\PdfSharpCore.Charting\PdfSharpCore.Charting.csproj" />
     <ProjectReference Include="..\PdfSharpCore\PdfSharpCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\LICENCE.md" Pack="true" PackagePath="" />
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
