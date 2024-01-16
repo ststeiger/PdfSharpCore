@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 namespace PdfSharpCore.Test.Helpers
@@ -10,9 +11,11 @@ namespace PdfSharpCore.Test.Helpers
             RootDir = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
         }
 
-        public string GetAssetPath(string name)
+        public string GetAssetPath(params string[] names)
         {
-            return Path.Combine(RootDir, "Assets", name);
+            var segments = new List<string> { RootDir, "Assets" };
+            segments.AddRange(names);
+            return Path.Combine(segments.ToArray());
         }
 
         public string RootDir { get; }
