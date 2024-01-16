@@ -3,6 +3,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes;
 using System;
 using System.IO;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Jpeg;
@@ -21,22 +22,27 @@ namespace PdfSharpCore.Utils
 
         protected override IImageSource FromBinaryImpl(string name, Func<byte[]> imageSource, int? quality = 75)
         {
-            var image = Image.Load<TPixel>(imageSource.Invoke(), out IImageFormat imgFormat);
-            return new ImageSharpImageSourceImpl<TPixel>(name, image, (int)quality, imgFormat is PngFormat);
+            var readOnlySpan = imageSource.Invoke();
+            var image = Image.Load<TPixel>(readOnlySpan);
+            var imageInfo = Image.Identify(readOnlySpan);
+            return new ImageSharpImageSourceImpl<TPixel>(name, image, (int)quality, imageInfo.Metadata.DecodedImageFormat is PngFormat);
         }
 
         protected override IImageSource FromFileImpl(string path, int? quality = 75)
         {
-            var image = Image.Load<TPixel>(path, out IImageFormat imgFormat);
-            return new ImageSharpImageSourceImpl<TPixel>(path, image, (int) quality, imgFormat is PngFormat);
+            var image = Image.Load<TPixel>(path);
+            var imageInfo = Image.Identify(path);
+            return new ImageSharpImageSourceImpl<TPixel>(path, image, (int) quality, imageInfo.Metadata.DecodedImageFormat is PngFormat);
         }
 
         protected override IImageSource FromStreamImpl(string name, Func<Stream> imageStream, int? quality = 75)
         {
             using (var stream = imageStream.Invoke())
             {
-                var image = Image.Load<TPixel>(stream, out IImageFormat imgFormat);
-                return new ImageSharpImageSourceImpl<TPixel>(name, image, (int)quality, imgFormat is PngFormat);
+                var image = Image.Load<TPixel>(stream);
+                var imageInfo = Image.Identify(stream);
+
+                return new ImageSharpImageSourceImpl<TPixel>(name, image, (int)quality, imageInfo.Metadata.DecodedImageFormat is PngFormat);
             }
         }
 
