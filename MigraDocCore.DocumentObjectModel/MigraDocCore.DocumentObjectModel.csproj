@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
@@ -6,6 +6,7 @@
     <Authors>Stefan Steiger and Contributors</Authors>
     <Description>MigraDocCore.DocumentObjectModel for .NET Core MigraDocCore.DocumentObjectModel was ported from MigraDoc version 1.32</Description>
     <Copyright>Copyright (c) 2005-2007 empira Software GmbH, Cologne (Germany)</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/ststeiger/PdfSharpCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ststeiger/PdfSharpCore</RepositoryUrl>
@@ -29,6 +30,7 @@
 
   <ItemGroup>
     <None Include="..\LICENSE.md" Pack="true" PackagePath="" />
+    <None Include="..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
