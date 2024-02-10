@@ -32,6 +32,8 @@ jobs:
       - name: DotNetBuild
         shell: pwsh
         run: ./ci-build.ps1
+      - name: Install Ghostscript
+        run: sudo apt-get install -y ghostscript
       - name: Test
         run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Codecov
