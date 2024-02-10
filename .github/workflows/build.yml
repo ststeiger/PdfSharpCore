@@ -1,6 +1,6 @@
 name: dotnet package
 
-on: 
+on:
   push:
   pull_request:
     branches:
@@ -12,7 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet: ['3.1.x','5.0.x','6.0.x','7.0.x']
+        dotnet:
+          - 3.1.x
+          - 5.0.x
+          - 6.0.x
+          - 7.0.x
+          - 8.0.x
     steps:
       - uses: actions/checkout@v3
       - name: Setup dotnet
@@ -23,6 +28,7 @@ jobs:
             5.0.x
             6.0.x
             7.0.x
+            8.0.x
       - name: DotNetBuild
         shell: pwsh
         run: ./ci-build.ps1
