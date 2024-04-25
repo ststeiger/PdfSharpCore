@@ -260,6 +260,11 @@ namespace PdfSharpCore.Pdf.IO
                     ParserDiagnostics.HandleUnexpectedToken(_lexer.Token);
                     break;
 
+                case Symbol.EndObj:
+                    pdfObject = new PdfNullObject(_document);
+                    pdfObject.SetObjectID(objectNumber, generationNumber);
+                    return pdfObject;
+
                 default:
                     // Should not come here anymore.
                     ParserDiagnostics.HandleUnexpectedToken(_lexer.Token);
