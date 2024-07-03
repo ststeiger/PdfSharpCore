@@ -56,7 +56,7 @@ PdfSharpCore is a partial port of PdfSharp.Xamarin for .NET Core Additionally Mi
 		<When Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net8.0'">
 			<ItemGroup >
 				<PackageReference Include="SharpZipLib" Version="1.4.2" />
-				<PackageReference Include="SixLabors.Fonts" Version="2.0.3" />
+				<PackageReference Include="SixLabors.Fonts" Version="2.0.4" />
 				<PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
 			</ItemGroup>
 		</When>
