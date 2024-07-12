@@ -57,7 +57,7 @@ namespace PdfSharpCore.Pdf.IO
         public void Close(bool closeUnderlyingStream)
         {
             if (_stream != null && closeUnderlyingStream)
-            _stream.Dispose();
+                _stream.Dispose();
             _stream = null;
         }
 
@@ -577,8 +577,8 @@ namespace PdfSharpCore.Pdf.IO
                     }
                     else
                     {
-                        if (cat == CharCat.Character)
-                            _stream.WriteByte((byte)' ');
+                        //if (cat == CharCat.Character)
+                        _stream.WriteByte((byte)' ');
                     }
                     break;
             }
