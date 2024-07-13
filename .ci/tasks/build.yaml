@@ -4,7 +4,7 @@ image_resource:
   type: docker-image
   source:
     repository: mcr.microsoft.com/dotnet/sdk
-    tag: 7.0-alpine3.15-amd64
+    tag: 8.0.101-alpine3.18-amd64
 inputs:
 - name: source
 params:
