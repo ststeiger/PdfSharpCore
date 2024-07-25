@@ -53,7 +53,7 @@ namespace PdfSharpCore.Test
             var height = page.Height.Value - 50 - y;
             var rect = new XRect(40, 50, width, height);
             renderer.DrawRectangle(XBrushes.SeaShell, rect);
-            tf.DrawString(TestData.LoremIpsumText, font, XBrushes.Black, rect, XStringFormats.TopLeft);
+            tf.DrawString(TestData.LoremIpsumText, font, XBrushes.Black, rect);
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿
+﻿using PdfSharpCore.Drawing;
+using PdfSharpCore.Drawing.Layout;
+using PdfSharpCore.Drawing.Layout.enums;
+using PdfSharpCore.Pdf;
+
 namespace SampleApp 
 {
 

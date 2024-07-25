@@ -138,13 +138,17 @@ namespace PdfSharpCore.Drawing.Layout
         /// <param name="font">The font.</param>
         /// <param name="brush">The text brush.</param>
         /// <param name="layoutRectangle">The layout rectangle.</param>
+        /// <param name="lineHeight">The line height.</param>
         public void DrawString(string text, XFont font, XBrush brush, XRect layoutRectangle, XUnit? lineHeight = null)
         {
-            DrawString(text, font, brush, layoutRectangle, XStringFormats.TopLeft, lineHeight);
+            DrawString(text, font, brush, layoutRectangle, new TextFormatAlignment()
+            {
+                Horizontal = XParagraphAlignment.Justify, Vertical = XVerticalAlignment.Top
+            }, lineHeight);
         }
 
         /// <summary>
-        /// Draws the text.
+        /// Get the layout rectangle required.
         /// </summary>
         /// <param name="text">The text to be drawn.</param>
         /// <param name="font">The font.</param>
@@ -184,24 +188,20 @@ namespace PdfSharpCore.Drawing.Layout
         /// <param name="font">The font.</param>
         /// <param name="brush">The text brush.</param>
         /// <param name="layoutRectangle">The layout rectangle.</param>
-        /// <param name="format">The format. Must be <c>XStringFormat.TopLeft</c></param>
-        /// <param name="lineHeight">The height of each line</param>
-        public void DrawString(string text, XFont font, XBrush brush, XRect layoutRectangle, XStringFormat format,
+        /// <param name="alignments">The alignments.</c></param>
+        /// <param name="lineHeight">The height of each line.</param>
+        public void DrawString(string text, XFont font, XBrush brush, XRect layoutRectangle, TextFormatAlignment alignments,
             XUnit? lineHeight = null)
         {
-            if (format == null)
-                throw new ArgumentNullException(nameof(format));
+            if (alignments == null)
+                throw new ArgumentNullException(nameof(alignments));
 
             if (text.Length == 0)
                 return;
 
             GetLayout(text, font, brush, layoutRectangle, lineHeight);
 
-            SetAlignment(new TextFormatAlignment()
-            {
-                Horizontal = GetHorizontalAlignmentFromFormat(format),
-                Vertical = GetVerticalAlignmentFromFormat(format)
-            });
+            SetAlignment(alignments);
 
             double dx = layoutRectangle.Location.X;
             double dy = layoutRectangle.Location.Y;
@@ -210,7 +210,7 @@ namespace PdfSharpCore.Drawing.Layout
 
             if (VerticalAlignment == XVerticalAlignment.Middle)
             {
-                dy += (layoutRectangle.Height - _layoutRectangle.Height + _lineHeight) / 2;
+                dy += (layoutRectangle.Height - _layoutRectangle.Height) / 2;
             }
             else if (VerticalAlignment == XVerticalAlignment.Bottom)
             {
@@ -221,16 +221,26 @@ namespace PdfSharpCore.Drawing.Layout
             int count = _blocks.Count;
             foreach (var line in lines)
             {
-                if (Alignment != XParagraphAlignment.Justify)
+                var lineBlocks = line as Block[] ?? line.ToArray();
+                if (Alignment == XParagraphAlignment.Justify)
                 {
-                    var enumerable = line as Block[] ?? line.ToArray();
-                    var lineText = string.Join(" ", enumerable.Select(l => l.Text));
                     var locationX = dx;
-                    if (format.Alignment == XStringAlignment.Center)
+                    var gapSize = (layoutRectangle.Width - lineBlocks.Select(l => l.Width).Sum())/ (lineBlocks.Count() - 1);
+                    foreach (var block in lineBlocks)
+                    {
+                        _gfx.DrawString(block.Text.Trim(), font, brush, locationX, dy + lineBlocks.First().Location.Y, XStringFormats.TopLeft);
+                        locationX += block.Width + gapSize;
+                    }
+                }
+                else
+                {
+                    var lineText = string.Join(" ", lineBlocks.Select(l => l.Text));
+                    var locationX = dx;
+                    if (Alignment == XParagraphAlignment.Center)
                         locationX = dx + layoutRectangle.Width / 2;
-                    if (format.Alignment == XStringAlignment.Far)
+                    if (Alignment == XParagraphAlignment.Right)
                         locationX += layoutRectangle.Width;
-                    _gfx.DrawString(lineText, font, brush, locationX, dy + enumerable.First().Location.Y, format);
+                    _gfx.DrawString(lineText, font, brush, locationX, dy + lineBlocks.First().Location.Y, GetXStringFormat());
                 }
             }
         }
@@ -420,33 +430,19 @@ namespace PdfSharpCore.Drawing.Layout
         // - super- and sub-script
         // - ...
 
-        private static XParagraphAlignment GetHorizontalAlignmentFromFormat(XStringFormat format)
+        private XStringFormat GetXStringFormat()
         {
-            switch (format.Alignment)
+            switch (Alignment)
             {
-                case XStringAlignment.Center:
-                    return XParagraphAlignment.Center;
-                case XStringAlignment.Near:
-                    return XParagraphAlignment.Left;
-                case XStringAlignment.Far:
-                    return XParagraphAlignment.Right;
-            }
-
-            return XParagraphAlignment.Justify;
-        }
-
-        private static XVerticalAlignment GetVerticalAlignmentFromFormat(XStringFormat format)
-        {
-            switch (format.LineAlignment)
-            {
-                case XLineAlignment.Center:
-                    return XVerticalAlignment.Middle;
-                case XLineAlignment.BaseLine:
-                case XLineAlignment.Far:
-                    return XVerticalAlignment.Bottom;
-                case XLineAlignment.Near:
+                case XParagraphAlignment.Center:
+                    return XStringFormats.TopCenter;
+                case XParagraphAlignment.Right:
+                    return XStringFormats.TopRight;
+                case XParagraphAlignment.Default:
+                case XParagraphAlignment.Justify:
+                case XParagraphAlignment.Left:
                 default:
-                    return XVerticalAlignment.Top;
+                    return XStringFormats.TopLeft;
             }
         }
     }
