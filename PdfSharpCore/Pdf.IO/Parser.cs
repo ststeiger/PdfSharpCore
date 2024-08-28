@@ -1271,11 +1271,26 @@ namespace PdfSharpCore.Pdf.IO
             ReadSymbol(Symbol.BeginStream);
             ReadStream(xrefStream);
 
-            //xrefTable.Add(new PdfReference(objectID, position));
-            PdfReference iref = new PdfReference(xrefStream);
-            iref.ObjectID = objectID;
-            iref.Value = xrefStream;
-            xrefTable.Add(iref);
+            // An additional cross-reference (/Prev) could have been referenced in the first cross-reference by position.
+            // That goes into item.Type == 1 below and adds its objectID into the xrefTable with just a position and no value.
+            // Then we can't just do `xrefTable.Add(iref)` because that is a no-op when the objectID is already present in the ObjectTable.
+            // Making sure that the iref.Value is set here correctly ensure that the mechanisms in PdfReader will work correctly:
+            // 1. It needs to find a PdfCrossReferenceStream in iref.Value in order to resolve compressed objects.
+            // 2. If we leave null in iref.Value it would do redundant parsing to resolve the value again.
+            if (xrefTable.ObjectTable.TryGetValue(objectID, out PdfReference iref))
+            {
+                if (iref.Value == null)
+                {
+                    iref.Value = xrefStream;
+                }
+            }
+            else
+            {
+                iref = new PdfReference(xrefStream);
+                iref.ObjectID = objectID;
+                iref.Value = xrefStream;
+                xrefTable.Add(iref);
+            }
 
             Debug.Assert(xrefStream.Stream != null);
             //string sValue = new RawEncoding().GetString(xrefStream.Stream.UnfilteredValue,);
