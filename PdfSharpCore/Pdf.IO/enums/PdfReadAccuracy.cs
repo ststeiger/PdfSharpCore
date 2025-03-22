@@ -3,6 +3,7 @@
     public enum PdfReadAccuracy
     {
         Strict,
-        Moderate
+        Moderate,
+        Lazy
     }
 }

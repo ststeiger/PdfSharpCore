@@ -1121,6 +1121,74 @@ namespace PdfSharpCore.Pdf.IO
             return _document._trailer;
         }
 
+
+        /// <summary>
+        /// Reads cross reference table(s) and trailer(s) starting from xref
+        /// </summary>
+        private PdfTrailer ReadXrefAndTrailerFromXrefSymbol(PdfCrossReferenceTable xrefTable, PdfReadAccuracy accuracy)
+        {
+            // Reference: 3.4.3  Cross-Reference Table / Page 93
+            Symbol symbol;
+
+            while (true)
+            {
+                symbol = ScanNextToken();
+                if (symbol == Symbol.Integer)
+                {
+                    int start = _lexer.TokenToInteger;
+                    int length = ReadInteger();
+                    for (int id = start; id < start + length; id++)
+                    {
+                        var position = ReadLong();
+                        int generation = ReadInteger();
+                        ReadSymbol(Symbol.Keyword);
+                        string token = _lexer.Token;
+
+                        // Skip start entry
+                        if (id == 0)
+                            continue;
+
+                        // Skip unused entries.
+                        if (token != "n")
+                            continue;
+
+                        //!!!new 2018-03-14 begin
+                        // Check if the object at the address has the correct ID and generation.
+                        int idToUse = id;
+                        int idChecked, generationChecked;
+                        if (!CheckXRefTableEntry(position, id, generation, out idChecked, out generationChecked))
+                        {
+                            // Found the keyword "obj", but ID or generation did not match.
+                            // There is a tool where ID is off by one. In this case we use the ID from the object, not the ID from the XRef table.
+                            if (generation == generationChecked && id == idChecked + 1)
+                                idToUse = idChecked;
+                            else
+                                if (accuracy == PdfReadAccuracy.Strict)
+                                ParserDiagnostics.ThrowParserException("Invalid entry in XRef table, ID=" + id + ", Generation=" + generation + ", Position=" + position + ", ID of referenced object=" + idChecked + ", Generation of referenced object=" + generationChecked);
+                        }
+
+                        // Even it is restricted, an object can exists in more than one subsection.
+                        // (PDF Reference Implementation Notes 15).
+                        PdfObjectID objectID = new PdfObjectID(idToUse, generation);
+
+                        // Ignore the latter one.
+                        if (xrefTable.Contains(objectID))
+                            continue;
+                        xrefTable.Add(new PdfReference(objectID, position));
+                    }
+                }
+                else if (symbol == Symbol.Trailer)
+                {
+                    ReadSymbol(Symbol.BeginDictionary);
+                    PdfTrailer trailer = new PdfTrailer(_document);
+                    ReadDictionary(trailer, false);
+                    return trailer;
+                }
+                else
+                    ParserDiagnostics.HandleUnexpectedToken(_lexer.Token);
+            }
+        }
+
         /// <summary>
         /// Reads cross reference table(s) and trailer(s).
         /// </summary>
@@ -1130,66 +1198,10 @@ namespace PdfSharpCore.Pdf.IO
 
             Symbol symbol = ScanNextToken();
 
+
             if (symbol == Symbol.XRef)  // Is it a cross-reference table?
             {
-                // Reference: 3.4.3  Cross-Reference Table / Page 93
-                while (true)
-                {
-                    symbol = ScanNextToken();
-                    if (symbol == Symbol.Integer)
-                    {
-                        int start = _lexer.TokenToInteger;
-                        int length = ReadInteger();
-                        for (int id = start; id < start + length; id++)
-                        {
-                            var position = ReadLong();
-                            int generation = ReadInteger();
-                            ReadSymbol(Symbol.Keyword);
-                            string token = _lexer.Token;
-
-                            // Skip start entry
-                            if (id == 0)
-                                continue;
-
-                            // Skip unused entries.
-                            if (token != "n")
-                                continue;
-
-                            //!!!new 2018-03-14 begin
-                            // Check if the object at the address has the correct ID and generation.
-                            int idToUse = id;
-                            int idChecked, generationChecked;
-                            if (!CheckXRefTableEntry(position, id, generation, out idChecked, out generationChecked))
-                            {
-                                // Found the keyword "obj", but ID or generation did not match.
-                                // There is a tool where ID is off by one. In this case we use the ID from the object, not the ID from the XRef table.
-                                if (generation == generationChecked && id == idChecked + 1)
-                                    idToUse = idChecked;
-                                else
-                                    if (accuracy == PdfReadAccuracy.Strict)
-                                        ParserDiagnostics.ThrowParserException("Invalid entry in XRef table, ID=" + id + ", Generation=" + generation + ", Position=" + position + ", ID of referenced object=" + idChecked + ", Generation of referenced object=" + generationChecked);
-                            }
-
-                            // Even it is restricted, an object can exists in more than one subsection.
-                            // (PDF Reference Implementation Notes 15).
-                            PdfObjectID objectID = new PdfObjectID(idToUse, generation);
-
-                            // Ignore the latter one.
-                            if (xrefTable.Contains(objectID))
-                                continue;
-                            xrefTable.Add(new PdfReference(objectID, position));
-                        }
-                    }
-                    else if (symbol == Symbol.Trailer)
-                    {
-                        ReadSymbol(Symbol.BeginDictionary);
-                        PdfTrailer trailer = new PdfTrailer(_document);
-                        ReadDictionary(trailer, false);
-                        return trailer;
-                    }
-                    else
-                        ParserDiagnostics.HandleUnexpectedToken(_lexer.Token);
-                }
+                return ReadXrefAndTrailerFromXrefSymbol(xrefTable, accuracy);
             }
             // ReSharper disable once RedundantIfElseBlock because of code readability.
             else if (symbol == Symbol.Integer) // Is it an cross-reference stream?
@@ -1197,8 +1209,33 @@ namespace PdfSharpCore.Pdf.IO
                 // Reference: 3.4.7  Cross-Reference Streams / Page 93
                 // TODO: Handle PDF files larger than 2 GiB, see implementation note 21 in Appendix H.
 
-                // The parsed integer is the object id of the cross-refernece stream.
-                return ReadXRefStream(xrefTable);
+                try
+                {
+                    // The parsed integer is the object id of the cross-refernece stream.
+                    return ReadXRefStream(xrefTable);
+                }
+                catch (PdfReaderException ex)
+                {
+                    if (symbol == Symbol.Integer && accuracy == PdfReadAccuracy.Lazy)
+                    {
+                        if (symbol == Symbol.Integer && accuracy == PdfReadAccuracy.Lazy)
+                        {
+                            int idx;
+                            var length = _lexer.PdfLength;
+                            // For some broken files we read 1 kiB - in most cases we find "xref" in that range.
+                            string xref = _lexer.ReadRawString(length - 1031, 1030);
+                            idx = xref.IndexOf("xref", StringComparison.Ordinal);
+                            _lexer.Position = length - 1031 + idx;
+
+                            symbol = ScanNextToken();
+                            if (symbol == Symbol.XRef)
+                            {
+                                return ReadXrefAndTrailerFromXrefSymbol(xrefTable, accuracy);
+                            }
+                        }
+                    }
+                }
+
             }
             return null;
         }
